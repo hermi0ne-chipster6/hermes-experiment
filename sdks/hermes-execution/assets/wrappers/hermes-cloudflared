@@ -1,0 +1,10 @@
+#!/bin/bash
+set -euo pipefail
+sdk_dir=$(dirname "$(dirname "$(readlink -f "$0")")")
+TUNNEL_TOKEN=$(workshopctl get-secret hermes-execution.cloudflare-token)
+if [[ -z "$TUNNEL_TOKEN" ]]; then
+    echo 'A dedicated tunnel credential is required.' >&2
+    exit 78
+fi
+export TUNNEL_TOKEN
+exec "$sdk_dir/cloudflare/bin/cloudflared" --no-autoupdate tunnel run

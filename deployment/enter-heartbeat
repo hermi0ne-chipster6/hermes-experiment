@@ -1,0 +1,37 @@
+#!/bin/bash
+set -euo pipefail
+# Fixed operator-owned command; only nonsecret correlation IDs are forwarded.
+# The project must be outside all agent-writable directories.
+: "${HERMES_HEARTBEAT_RUN_ID:?missing heartbeat ID}"
+: "${HERMES_DIARY_REQUEST_ID:?missing diary request ID}"
+# Replace admin with the non-root account that owns these Workshops at activation.
+# The host metadata runner is root; the Workshop client must use its owner's
+# identity, or it would address a separate root-owned Workshop installation.
+workshop_client=(workshop)
+if [[ $EUID == 0 ]]; then
+    workshop_client=(runuser -u admin -- workshop)
+fi
+[[ "$HERMES_HEARTBEAT_RUN_ID" =~ ^[a-f0-9]{32}$ ]] || exit 64
+[[ "$HERMES_DIARY_REQUEST_ID" == "heartbeat:$HERMES_HEARTBEAT_RUN_ID" ]] || exit 64
+budget=5400
+run_budget=4800
+session_arguments=(--continue "heartbeat-$HERMES_HEARTBEAT_RUN_ID" --create-if-missing)
+prompt='Operator-scheduled heartbeat. Review your memories, diary, and outstanding commitments. Independently choose objectives within the original charter and authority/financial boundaries. Work within this heartbeat and conclude with the required structured diary report.'
+if [[ "${HERMES_DIARY_CLOSE_ONLY:-}" == 1 ]]; then
+    budget=240
+    run_budget=180
+    session_arguments=(--continue "heartbeat-$HERMES_HEARTBEAT_RUN_ID")
+    prompt='Do no new work. Review this same heartbeat session and submit the required structured diary report of actual activity and all outstanding commitments. Do not invent actions, outcomes, or evidence.'
+fi
+# A transient native user service shares the gateway's nonsecret settings and
+# bounds the guest cgroup even if the host Workshop client is interrupted.
+# chat --oneshot is the native single-query exit flag; never use top-level -z,
+# whose separate implementation bypasses approvals.
+exec "${workshop_client[@]}" --project /srv/hermes/a exec a -- \
+    systemd-run --user --wait --pipe --collect \
+    --property EnvironmentFile=/etc/hermes-experiment/gateway.env \
+    --property "RuntimeMaxSec=$budget" --property KillMode=control-group --property NoNewPrivileges=yes \
+    --setenv="HERMES_HEARTBEAT_RUN_ID=$HERMES_HEARTBEAT_RUN_ID" \
+    --setenv="HERMES_DIARY_REQUEST_ID=$HERMES_DIARY_REQUEST_ID" \
+    /usr/local/bin/hermes chat --oneshot --no-restore-cwd --run-budget "$run_budget" \
+    "${session_arguments[@]}" -q "$prompt"

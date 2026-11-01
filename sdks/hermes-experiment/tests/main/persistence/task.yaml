@@ -1,0 +1,46 @@
+summary: hermes-experiment persistence
+prepare: 'envsubst ''${BASE}'' <workshop.yaml.in >workshop.yaml
+
+  workshop launch
+
+  workshop changes
+
+  workshop tasks
+
+  workshop info
+
+  '
+restore: 'workshop remove || true
+
+  workshop changes
+
+  workshop tasks
+
+  workshop info
+
+  '
+execute: 'workshop exec -- bash -lc ''printf "synthetic continuity\n" > ~/.hermes/persistence-test''
+
+  workshop exec -- bash -lc ''test "$(readlink -f ~/.pg0)" = "$HOME/.hindsight/pg0"; printf
+  "synthetic database marker\n" > ~/.pg0/persistence-test''
+
+
+  workshop refresh
+
+  workshop changes
+
+  workshop tasks
+
+  workshop info
+
+  workshop exec -- bash -lc ''cat ~/.hermes/persistence-test'' | MATCH ''synthetic continuity''
+
+
+  workshop exec -- bash -lc ''cat ~/.pg0/persistence-test'' | MATCH ''synthetic database marker''
+
+  '
+debug: 'workshop info || true
+
+  workshop tasks || true
+
+  '

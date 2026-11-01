@@ -1,0 +1,4 @@
+name: test-hermes-experiment-launch
+base: ${BASE}
+sdks:
+- name: try-hermes-experiment

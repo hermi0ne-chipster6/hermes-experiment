@@ -1,0 +1,6 @@
+name: test-hermes-execution-launch
+base: ${BASE}
+sdks:
+- name: docker-ce
+  channel: latest/stable
+- name: try-hermes-execution

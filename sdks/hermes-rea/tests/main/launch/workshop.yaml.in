@@ -1,0 +1,4 @@
+name: test-hermes-rea-launch
+base: ${BASE}
+sdks:
+- name: try-hermes-rea

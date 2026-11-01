@@ -1,0 +1,6 @@
+name: b
+base: ubuntu@26.04
+sdks:
+- name: docker-ce
+  channel: latest/stable
+- name: try-hermes-execution

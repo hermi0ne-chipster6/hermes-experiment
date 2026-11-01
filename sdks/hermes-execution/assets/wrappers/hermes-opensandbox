@@ -1,0 +1,18 @@
+#!/bin/bash
+set -euo pipefail
+sdk_dir=$(dirname "$(dirname "$(readlink -f "$0")")")
+config=/etc/hermes-experiment/opensandbox.toml
+if [[ ! -r "$config" ]]; then
+    echo 'Operator-owned OpenSandbox configuration is missing; refusing startup.' >&2
+    exit 78
+fi
+if [[ -z "${OPENSANDBOX_SERVER_API_KEY:-}" ]]; then
+    OPENSANDBOX_SERVER_API_KEY=$(workshopctl get-secret hermes-execution.api-key)
+fi
+if [[ -z "$OPENSANDBOX_SERVER_API_KEY" ]]; then
+    echo 'OpenSandbox authentication is required.' >&2
+    exit 78
+fi
+export OPENSANDBOX_SERVER_API_KEY
+unset OPENSANDBOX_INSECURE_SERVER
+exec "$sdk_dir/bin/opensandbox-server" --config "$config"

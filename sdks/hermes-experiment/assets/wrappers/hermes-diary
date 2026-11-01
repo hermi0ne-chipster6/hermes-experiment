@@ -1,0 +1,4 @@
+#!/bin/bash
+set -euo pipefail
+sdk_dir=$(dirname "$(dirname "$(readlink -f "$0")")")
+exec "$sdk_dir/bin/python" "$sdk_dir/diary/cli.py" "$@"

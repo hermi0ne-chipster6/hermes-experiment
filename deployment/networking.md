@@ -1,0 +1,17 @@
+# Private LXD bridge
+
+Workshop creates `workshopbr0`; its LXD-backed Workshops use that bridge and receive private addresses and `.wp` DNS names. A, B and C belong in separate project directories, with distinct state/configuration mounts. There is no invented `network:` field in these SDK definitions and no Docker socket connection to A.
+
+On the test machine, inspect actual attachment with the standard host commands `sudo lxc network show workshopbr0` and `sudo lxc list --all-projects`. Use `workshop info` for each role's real hostname; the example `b.b.wp`/`c.c.wp` names assume projects `/srv/hermes/b` and `/srv/hermes/c`. Replace examples with verified names before activation. Hostname lookup, bridge connectivity and preservation across refresh need real deployment checks; source/YAML validation does not prove them.
+
+Only A should initiate B's authenticated OpenSandbox control API (`8080/tcp`) and C's restricted SSH stdio (`22/tcp`). The OpenSandbox MCP client uses `--use-server-proxy`, so sandbox workload ports can remain published on B's loopback address. Keep dashboard, model credentials, diary storage/control, Workshop daemon and Docker API unavailable from workloads. Docker-in-LXD nesting and the host kernel's security features must be verified with the unprivileged container runtime; do not solve a failure by switching B to a privileged LXD container.
+
+Apply any LXD ACLs through the host's supported LXD profile/NIC/network controls, with default-deny inbound policy and explicit service permissions. Do not attach an extra NIC to an instance and assume Workshop will preserve it. Validate the chosen host policy after `workshop refresh`; this deliverable does not claim an untested ACL survives recreation. The bridge is connectivity, not authentication or a complete hostile-code security boundary. No host port forwarding or public control API is part of the examples.
+
+Public websites/APIs use the dedicated Cloudflare tunnel only after its ingress routes target a workload service. Public requests must not reach OpenSandbox's authenticated administrative reverse proxy. Preserve the delegated subdomain boundary and reject routes outside it. No live DNS changes, tunnel registration or public forwarding were performed during local generation.
+
+## Analysis artifact input
+
+The optional `artifact_to_rea` tool copies an input from an existing B sandbox through the native OpenSandbox server proxy, then sends it over the same restricted SSH connection to C. Inputs are limited to 32 MiB and a 90-second transfer budget. The forced command accepts only native MCP or `artifact-put SHA256 SIZE`; it cannot open a shell, SCP, SFTP or arbitrary destination. C publishes verified content at `/var/lib/hermes-rea/inbox/<sha256>.bin` without replacing an existing file, fsyncs before acknowledging, and returns that path for native REA `open_binary` or import tools. Temporary A buffers are deleted. A never mounts C's state, and B never receives C's SSH key.
+
+The checksum establishes byte identity, not trust in the artifact. Native REA marks analysis-derived content untrusted. Its analysis worker remains a separate containment boundary; do not grant it A's credentials or enable privileged LXD operation. Files larger than the explicit limit require an operator-reviewed input path rather than silently bypassing it.

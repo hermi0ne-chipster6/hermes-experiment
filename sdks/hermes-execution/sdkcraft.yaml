@@ -1,0 +1,107 @@
+# Derived from pinned upstream SDK patterns and Canonical templates; see ../../sources.json.
+name: hermes-execution
+adopt-info: opensandbox
+summary: OpenSandbox execution worker for Hermes
+description: Pinned OpenSandbox control service in a separate Workshop. Requires the Canonical docker-ce SDK listed
+  first. Credentials and service activation remain operator-controlled.
+license: Apache-2.0
+platforms:
+  amd64: null
+plugs:
+  state:
+    interface: mount
+    workshop-target: /home/workshop/.opensandbox
+    mode: 448
+  api-key:
+    interface: secret
+  cloudflare-token:
+    interface: secret
+  configuration:
+    interface: mount
+    workshop-target: /etc/hermes-experiment
+    read-only: true
+    uid: 0
+    gid: 0
+    mode: 493
+slots: {}
+parts:
+  opensandbox:
+    plugin: uv
+    source: build-source
+    build-snaps:
+    - astral-uv
+    build-environment:
+    - UV_NO_EDITABLE: '1'
+    - UV_PYTHON_DOWNLOADS: manual
+    - UV_PYTHON_PREFERENCE: managed
+    build-packages:
+    - ca-certificates
+    - curl
+    - git
+    - gcc
+    - g++
+    - make
+    - libffi-dev
+    override-pull: 'craftctl set version="$(cat "$CRAFT_PROJECT_DIR/VERSION")"
+
+      rm -rf "$CRAFT_PART_SRC/upstream"
+
+      git clone --depth 1 --branch release-1.2.0 https://github.com/opensandbox-group/OpenSandbox.git "$CRAFT_PART_SRC/upstream"
+
+      cd "$CRAFT_PART_SRC/upstream"
+
+      test "$(git rev-parse HEAD)" = "62a64f0b48cdd6b410f36e53c74dc7559c87719a"
+
+      '
+    override-build: 'export UV_PYTHON_INSTALL_DIR="$CRAFT_PART_INSTALL/python-runtime"
+
+      uv python install 3.14.7
+
+      PYTHON=$(uv python find 3.14.7)
+
+      uv venv --seed --allow-existing --relocatable --python "$PYTHON" "$CRAFT_PART_INSTALL"
+
+      PYTHON_REL=$(realpath --relative-to="$CRAFT_PART_INSTALL/bin" "$PYTHON")
+
+      ln -snf "$PYTHON_REL" "$CRAFT_PART_INSTALL/bin/python"
+
+      ln -snf python "$CRAFT_PART_INSTALL/bin/python3"
+
+      ln -snf python "$CRAFT_PART_INSTALL/bin/python3.14"
+
+      cd "$CRAFT_PART_SRC/upstream/server"
+
+      VIRTUAL_ENV="$CRAFT_PART_INSTALL" uv sync --frozen --no-dev --no-editable
+
+      uv pip check --python "$CRAFT_PART_INSTALL/bin/python"
+
+      '
+    after: []
+    source-type: local
+  services:
+    plugin: dump
+    source: services
+    source-type: local
+  assets:
+    plugin: dump
+    source: assets
+    source-type: local
+  cloudflared:
+    plugin: dump
+    source: build-source
+    build-packages:
+    - curl
+    - ca-certificates
+    override-pull: 'mkdir -p "$CRAFT_PART_SRC/cloudflare/bin"
+
+      curl -fL ''https://github.com/cloudflare/cloudflared/releases/download/2026.10.7/cloudflared-linux-amd64''
+      -o "$CRAFT_PART_SRC/cloudflare/bin/cloudflared"
+
+      echo ''1f99fb518b83dec2ba8d870a7cc991d82a77e6196295a3d2754ba17ab9f91872  ''"$CRAFT_PART_SRC/cloudflare/bin/cloudflared"
+      | sha256sum -c -
+
+      chmod 755 "$CRAFT_PART_SRC/cloudflare/bin/cloudflared"
+
+      '
+    source-type: local
+base: ubuntu@26.04

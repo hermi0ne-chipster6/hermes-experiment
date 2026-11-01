@@ -1,0 +1,4 @@
+name: hermes_notifications
+version: "0.1.0"
+requires_hermes: ">=0.22.5"
+provides_tools: [notify_operator, send_agent_email]

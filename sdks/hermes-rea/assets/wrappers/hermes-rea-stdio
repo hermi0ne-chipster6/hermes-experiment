@@ -1,0 +1,27 @@
+#!/bin/bash
+set -euo pipefail
+# The SSH Match block supplies no untrusted arguments. --version is only a local health probe.
+sdk_dir=$(dirname "$(dirname "$(readlink -f "$0")")")
+if [[ $# -gt 0 && ( $# -ne 1 || "$1" != '--version' ) ]]; then
+    echo 'Only fixed REA MCP stdio or a local version probe is supported.' >&2
+    exit 64
+fi
+export PATH="$sdk_dir/node/bin:/usr/bin:/bin"
+export GHIDRA_INSTALL_DIR="$sdk_dir/ghidra/ghidra_12.1.4_PUBLIC"
+export REA_PWNTOOLS_PYTHON=/usr/bin/python3
+export REA_GHIDRA_STARTUP_TIMEOUT_MS=900000
+cd /var/lib/hermes-rea/work
+if [[ "${1:-}" == '--version' ]]; then
+    exec "$sdk_dir/node/bin/node" "$sdk_dir/rea/node_modules/rea-agents/scripts/rea.mjs" --version
+fi
+case "${SSH_ORIGINAL_COMMAND:-}" in
+    ''|rea-mcp) ;;
+    *)
+        if [[ "${SSH_ORIGINAL_COMMAND}" =~ ^artifact-put\ ([0-9a-f]{64})\ ([0-9]{1,8})$ ]]; then
+            exec /usr/bin/python3 -I "$sdk_dir/artifacts.py" receive "${BASH_REMATCH[1]}" "${BASH_REMATCH[2]}"
+        fi
+        echo 'Only native REA MCP or a bounded artifact input is supported.' >&2
+        exit 64
+        ;;
+esac
+exec "$sdk_dir/node/bin/node" "$sdk_dir/rea/node_modules/rea-agents/scripts/rea.mjs" mcp

@@ -1,0 +1,73 @@
+# Derived from pinned upstream SDK patterns and Canonical templates; see ../../sources.json.
+name: hermes-rea
+adopt-info: rea
+summary: Dedicated official REA MCP analysis worker
+description: Pinned REA MCP and Ghidra analysis tools. SSH stdio access is restricted by an operator-provisioned
+  key and forced command. No wallet, mailbox or model credentials are shared.
+license: MIT AND Apache-2.0 AND (LGPL-2.0 WITH WxWindows-exception-3.1)
+platforms:
+  amd64: null
+parts:
+  node-runtime:
+    plugin: dump
+    source: https://nodejs.org/dist/v26.13.0/node-v26.13.0-linux-x64.tar.xz
+    source-checksum: sha256/d28a96af6c38596f6d9d97c0ee531c13d238d757742387d1928de822d959e997
+    organize:
+      '*': node/
+  rea:
+    plugin: dump
+    source: npm
+    source-type: local
+    after:
+    - node-runtime
+    override-build: 'craftctl set version="$(cat "$CRAFT_PROJECT_DIR/VERSION")"
+
+      export PATH="$CRAFT_STAGE/node/bin:$PATH"
+
+      npm ci --omit=dev --ignore-scripts --no-audit --no-fund
+
+      mkdir -p "$CRAFT_PART_INSTALL/rea"
+
+      cp -a node_modules package.json package-lock.json "$CRAFT_PART_INSTALL/rea/"
+
+      '
+  assets:
+    plugin: dump
+    source: assets
+    source-type: local
+  ghidra:
+    plugin: dump
+    source: https://github.com/NationalSecurityAgency/ghidra/releases/download/Ghidra_12.1.4_build/ghidra_12.1.4_PUBLIC_20260921.zip
+    source-checksum: sha256/ddac49f903da9d5bac833e5cc79395098b9c33cfd3279be5f31bd00387d2d4db
+    organize:
+      '*': ghidra/
+  frida-native:
+    plugin: dump
+    source: https://github.com/frida/frida/releases/download/17.23.2/frida-v17.23.2-napi-v8-linux-x64.tar.gz
+    source-checksum: sha256/9fa8f668ce91eb03713e8564de4f8fbde232233ee91d729c16773fde11dbae95
+    after:
+    - rea
+    override-build: 'BINDING=$(find "$CRAFT_PART_SRC" -type f -name frida_binding.node -print -quit)
+
+      test -n "$BINDING"
+
+      install -D -m 644 "$BINDING" "$CRAFT_PART_INSTALL/rea/node_modules/frida/build/frida_binding.node"
+
+      timeout 30 "$CRAFT_STAGE/node/bin/node" -e ''require(process.argv[1])'' "$CRAFT_PART_INSTALL/rea/node_modules/frida/build/frida_binding.node"
+
+      '
+plugs:
+  state:
+    interface: mount
+    workshop-target: /var/lib/hermes-rea
+    uid: 0
+    gid: 0
+    mode: 493
+  configuration:
+    interface: mount
+    workshop-target: /etc/hermes-experiment
+    read-only: true
+    uid: 0
+    gid: 0
+    mode: 493
+base: ubuntu@26.04

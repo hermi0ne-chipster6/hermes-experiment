@@ -1,0 +1,19 @@
+name: b
+base: ubuntu@26.04
+sdks:
+- name: docker-ce
+  channel: latest/stable
+- name: hermes-execution
+  channel: latest/edge
+- name: system
+  slots:
+    api-key:
+      interface: secret
+      attributes:
+        application: hermes-experiment-1
+        credential: sandbox-api-key
+    cloudflare-token:
+      interface: secret
+      attributes:
+        application: hermes-experiment-1
+        credential: dedicated-tunnel-token

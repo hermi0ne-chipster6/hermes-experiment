@@ -1,0 +1,38 @@
+summary: hermes-rea launch
+prepare: 'envsubst ''${BASE}'' <workshop.yaml.in >workshop.yaml
+
+  workshop launch
+
+  workshop changes
+
+  workshop tasks
+
+  workshop info
+
+  '
+restore: 'workshop remove || true
+
+  workshop changes
+
+  workshop tasks
+
+  workshop info
+
+  '
+execute: 'workshop exec -- sudo -u rea /usr/local/bin/hermes-rea-stdio --version | MATCH ''6\.7\.0''
+
+  workshop exec -- bash -lc ''java -version 2>&1'' | MATCH ''25''
+
+  workshop exec -- bash -lc ''test -r /etc/ssh/sshd_config.d/60-hermes-rea.conf''
+
+  workshop info | MATCH ''status:\s+ready''
+
+
+  workshop exec -- python3 /project/mcp-smoke.py
+
+  '
+debug: 'workshop info || true
+
+  workshop tasks || true
+
+  '

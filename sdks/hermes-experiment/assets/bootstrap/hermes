@@ -1,0 +1,8 @@
+#!/bin/bash
+# Immutable official source tree with a separately bundled dependency environment.
+set -euo pipefail
+sdk_dir=$(dirname "$(dirname "$(readlink -f "$0")")")
+export HERMES_PYTHON_SRC_ROOT="$sdk_dir/hermes-src"
+export HERMES_INSTALL_ROOT="$sdk_dir/hermes-src"
+export PYTHONPATH="$sdk_dir/hermes-src:$sdk_dir/diary"
+exec "$sdk_dir/bin/python" -P -c 'import sys; from hermes_cli.main import main; sys.exit(main())' "$@"

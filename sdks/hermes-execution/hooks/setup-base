@@ -1,0 +1,9 @@
+#!/bin/bash
+set -euo pipefail
+apt-get update
+eatmydata apt-get install ca-certificates curl
+command -v docker >/dev/null
+ln -sf "$SDK/bin/opensandbox-server" /usr/local/bin/opensandbox-server
+ln -sf "$SDK/cloudflare/bin/cloudflared" /usr/local/bin/cloudflared
+ln -sf "$SDK/wrappers/hermes-opensandbox" /usr/local/bin/hermes-opensandbox
+ln -sf "$SDK/wrappers/hermes-cloudflared" /usr/local/bin/hermes-cloudflared

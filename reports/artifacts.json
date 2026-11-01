@@ -1,0 +1,26 @@
+{
+  "hermes-experiment": {
+    "custom_source_files_matched": 28,
+    "generated_sdk_or_spread_files": [],
+    "sha256": "9254c236c2f307d3b68b15d1028f9f282993032644a46a58190fca39c671976d",
+    "bytes": 605169621,
+    "artifact": "sdks/hermes-experiment/hermes-experiment_amd64_ubuntu@26.04.sdk",
+    "try_cache_matches": true
+  },
+  "hermes-execution": {
+    "custom_source_files_matched": 7,
+    "generated_sdk_or_spread_files": [],
+    "sha256": "2d9a44ee4c6c3c7873d84b5354b237a75b36035b10c7b9bd979798546a7be4ee",
+    "bytes": 88331997,
+    "artifact": "sdks/hermes-execution/hermes-execution_amd64_ubuntu@26.04.sdk",
+    "try_cache_matches": true
+  },
+  "hermes-rea": {
+    "custom_source_files_matched": 6,
+    "generated_sdk_or_spread_files": [],
+    "sha256": "52cc45f6b6703a2ca1819e78dd97a5e1999ea8ebd0450e8c5a53c14b4a157d04",
+    "bytes": 636933971,
+    "artifact": "sdks/hermes-rea/hermes-rea_amd64_ubuntu@26.04.sdk",
+    "try_cache_matches": true
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "publisher": "codyprevost",
+  "authorization": "Operator requested completion of all three SDK Store publications on 2026-11-01.",
+  "channel": "latest/edge",
+  "platform": "ubuntu@26.04 amd64",
+  "artifact_manifest": "../artifacts.json",
+  "checksums": "../SHA256SUMS",
+  "registered_names": [
+    "hermes-experiment",
+    "hermes-execution",
+    "hermes-rea"
+  ],
+  "preexisting_revision_queries": "All three returned success with no revisions listed.",
+  "credential_handling": "Existing SDKcraft authentication reused; credentials file not read or exported; observed mode 0600.",
+  "stable_promotion": "Not scheduled: outstanding qualification gates remain in verification.md."
+}

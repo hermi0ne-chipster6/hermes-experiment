@@ -1,0 +1,5 @@
+name: a
+base: ubuntu@26.04
+sdks:
+- name: hermes-experiment
+  channel: latest/edge

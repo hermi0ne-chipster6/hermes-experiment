@@ -1,0 +1,43 @@
+from pathlib import Path
+import os
+import shutil
+import subprocess
+import sys
+import tempfile
+import unittest
+
+SOURCE=Path(__file__).resolve().parents[1]/'sdks/hermes-experiment/assets/bootstrap/hermes'
+
+
+class BootstrapTests(unittest.TestCase):
+    def test_working_directory_cannot_override_immutable_source_imports(self):
+        with tempfile.TemporaryDirectory() as name:
+            root=Path(name)
+            (root/'bin').mkdir()
+            (root/'bin/python').symlink_to(sys.executable)
+            shutil.copyfile(SOURCE,root/'bin/hermes')
+            (root/'bin/hermes').chmod(0o755)
+            package=root/'hermes-src/hermes_cli'
+            package.mkdir(parents=True)
+            (package/'__init__.py').write_text('')
+            (package/'main.py').write_text('import json\ndef main():\n    return 0\n')
+            cwd=root/'untrusted'
+            cwd.mkdir()
+            (cwd/'json.py').write_text('raise RuntimeError("working directory import")\n')
+            result=subprocess.run([str(root/'bin/hermes'),'--version'],cwd=cwd,
+                                  env={'PATH':'/usr/bin:/bin'},capture_output=True,text=True)
+            self.assertEqual(result.returncode,0,result.stderr)
+
+    def test_native_cli_exit_code_survives_source_bootstrap(self):
+        with tempfile.TemporaryDirectory() as name:
+            root=Path(name)
+            (root/'bin').mkdir()
+            (root/'bin/python').symlink_to(sys.executable)
+            shutil.copyfile(SOURCE,root/'bin/hermes')
+            (root/'bin/hermes').chmod(0o755)
+            package=root/'hermes-src/hermes_cli'
+            package.mkdir(parents=True)
+            (package/'__init__.py').write_text('')
+            (package/'main.py').write_text('def main():\n    return 7\n')
+            result=subprocess.run([str(root/'bin/hermes'),'--version'],env={'PATH':'/usr/bin:/bin'},capture_output=True,text=True)
+            self.assertEqual(result.returncode,7,result.stderr)

@@ -1,0 +1,411 @@
+{
+  "retrieved_at": "2026-10-31",
+  "hermes_commit": "bf0203a794a07aac3ff764972ab9087baa4e4f4e",
+  "reference_sdk_commit": "1585a19881231c919700d8ae7f44d793debe07c9",
+  "hermes": {
+    "tag": "v0.22.5",
+    "source": "https://api.github.com/repos/NousResearch/hermes-agent/releases/latest",
+    "published_at": "2026-10-23T05:28:45Z",
+    "assets": []
+  },
+  "opensandbox": {
+    "tag": "release-1.2.0",
+    "source": "https://api.github.com/repos/opensandbox-group/OpenSandbox/releases/latest",
+    "published_at": "2026-10-27T12:50:49Z",
+    "assets": [
+      {
+        "name": "1.2.0.yaml",
+        "url": "https://github.com/opensandbox-group/OpenSandbox/releases/download/release-1.2.0/1.2.0.yaml",
+        "digest": "sha256:1455a73446a0d885bf1e1d0060cce52421d1670e93055aa8e01f5ab85b2f59e5"
+      }
+    ],
+    "commit": "62a64f0b48cdd6b410f36e53c74dc7559c87719a"
+  },
+  "cloudflared": {
+    "tag": "2026.10.7",
+    "source": "https://api.github.com/repos/cloudflare/cloudflared/releases/latest",
+    "published_at": "2026-10-30T17:11:03Z",
+    "assets": [
+      {
+        "name": "cloudflared-amd64.pkg",
+        "url": "https://github.com/cloudflare/cloudflared/releases/download/2026.10.7/cloudflared-amd64.pkg",
+        "digest": "sha256:917e804561007221f83d9ba2ebd3dc9f7f2f328653d52af33e91e4a7a942d1fb"
+      },
+      {
+        "name": "cloudflared-arm64.pkg",
+        "url": "https://github.com/cloudflare/cloudflared/releases/download/2026.10.7/cloudflared-arm64.pkg",
+        "digest": "sha256:1ec2fdf94235f0b1422296383cb3eb028b75f4d9c2f2d51255651a3da2e357e6"
+      },
+      {
+        "name": "cloudflared-darwin-amd64.tgz",
+        "url": "https://github.com/cloudflare/cloudflared/releases/download/2026.10.7/cloudflared-darwin-amd64.tgz",
+        "digest": "sha256:02f3edfd87684dd5b705607688e4eb4b323f6e777b81e7b3a85af556aa356848"
+      },
+      {
+        "name": "cloudflared-darwin-arm64.tgz",
+        "url": "https://github.com/cloudflare/cloudflared/releases/download/2026.10.7/cloudflared-darwin-arm64.tgz",
+        "digest": "sha256:3586ccf397e98e5f437e60e7c307ca6ac463e110580503af8bb8e6f9ebf831bd"
+      },
+      {
+        "name": "cloudflared-fips-linux-amd64",
+        "url": "https://github.com/cloudflare/cloudflared/releases/download/2026.10.7/cloudflared-fips-linux-amd64",
+        "digest": "sha256:426c7c0e3bdb1b62f43b88ede364c7e41bee9b5a5397546d1dd301420c75f9c7"
+      },
+      {
+        "name": "cloudflared-fips-linux-amd64.deb",
+        "url": "https://github.com/cloudflare/cloudflared/releases/download/2026.10.7/cloudflared-fips-linux-amd64.deb",
+        "digest": "sha256:5ecda786849ef40b73407fcf946e922224a587f53ca4394745f521b567bb0c8c"
+      },
+      {
+        "name": "cloudflared-fips-linux-x86_64.rpm",
+        "url": "https://github.com/cloudflare/cloudflared/releases/download/2026.10.7/cloudflared-fips-linux-x86_64.rpm",
+        "digest": "sha256:796608193f67341a37d86fec6097da8d439149593de8150df923495878dff0b7"
+      },
+      {
+        "name": "cloudflared-linux-386",
+        "url": "https://github.com/cloudflare/cloudflared/releases/download/2026.10.7/cloudflared-linux-386",
+        "digest": "sha256:4823d2f038395617e04e4070601ab45c0c43f31f15ee7586be299e19ef49d46e"
+      },
+      {
+        "name": "cloudflared-linux-386.deb",
+        "url": "https://github.com/cloudflare/cloudflared/releases/download/2026.10.7/cloudflared-linux-386.deb",
+        "digest": "sha256:3b8c98b929855469a1bed892b4a2c5a88b25b071bb3307e670cf55cff10c0880"
+      },
+      {
+        "name": "cloudflared-linux-386.rpm",
+        "url": "https://github.com/cloudflare/cloudflared/releases/download/2026.10.7/cloudflared-linux-386.rpm",
+        "digest": "sha256:155f7152eb85700569ae09c638b7088532ea9e66031ec10d272feb052509ffe3"
+      },
+      {
+        "name": "cloudflared-linux-aarch64.rpm",
+        "url": "https://github.com/cloudflare/cloudflared/releases/download/2026.10.7/cloudflared-linux-aarch64.rpm",
+        "digest": "sha256:6e58e8e388a4b4454b0f6c80f00eecbc98ac40a9bed76c4afc261b6ca7300c04"
+      },
+      {
+        "name": "cloudflared-linux-amd64",
+        "url": "https://github.com/cloudflare/cloudflared/releases/download/2026.10.7/cloudflared-linux-amd64",
+        "digest": "sha256:1f99fb518b83dec2ba8d870a7cc991d82a77e6196295a3d2754ba17ab9f91872"
+      },
+      {
+        "name": "cloudflared-linux-amd64.deb",
+        "url": "https://github.com/cloudflare/cloudflared/releases/download/2026.10.7/cloudflared-linux-amd64.deb",
+        "digest": "sha256:70b1a1e0f46033ffc8d90b406e554044ba6cbf2e4360295ef1163aed31e09393"
+      },
+      {
+        "name": "cloudflared-linux-arm",
+        "url": "https://github.com/cloudflare/cloudflared/releases/download/2026.10.7/cloudflared-linux-arm",
+        "digest": "sha256:74f690f6707182839b63e0465726c7776dd63f0a174390b911d5d71f35cab94e"
+      },
+      {
+        "name": "cloudflared-linux-arm.deb",
+        "url": "https://github.com/cloudflare/cloudflared/releases/download/2026.10.7/cloudflared-linux-arm.deb",
+        "digest": "sha256:d8ad068223c19b9221319e7985c6ed0423f11e472493228a344ed347b0f1c93f"
+      },
+      {
+        "name": "cloudflared-linux-arm.rpm",
+        "url": "https://github.com/cloudflare/cloudflared/releases/download/2026.10.7/cloudflared-linux-arm.rpm",
+        "digest": "sha256:f6f20852c7269a2c83635bad6a93ea8f4015356c4711318b1709a330f95409dc"
+      },
+      {
+        "name": "cloudflared-linux-arm64",
+        "url": "https://github.com/cloudflare/cloudflared/releases/download/2026.10.7/cloudflared-linux-arm64",
+        "digest": "sha256:3df43aedc9ff291d1735b5cb576cb97e0b157488796db2e32b28aecabb445775"
+      },
+      {
+        "name": "cloudflared-linux-arm64.deb",
+        "url": "https://github.com/cloudflare/cloudflared/releases/download/2026.10.7/cloudflared-linux-arm64.deb",
+        "digest": "sha256:d9407eb6e70ac31f54978a6b408a0320b51b664a6d0b498248692d7ac56bf836"
+      },
+      {
+        "name": "cloudflared-linux-armhf",
+        "url": "https://github.com/cloudflare/cloudflared/releases/download/2026.10.7/cloudflared-linux-armhf",
+        "digest": "sha256:04548d1d5e6a45eaec43916078538192e447256bcc3551bc8265c4ece06a655b"
+      },
+      {
+        "name": "cloudflared-linux-armhf.deb",
+        "url": "https://github.com/cloudflare/cloudflared/releases/download/2026.10.7/cloudflared-linux-armhf.deb",
+        "digest": "sha256:a89914a3db4faeaf935d673ccc5ca549655ebb2bb9b5db1ef23389ff51358216"
+      },
+      {
+        "name": "cloudflared-linux-armhf.rpm",
+        "url": "https://github.com/cloudflare/cloudflared/releases/download/2026.10.7/cloudflared-linux-armhf.rpm",
+        "digest": "sha256:5622d077583cb93f86b45a0182c144b36615464f60ad6191ebbb39f77d5ce5cc"
+      },
+      {
+        "name": "cloudflared-linux-x86_64.rpm",
+        "url": "https://github.com/cloudflare/cloudflared/releases/download/2026.10.7/cloudflared-linux-x86_64.rpm",
+        "digest": "sha256:26c47d9d361459a818b519bc6b207dafe941bc50da921294752c6b0f094c32f0"
+      },
+      {
+        "name": "cloudflared-windows-386.exe",
+        "url": "https://github.com/cloudflare/cloudflared/releases/download/2026.10.7/cloudflared-windows-386.exe",
+        "digest": "sha256:88c6b972b410db0e26745f593510d772c825a13c5a2374819e3f13a05b333082"
+      },
+      {
+        "name": "cloudflared-windows-386.msi",
+        "url": "https://github.com/cloudflare/cloudflared/releases/download/2026.10.7/cloudflared-windows-386.msi",
+        "digest": "sha256:d083222b52b52d73b477a922fe7bfb0043d7fca77228edd5ac155bab1c9dbe6f"
+      },
+      {
+        "name": "cloudflared-windows-amd64.exe",
+        "url": "https://github.com/cloudflare/cloudflared/releases/download/2026.10.7/cloudflared-windows-amd64.exe",
+        "digest": "sha256:2493dbc168923bb3e59e5e7716f71deced92992eea9acd6e9d74f84ac7751343"
+      },
+      {
+        "name": "cloudflared-windows-amd64.msi",
+        "url": "https://github.com/cloudflare/cloudflared/releases/download/2026.10.7/cloudflared-windows-amd64.msi",
+        "digest": "sha256:057a1370fe26b1a4d45d8673c219fa3ddb3c3b4bcbf0cde25ee938c932645387"
+      }
+    ]
+  },
+  "link": {
+    "version": "1.0.1",
+    "source": "https://registry.npmjs.org/@stripe%2flink-cli/latest",
+    "dist": {
+      "shasum": "8173ebb83fc6f60befcfae2fc26691222a263063",
+      "tarball": "https://registry.npmjs.org/@stripe/link-cli/-/link-cli-1.0.1.tgz",
+      "fileCount": 5,
+      "integrity": "sha512-uWJl0rNMNny6JSOEp3wze2pFYV9l7PBNd5nLfiVYmzbbRINj+7tutWHkinFZIkt3pIS+z5MtvyMCajEV1lddRA==",
+      "signatures": [
+        {
+          "sig": "MEUCIH3/9B2xi2ufbHHKiR7FbHiC9bVLCr2gKbxS1aF+KRU8AiEAso9uLliMA2bx7watSpoJVqfP85v33BxEJh/GjBq5X4s=",
+          "keyid": "SHA256:DhQ8wR5APBvFHLF/+Tc+AYvPOdTpcIDqOhxsBHRwC7U"
+        },
+        {
+          "sig": "MEQCIHYB8dJhyINizOwLc/hGvrhlVVo1WhSKvfwJ5+/jUD9lAiAjFDOpR9WwUxtIdS6s5Lb77+QeaSwuIFkYpV0+eabMYg==",
+          "keyid": "SHA256:DhQ8wR5APBvFHLF/+Tc+AYvPOdTpcIDqOhxsBHRwC7U"
+        }
+      ],
+      "attestations": {
+        "url": "https://registry.npmjs.org/-/npm/v1/attestations/@stripe%2flink-cli@1.0.1",
+        "provenance": {
+          "predicateType": "https://slsa.dev/provenance/v1"
+        }
+      },
+      "unpackedSize": 475993
+    },
+    "verified_native_state": {
+      "identity": "/home/workshop/.link-cli/identity",
+      "auth": "LINK_AUTH_FILE=/home/workshop/.link-cli/auth.json",
+      "mcp": "link-cli --mcp",
+      "evidence": "Pinned npm tarball integrity verified; dist/cli.js, README.md and postinstall.mjs inspected. Postinstall only installs external skills and is deliberately disabled."
+    }
+  },
+  "rea": {
+    "version": "6.7.0",
+    "source": "https://registry.npmjs.org/rea-agents/6.7.0",
+    "dist": {
+      "shasum": "11f23ba377303a5c28b3162180cf2bf3f3643708",
+      "tarball": "https://registry.npmjs.org/rea-agents/-/rea-agents-6.7.0.tgz",
+      "fileCount": 1775,
+      "integrity": "sha512-yhIx2ioJYYT1C/tONfYeitC6LhnKmCh+ZwRUOgYuhSc733lGhkkt73zhug9WmLgxoMdKuqIYGCoBfD4fXkOhFw==",
+      "signatures": [
+        {
+          "sig": "MEUCIHfjVXgVvcA/R0R46DQc4pU5c25jTyUsOKRWQJn0wLlrAiEAq6dwgt6G1YGLjbijVJkZJv8O01xPJgQUwvsHt0zZbwo=",
+          "keyid": "SHA256:DhQ8wR5APBvFHLF/+Tc+AYvPOdTpcIDqOhxsBHRwC7U"
+        },
+        {
+          "sig": "MEUCICqYrwatVk9nUkweRYKIZHAXPVJyORdbdQvgFhvBtxQAAiEA/yg3AjoNhKvknQ/WWaetE1Jm1tzmIwQ9as5IPE3Luts=",
+          "keyid": "SHA256:DhQ8wR5APBvFHLF/+Tc+AYvPOdTpcIDqOhxsBHRwC7U"
+        }
+      ],
+      "attestations": {
+        "url": "https://registry.npmjs.org/-/npm/v1/attestations/rea-agents@6.7.0",
+        "provenance": {
+          "predicateType": "https://slsa.dev/provenance/v1"
+        }
+      },
+      "unpackedSize": 28575703
+    }
+  },
+  "node": {
+    "version": "v26.13.0",
+    "source": "https://nodejs.org/dist/index.json",
+    "lts": "Lithium",
+    "url": "https://nodejs.org/dist/v26.13.0/node-v26.13.0-linux-x64.tar.xz",
+    "sha256": "d28a96af6c38596f6d9d97c0ee531c13d238d757742387d1928de822d959e997",
+    "checksums_url": "https://nodejs.org/dist/v26.13.0/SHASUMS256.txt"
+  },
+  "hindsight_plugin": {
+    "repo": "https://github.com/vectorize-io/hindsight",
+    "sha": "d952b6e655fccab4581ee0722b51c5f103873d12",
+    "subdir": "hindsight-integrations/hermes",
+    "version": "1.2.3"
+  },
+  "hermes_otel_plugin": {
+    "repo": "https://github.com/briancaffey/hermes-otel",
+    "sha": "d234865b13e997e0b3a50dc18aaad7c7d7b1b1fe",
+    "subdir": "hermes_otel",
+    "version": "1.18.2"
+  },
+  "rea_plugin": {
+    "repo": "https://github.com/NousResearch/hermes-official-plugins",
+    "sha": "1690b63a4790cb821fb6a319ba524815d4e09411",
+    "subdir": "rea"
+  },
+  "buzz": {
+    "tag": "desktop-v0.5.28",
+    "assets": [
+      {
+        "name": "Buzz_0.5.28_aarch64.app.tar.gz",
+        "url": "https://github.com/block/buzz/releases/download/desktop-v0.5.28/Buzz_0.5.28_aarch64.app.tar.gz",
+        "digest": "sha256:b191cf5660ca4403b087399cfbfea1c02f5c54f2476a5d8c8636d339bb14120f"
+      },
+      {
+        "name": "Buzz_0.5.28_aarch64.app.tar.gz.sig",
+        "url": "https://github.com/block/buzz/releases/download/desktop-v0.5.28/Buzz_0.5.28_aarch64.app.tar.gz.sig",
+        "digest": "sha256:92b0561d61d44996e206ab377090bba39fb483e5d36e877da77ba5c5dfd2e8fd"
+      },
+      {
+        "name": "Buzz_0.5.28_aarch64.dmg",
+        "url": "https://github.com/block/buzz/releases/download/desktop-v0.5.28/Buzz_0.5.28_aarch64.dmg",
+        "digest": "sha256:eaed9b1eb06bb90752277ce2f79a1fdac5192fd99c97bc49f03573e7e8135b25"
+      },
+      {
+        "name": "Buzz_0.5.28_amd64.AppImage",
+        "url": "https://github.com/block/buzz/releases/download/desktop-v0.5.28/Buzz_0.5.28_amd64.AppImage",
+        "digest": "sha256:60223ac27d8742226a0b5e3db5e1f97441b267ff63abb905793b33fe6568874c"
+      },
+      {
+        "name": "Buzz_0.5.28_amd64.AppImage.sig",
+        "url": "https://github.com/block/buzz/releases/download/desktop-v0.5.28/Buzz_0.5.28_amd64.AppImage.sig",
+        "digest": "sha256:dbc7cfc6be74e8b06058d63bf03bbd44429fc154502bd238e9b9b9d8b30e56fa"
+      },
+      {
+        "name": "Buzz_0.5.28_amd64.deb",
+        "url": "https://github.com/block/buzz/releases/download/desktop-v0.5.28/Buzz_0.5.28_amd64.deb",
+        "digest": "sha256:53609fa586a787871f080b0bfce679633e457f650982411c81ba104648c388cb"
+      },
+      {
+        "name": "Buzz_0.5.28_x64-setup_alpha-unsigned.exe",
+        "url": "https://github.com/block/buzz/releases/download/desktop-v0.5.28/Buzz_0.5.28_x64-setup_alpha-unsigned.exe",
+        "digest": "sha256:dfecae208e81f6606efeacfb476e9947c9c14dfc6ba992742c57bb469d594b5d"
+      },
+      {
+        "name": "Buzz_0.5.28_x64-setup_alpha-unsigned.exe.sig",
+        "url": "https://github.com/block/buzz/releases/download/desktop-v0.5.28/Buzz_0.5.28_x64-setup_alpha-unsigned.exe.sig",
+        "digest": "sha256:c463b0f4336bbd7bf1bc3357c37c615643a0bae98f3dc82cc0db3ba33fd8ab61"
+      },
+      {
+        "name": "Buzz_0.5.28_x64.app.tar.gz",
+        "url": "https://github.com/block/buzz/releases/download/desktop-v0.5.28/Buzz_0.5.28_x64.app.tar.gz",
+        "digest": "sha256:3ffd96e223d713ca9fe0c0f7e3175a5501efad95602da3c71dcaad5f41ff0e0e"
+      },
+      {
+        "name": "Buzz_0.5.28_x64.app.tar.gz.sig",
+        "url": "https://github.com/block/buzz/releases/download/desktop-v0.5.28/Buzz_0.5.28_x64.app.tar.gz.sig",
+        "digest": "sha256:eb9cb64ee496d12c098730fc18a320a6719ef6b69dd54bef82bc95bec6152f0a"
+      },
+      {
+        "name": "Buzz_0.5.28_x64.dmg",
+        "url": "https://github.com/block/buzz/releases/download/desktop-v0.5.28/Buzz_0.5.28_x64.dmg",
+        "digest": "sha256:5b1b1779a7345ac7916d47580630d92006f86dcdbbaadbee4e9726d6d9b68cd7"
+      },
+      {
+        "name": "updater-manifest.json",
+        "url": "https://github.com/block/buzz/releases/download/desktop-v0.5.28/updater-manifest.json",
+        "digest": "sha256:8c9db754a47519b794b7d28e33f7a54f3b99e7142223af0d9057b430a89e8354"
+      }
+    ],
+    "commit": "f87c10895ea35a9a2cea629fef1d7532a3fecbc5"
+  },
+  "sui": {
+    "tag": "mainnet-v1.82.3",
+    "published_at": "2026-10-21T22:29:14Z",
+    "source": "https://api.github.com/repos/MystenLabs/sui/releases?per_page=10",
+    "assets": [
+      {
+        "name": "sui-mainnet-v1.82.3-macos-arm64.tgz",
+        "url": "https://github.com/MystenLabs/sui/releases/download/mainnet-v1.82.3/sui-mainnet-v1.82.3-macos-arm64.tgz",
+        "digest": "sha256:861f8833c5c7008c86aca50e925043baa8e04332dcbd846cc6c31ea0eee16be9"
+      },
+      {
+        "name": "sui-mainnet-v1.82.3-macos-x86_64.tgz",
+        "url": "https://github.com/MystenLabs/sui/releases/download/mainnet-v1.82.3/sui-mainnet-v1.82.3-macos-x86_64.tgz",
+        "digest": "sha256:ea174560d3a6a99d388f06219045d11db7eaba8287f9b840dc016af76635fac5"
+      },
+      {
+        "name": "sui-mainnet-v1.82.3-ubuntu-aarch64.tgz",
+        "url": "https://github.com/MystenLabs/sui/releases/download/mainnet-v1.82.3/sui-mainnet-v1.82.3-ubuntu-aarch64.tgz",
+        "digest": "sha256:1946a62d579b1c1fe8725d4c5c22b3d75ee0312a97ccc726e54dec8f966bc0e6"
+      },
+      {
+        "name": "sui-mainnet-v1.82.3-ubuntu-x86_64.tgz",
+        "url": "https://github.com/MystenLabs/sui/releases/download/mainnet-v1.82.3/sui-mainnet-v1.82.3-ubuntu-x86_64.tgz",
+        "digest": "sha256:d616d63d90309926cf7f544633c8dd4132f762fdbba555a35c4842cfa4129379"
+      },
+      {
+        "name": "sui-mainnet-v1.82.3-windows-x86_64.tgz",
+        "url": "https://github.com/MystenLabs/sui/releases/download/mainnet-v1.82.3/sui-mainnet-v1.82.3-windows-x86_64.tgz",
+        "digest": "sha256:d9d7c6887ff44f3ee957b87ab506669bab6aaa638f491cf2a9024ae720edaf8a"
+      }
+    ]
+  },
+  "ghidra": {
+    "tag": "Ghidra_12.1.4_build",
+    "source": "https://api.github.com/repos/NationalSecurityAgency/ghidra/releases/tags/Ghidra_12.1.4_build",
+    "assets": [
+      {
+        "name": "ghidra_12.1.4_PUBLIC_20260921.zip",
+        "url": "https://github.com/NationalSecurityAgency/ghidra/releases/download/Ghidra_12.1.4_build/ghidra_12.1.4_PUBLIC_20260921.zip",
+        "digest": "sha256:ddac49f903da9d5bac833e5cc79395098b9c33cfd3279be5f31bd00387d2d4db"
+      }
+    ],
+    "java_minimum": 25,
+    "compatibility": "REA6.7.0 accepts only12.1.x; native12.2 probe returned unsupported_version. Official12.1.4 is its verified build."
+  },
+  "images": {
+    "opensandbox/code-interpreter": {
+      "tag": "v1.1.0",
+      "index_digest": "sha256:133a3c1720dd52291a019740c2987e7164ea6de79e23d8198798e58950ae2e6e",
+      "amd64_digest": "sha256:80c7e241f37afbdf58f52ecaa0d76e90e3f1240e833e9f3a6c1326be7b62f4b1"
+    },
+    "opensandbox/execd": {
+      "tag": "v1.1.0",
+      "index_digest": "sha256:6cf7dba2f21f0b536e100563d841ac58a9f31c2b0a081b7ac76796a24d6f47e2",
+      "amd64_digest": "sha256:9b856dad9c73488660522361abfaaa1ddbb9032169bcfb44c83348f46bc1cd9a"
+    },
+    "opensandbox/egress": {
+      "tag": "v1.1.7",
+      "index_digest": "sha256:db7345d567b0970f384b8e3fa7a93a71b7f43d4b16bb2009de34096e9a87b3b5",
+      "amd64_digest": "sha256:1361851fc54f0175da55c6e63978338d6cfc408a6cdaae6534965b9f76eaf605"
+    }
+  },
+  "docker_sdk": {
+    "publisher": "Canonical",
+    "name": "docker-ce",
+    "channel": "latest/stable",
+    "version": "29.5.1",
+    "ubuntu_26_04_revision": 13,
+    "verified_with": "sdk info docker-ce",
+    "application_packages": "installed by Canonical hook from Docker apt; capture installed versions during validation",
+    "observed_engine_version": "29.9.2"
+  },
+  "hindsight_runtime": {
+    "package": "hindsight-api-slim[embedded-db]",
+    "version": "0.10.3",
+    "python": "3.14.7",
+    "dependency_lock": "sdks/hermes-experiment/hindsight-requirements.txt"
+  },
+  "ci_actions": {
+    "checkout_v4": "11d5960a326750d5838078e36cf38b85af677262",
+    "upload_artifact_v4": "ea165f8d65b6e75b540449e92b4886f43607fa02"
+  },
+  "integration_dependency_cutoff": "2026-10-28T00:00:00Z",
+  "hermes_role_a_dependency_exclusions": {
+    "browser-harness": "Local browser backend is disabled in A under the separate-worker design. Its metadata requires Pillow 12.3.0 while the official frozen Hermes lock selects Pillow 13.0.0; keep the upstream Pillow pin and omit the unused local backend, without patching metadata."
+  },
+  "governing_charter": {
+    "source": "documentation-review-v0.2/docs/sources/charter-original-hermes.md",
+    "sha256": "fab40f6dc5d2416db23e43d83de97c3b59db52c3d2e7bf01c051a7d9bbefd897",
+    "context": "Operator configuration original-charter.md, loaded through native /project/.hermes.md; unchanged upstream SOUL.md",
+    "packaging": "Operator document is outside SDK payloads. Revised September charter excluded."
+  },
+  "frida_native": {
+    "version": "17.23.2",
+    "url": "https://github.com/frida/frida/releases/download/17.23.2/frida-v17.23.2-napi-v8-linux-x64.tar.gz",
+    "sha256": "9fa8f668ce91eb03713e8564de4f8fbde232233ee91d729c16773fde11dbae95",
+    "reason": "REA npm dependency requires a native binding; disabled general install scripts intentionally do not fetch it at runtime. Bake the verified official release binary separately.",
+    "license": "LGPL-2.0 WITH WxWindows-exception-3.1"
+  }
+}

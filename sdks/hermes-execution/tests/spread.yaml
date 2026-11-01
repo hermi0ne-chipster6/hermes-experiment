@@ -1,0 +1,13 @@
+project: hermes-execution
+path: /home/ubuntu/project
+backends:
+  lxd:
+    systems:
+    - ubuntu-24.04:
+        username: ubuntu
+        vm: true
+suites:
+  main/:
+    summary: Verify hermes-execution
+    environment:
+      BASE/resolute: ubuntu@26.04

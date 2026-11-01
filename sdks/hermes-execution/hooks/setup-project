@@ -1,0 +1,13 @@
+#!/bin/bash
+set -euo pipefail
+install -D -m 644 "$SDK/opensandbox.service" "$HOME/.config/systemd/user/opensandbox.service"
+install -D -m 644 "$SDK/cloudflared.service" "$HOME/.config/systemd/user/cloudflared.service"
+systemctl --user daemon-reload
+systemctl --user enable opensandbox.service
+systemctl --user enable cloudflared.service
+if [[ -f /etc/hermes-experiment/execution.enabled ]]; then
+    systemctl --user start opensandbox.service
+fi
+if [[ -f /etc/hermes-experiment/cloudflare.enabled ]]; then
+    systemctl --user start cloudflared.service
+fi

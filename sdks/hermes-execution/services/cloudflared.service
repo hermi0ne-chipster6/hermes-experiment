@@ -1,0 +1,15 @@
+[Unit]
+Description=Hermes disposable-subdomain tunnel
+After=network-online.target
+ConditionPathExists=/etc/hermes-experiment/cloudflare.enabled
+
+[Service]
+Type=simple
+ExecStart=/usr/local/bin/hermes-cloudflared
+Restart=on-failure
+RestartSec=10
+UMask=0077
+NoNewPrivileges=true
+
+[Install]
+WantedBy=default.target

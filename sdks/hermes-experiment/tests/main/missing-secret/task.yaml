@@ -1,0 +1,29 @@
+summary: hermes-experiment missing-secret
+prepare: 'envsubst ''${BASE}'' <workshop.yaml.in >workshop.yaml
+
+  workshop launch
+
+  workshop changes
+
+  workshop tasks
+
+  workshop info
+
+  '
+restore: 'workshop remove || true
+
+  workshop changes
+
+  workshop tasks
+
+  workshop info
+
+  '
+execute: "if workshop exec -- workshopctl get-secret hermes-experiment.model-key >/dev/null\
+  \ 2>&1; then\n    echo 'Unexpected connected test credential' >&2\n    exit 1\n\
+  fi\nworkshop exec -- bash -lc 'hermes --version' | MATCH '0\\.22\\.5'\n"
+debug: 'workshop info || true
+
+  workshop tasks || true
+
+  '

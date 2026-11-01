@@ -1,0 +1,6 @@
+# Operator-owned /etc/cron.d/hermes-heartbeat. Enable only after activation checks pass.
+# Every two hours in UTC; gateway remains persistent between heartbeats.
+SHELL=/bin/bash
+PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/snap/bin
+CRON_TZ=UTC
+0 */2 * * * root cd /opt/hermes-experiment/diary && /usr/bin/python3 -m hermes_diary.heartbeat --socket /run/hermes-diary/control.sock --lock /run/hermes-heartbeat.lock --timeout 5400 --closing-command /opt/hermes-experiment/deployment/enter-heartbeat -- /opt/hermes-experiment/deployment/enter-heartbeat

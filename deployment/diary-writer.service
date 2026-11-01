@@ -1,0 +1,25 @@
+[Unit]
+Description=Hermes agent append-only diary listener
+After=local-fs.target
+
+[Service]
+User=hermes-journal
+Group=hermes-journal
+WorkingDirectory=/opt/hermes-experiment/diary
+ExecStartPre=/usr/bin/rm -f /run/hermes-diary/agent.sock
+ExecStart=/usr/bin/python3 -m hermes_diary --socket /run/hermes-diary/agent.sock serve --database /var/lib/hermes-diary/journal.sqlite3
+RuntimeDirectory=hermes-diary
+RuntimeDirectoryMode=0750
+RuntimeDirectoryPreserve=yes
+StateDirectory=hermes-diary
+StateDirectoryMode=0700
+UMask=0077
+Restart=on-failure
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+RestrictAddressFamilies=AF_UNIX
+
+[Install]
+WantedBy=multi-user.target

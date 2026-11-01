@@ -1,0 +1,36 @@
+[server]
+# Private LXD bridge only: do not publish this control port through Cloudflare.
+host = "0.0.0.0"
+port = 8080
+max_sandbox_timeout_seconds = 5400
+
+[runtime]
+type = "docker"
+execd_image = "opensandbox/execd@sha256:9b856dad9c73488660522361abfaaa1ddbb9032169bcfb44c83348f46bc1cd9a"
+
+[storage]
+# Never leave this empty: upstream's empty list permits every host path.
+allowed_host_paths = ["/var/lib/hermes-sandbox-work"]
+
+[store]
+type = "sqlite"
+path = "/home/workshop/.opensandbox/opensandbox.db"
+
+[docker]
+network_mode = "bridge"
+publish_host = "127.0.0.1"
+port_range_min = 41000
+port_range_max = 41100
+drop_capabilities = ["ALL"]
+no_new_privileges = true
+pids_limit = 256
+
+[ingress]
+mode = "direct"
+
+[egress]
+image = "opensandbox/egress@sha256:1361851fc54f0175da55c6e63978338d6cfc408a6cdaae6534965b9f76eaf605"
+mode = "dns"
+
+[renew_intent]
+enabled = false

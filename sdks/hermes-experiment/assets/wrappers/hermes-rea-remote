@@ -1,0 +1,28 @@
+#!/bin/bash
+set -euo pipefail
+remote_command=rea-mcp
+if [[ $# -gt 0 ]]; then
+    if [[ $# -ne 3 || "$1" != --artifact-put || ! "$2" =~ ^[0-9a-f]{64}$ || ! "$3" =~ ^[0-9]{1,8}$ ]]; then
+        echo 'Invalid fixed REA transport mode.' >&2
+        exit 64
+    fi
+    remote_command="artifact-put $2 $3"
+fi
+host=${HERMES_REA_HOST:-}
+if [[ ! "$host" =~ ^[A-Za-z0-9][A-Za-z0-9.-]*$ ]]; then
+    echo 'REA worker hostname is not configured.' >&2
+    exit 78
+fi
+if [[ ! -s /etc/hermes-experiment/rea_known_hosts ]]; then
+    echo 'Pinned REA SSH host identity is missing.' >&2
+    exit 78
+fi
+# A dedicated ephemeral agent avoids exporting a private key or writing it to a mount.
+eval "$(ssh-agent -s -t 120)" >/dev/null
+trap 'ssh-agent -k >/dev/null 2>&1 || true' EXIT
+trap 'exit 143' TERM
+trap 'exit 130' INT
+workshopctl get-secret hermes-experiment.rea-ssh-key | ssh-add -t 120 - >/dev/null 2>&1
+ssh -F /dev/null -T -o BatchMode=yes -o ConnectTimeout=10 -o ForwardAgent=no -o ClearAllForwardings=yes \
+    -o SendEnv=-\* -o StrictHostKeyChecking=yes \
+    -o UserKnownHostsFile=/etc/hermes-experiment/rea_known_hosts "rea@$host" "$remote_command"

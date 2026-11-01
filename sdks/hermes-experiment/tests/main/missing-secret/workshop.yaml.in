@@ -1,0 +1,4 @@
+name: test-hermes-experiment-missing-secret
+base: ${BASE}
+sdks:
+- name: try-hermes-experiment

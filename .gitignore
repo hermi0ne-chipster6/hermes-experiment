@@ -1,0 +1,47 @@
+# Built SDKs, source bundles, dependencies and build caches.
+*.sdk
+*.zip
+node_modules/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.venv/
+parts/
+stage/
+prime/
+*.log
+
+# Workshop/Spread instance state is local to the test machine.
+.workshop/
+.workshop.lock
+.spread-reuse.yaml
+/validation/**/*-result.json
+/validation/**/native-hook-tool-results.json
+
+# Runtime credentials and durable agent data never belong in source control.
+.env
+.env.*
+*.env
+!*.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+id_rsa
+id_ed25519
+*.sqlite*
+*.db
+*.db-*
+*.jsonl
+
+# Retain reviewed summaries; raw diagnostics and analysis outputs stay local.
+/reports/*
+!/reports/README.md
+!/reports/verification.md
+!/reports/artifacts.json
+!/reports/SHA256SUMS
+!/reports/publishing/
+/reports/publishing/*
+!/reports/publishing/publication.md
+!/reports/publishing/publication.json
+!/reports/publishing/preflight.json

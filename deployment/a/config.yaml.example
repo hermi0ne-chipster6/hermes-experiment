@@ -1,0 +1,100 @@
+# Operator-owned read-only configuration. Empty MCP allowlists prevent activation before compatibility/policy tests.
+_config_version: 12
+plugins:
+  enabled:
+  - hermes_diary
+  - hermes_notifications
+  - hermes_artifacts
+  - hermes_otel
+  - hindsight
+  - rea
+memory:
+  provider: hindsight
+agent:
+  disabled_toolsets:
+  - terminal
+  - file
+  - browser
+  - code_execution
+  - computer_use
+  - delegation
+  - skills
+  - connections
+  - kanban
+  - catalog
+  - project
+  - desktop_ui
+platform_toolsets:
+  cli:
+  - memory
+  - todo
+  - session_search
+  - cronjob
+  - clarify
+  - hermes_diary
+  - hermes_notifications
+  - hermes_artifacts
+  - mcp-opensandbox
+  - mcp-rea
+  - mcp-link
+  buzz:
+  - memory
+  - todo
+  - session_search
+  - cronjob
+  - clarify
+  - hermes_diary
+  - hermes_notifications
+  - hermes_artifacts
+  - mcp-opensandbox
+  - mcp-rea
+  - mcp-link
+  email:
+  - memory
+  - todo
+  - session_search
+  - cronjob
+  - clarify
+  - hermes_diary
+  - hermes_notifications
+  - hermes_artifacts
+  - mcp-opensandbox
+  - mcp-rea
+  - mcp-link
+  cron:
+  - memory
+  - todo
+  - session_search
+  - cronjob
+  - clarify
+  - hermes_diary
+  - hermes_notifications
+  - hermes_artifacts
+  - mcp-opensandbox
+  - mcp-rea
+  - mcp-link
+platforms:
+  buzz:
+    enabled: false
+  email:
+    enabled: false
+mcp_servers:
+  opensandbox:
+    command: /usr/local/bin/opensandbox-mcp
+    args:
+    - --use-server-proxy
+    tools:
+      include: []
+  rea:
+    command: /usr/local/bin/hermes-rea-remote
+    args: []
+    tools:
+      include: []
+  link:
+    command: /usr/local/bin/link-cli
+    args:
+    - --mcp
+    tools:
+      include: []
+terminal:
+  cwd: /project

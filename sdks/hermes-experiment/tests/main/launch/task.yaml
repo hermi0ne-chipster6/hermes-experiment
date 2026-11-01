@@ -1,0 +1,39 @@
+summary: hermes-experiment launch
+prepare: 'envsubst ''${BASE}'' <workshop.yaml.in >workshop.yaml
+
+  workshop launch
+
+  workshop changes
+
+  workshop tasks
+
+  workshop info
+
+  '
+restore: 'workshop remove || true
+
+  workshop changes
+
+  workshop tasks
+
+  workshop info
+
+  '
+execute: 'workshop exec -- bash -lc ''hermes --version'' | MATCH ''0\.22\.5''
+
+  workshop exec -- bash -lc ''buzz --help'' | MATCH ''Usage''
+
+  workshop exec -- bash -lc ''sui --version'' | MATCH ''1\.82\.3''
+
+  workshop exec -- bash -lc ''link-cli --help'' | MATCH ''Usage''
+
+  workshop exec -- bash -lc ''test -e ~/.hermes/plugins/hermes_otel/dashboard''
+
+  workshop info | MATCH ''status:\s+ready''
+
+  '
+debug: 'workshop info || true
+
+  workshop tasks || true
+
+  '

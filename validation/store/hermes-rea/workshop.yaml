@@ -1,0 +1,5 @@
+name: c
+base: ubuntu@26.04
+sdks:
+- name: hermes-rea
+  channel: latest/edge

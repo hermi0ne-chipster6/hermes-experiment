@@ -1,0 +1,4 @@
+#!/bin/bash
+set -euo pipefail
+sdk_dir=$(dirname "$(dirname "$(readlink -f "$0")")")
+exec "$sdk_dir/hindsight/bin/python" -c 'import sys; from hindsight_api.main import main; sys.exit(main())' "$@"

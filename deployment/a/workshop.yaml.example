@@ -1,0 +1,38 @@
+name: a
+base: ubuntu@26.04
+sdks:
+- name: hermes-experiment
+  channel: latest/edge
+- name: system
+  slots:
+    diary:
+      interface: tunnel
+      endpoint: /run/hermes-diary/agent.sock
+    model-key:
+      interface: secret
+      attributes:
+        application: hermes-experiment-1
+        credential: model-key
+    buzz-key:
+      interface: secret
+      attributes:
+        application: hermes-experiment-1
+        credential: buzz-key
+    email-password:
+      interface: secret
+      attributes:
+        application: hermes-experiment-1
+        credential: email-password
+    sandbox-api-key:
+      interface: secret
+      attributes:
+        application: hermes-experiment-1
+        credential: sandbox-api-key
+    rea-ssh-key:
+      interface: secret
+      attributes:
+        application: hermes-experiment-1
+        credential: rea-ssh-key
+connections:
+- plug: hermes-experiment:diary
+  slot: system:diary

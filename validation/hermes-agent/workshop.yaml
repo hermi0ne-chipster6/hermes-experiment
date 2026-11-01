@@ -1,0 +1,4 @@
+name: a
+base: ubuntu@26.04
+sdks:
+- name: try-hermes-experiment

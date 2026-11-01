@@ -1,0 +1,36 @@
+summary: hermes-execution launch
+prepare: 'envsubst ''${BASE}'' <workshop.yaml.in >workshop.yaml
+
+  workshop launch
+
+  workshop changes
+
+  workshop tasks
+
+  workshop info
+
+  '
+restore: 'workshop remove || true
+
+  workshop changes
+
+  workshop tasks
+
+  workshop info
+
+  '
+execute: 'workshop exec -- bash -lc ''opensandbox-server --help'' | MATCH ''OpenSandbox''
+
+  workshop exec -- bash -lc ''docker version --format "{{.Server.Version}}"'' | MATCH
+  ''[0-9]''
+
+  workshop exec -- bash -lc ''cloudflared --version'' | MATCH ''2026\.10\.7''
+
+  workshop info | MATCH ''status:\s+ready''
+
+  '
+debug: 'workshop info || true
+
+  workshop tasks || true
+
+  '
