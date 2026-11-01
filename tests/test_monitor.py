@@ -102,6 +102,15 @@ class MonitorTests(unittest.TestCase):
         self.assertEqual(result['status'], 'prerelease-channel-review')
         self.assertFalse(result['candidate']['eligible'])
 
+    def test_existing_npm_beta_only_dependency_remains_a_channel_review(self):
+        item = dict(name='npm:example', kind='npm', package='example', current='1.0.0-alpha.1',
+                    versions=['1.0.0-alpha.1'], roles=['hermes-experiment'], inputs=['package-lock.json'])
+        entry = {'version':'1.0.0-alpha.2','dist':{'integrity':'sha512-example'}}
+        client = FixtureClient({'/example/latest':entry,'/example':{'versions':{'1.0.0-alpha.2':entry}}})
+        result = inspect_component(item, client)
+        self.assertEqual(result['status'], 'prerelease-channel-review')
+        self.assertFalse(result['candidate']['eligible'])
+
     def test_moved_current_tag_is_detected_even_when_a_new_release_exists(self):
         client = FixtureClient({'/releases?per_page=100':[release('v1.1.0')],
             '/git/ref/tags/v1.1.0': {'object':{'type':'commit','sha':'b'*40}},
@@ -127,6 +136,14 @@ class MonitorTests(unittest.TestCase):
         item = component()
         item['kind'] = 'unsupported'
         self.assertFalse(monitor([item], FixtureClient({}))['complete'])
+
+    def test_missing_image_digest_is_an_incomplete_check(self):
+        item = dict(name='image:example/test', kind='docker-image', image='example/test',
+                    current='v1.0.0',digest='sha256:'+'a'*64, roles=['hermes-execution'], inputs=['sources.json'])
+        client = FixtureClient({'/tags/v1.0.0': {}})
+        result = monitor([item], client)
+        self.assertFalse(result['complete'])
+        self.assertIn('digest', result['errors'][0]['error'])
 
     def test_reports_preserve_errors_and_do_not_edit_source_files(self):
         report = {'complete':False,'checked_count':1,'results':[],

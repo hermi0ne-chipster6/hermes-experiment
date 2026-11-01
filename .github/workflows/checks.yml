@@ -1,0 +1,40 @@
+name: Source checks
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: source-checks-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  checks:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+      - name: Install locked CI dependencies
+        run: |
+          python3 -m venv "$RUNNER_TEMP/ci-venv"
+          "$RUNNER_TEMP/ci-venv/bin/pip" install --only-binary=:all: --require-hashes -r ci/requirements.txt
+          echo "$RUNNER_TEMP/ci-venv/bin" >> "$GITHUB_PATH"
+      - name: Install verified workflow and secret scanners
+        run: |
+          python3 ci/install-tools.py --directory "$RUNNER_TEMP/ci-tools"
+          echo "$RUNNER_TEMP/ci-tools" >> "$GITHUB_PATH"
+          command -v shellcheck
+      - name: Behavioral tests
+        run: python3 -m unittest discover -s tests -v
+      - name: Inventory, configuration and shell checks
+        run: python3 ci/check.py
+      - name: Workflow lint
+        run: actionlint -color
+      - name: Scan source history for secrets
+        run: gitleaks git . --redact=100 --no-banner
+      - name: Scope of these checks
+        run: |
+          echo 'Source checks passed. SDK builds, VM/Spread jobs and application integration acceptance are separate gates.' >> "$GITHUB_STEP_SUMMARY"

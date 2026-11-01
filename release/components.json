@@ -171,7 +171,8 @@
           "frida_native",
           "version"
         ]
-      }
+      },
+      "release_page_size": 10
     },
     {
       "name": "node",

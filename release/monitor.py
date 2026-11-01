@@ -5,6 +5,7 @@ from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, timezone
 from functools import lru_cache
 import gzip
+import hashlib
 import json
 import os
 from pathlib import Path
@@ -42,7 +43,7 @@ class SafeRedirect(HTTPRedirectHandler):
 
 
 class Client:
-    @lru_cache(maxsize=2048)
+    @lru_cache(maxsize=8)
     def get(self, url, *, raw=False):
         parsed = urlparse(url)
         if parsed.scheme != 'https' or parsed.hostname not in HOSTS:
@@ -93,7 +94,7 @@ def resolve_tag(repository, tag, client):
 
 
 def github_release(record, client):
-    items = client.get(api(record['repository'])+'/releases?per_page=100')
+    items = client.get(api(record['repository'])+'/releases?per_page='+str(record.get('release_page_size', 100)))
     choices = []
     for item in items:
         match = re.fullmatch(record.get('pattern', r'v(\d+\.\d+\.\d+)'), item.get('tag_name', ''))
@@ -131,6 +132,7 @@ def latest(record, client, root):
     if kind == 'npm':
         base = 'https://registry.npmjs.org/'+quote(record['package'], safe='')
         item = client.get(base+'/latest')
+        beta_only = False
         try:
             stable(item['version'])
         except (InvalidVersion, ValueError):
@@ -142,12 +144,15 @@ def latest(record, client, root):
                 except (InvalidVersion, ValueError):
                     continue
             if not choices:
-                raise ValueError('npm has no stable published version')
-            _, item = max(choices, key=lambda entry: entry[0])
+                if not all(Version(v).is_prerelease for v in record.get('versions', [record['current']])):
+                    raise ValueError('npm has no stable published version')
+                beta_only = True
+            else:
+                _, item = max(choices, key=lambda entry: entry[0])
         dist = item['dist']
         if not dist.get('integrity'):
             raise ValueError('npm candidate lacks integrity metadata')
-        return dict(version=item['version'], integrity=dist['integrity'], url=dist.get('tarball'))
+        return dict(version=item['version'], integrity=dist['integrity'], url=dist.get('tarball'), eligible=not beta_only)
     if kind == 'pypi':
         feed = ET.fromstring(client.get('https://pypi.org/rss/project/'+quote(record['package'], safe='')+'/releases.xml', raw=True))
         choices, prereleases = [], []
@@ -205,6 +210,8 @@ def latest(record, client, root):
     if kind == 'docker-image':
         base = 'https://hub.docker.com/v2/repositories/'+record['image']+'/tags/'
         pinned = client.get(base+quote(record['current'], safe=''))
+        if not re.fullmatch(r'sha256:[0-9a-f]{64}', pinned.get('digest', '')):
+            raise ValueError('pinned image metadata lacks a valid digest')
         if pinned.get('digest') != record['digest']:
             return dict(tag=record['current'], digest=pinned.get('digest'), drift=True)
         entries = client.get(base+'?page_size=100')['results']
@@ -225,6 +232,13 @@ def latest(record, client, root):
         version = base64.b64decode(item['content'], validate=False).decode().strip()
         stable(version)
         return dict(version=version, source_blob=item['sha'], publication='requires SDK Store verification')
+    if kind == 'upstream-lock':
+        body = client.get('https://raw.githubusercontent.com/'+record['repository']+'/'+
+                          record['revision']+'/'+record['path'], raw=True)
+        digest = hashlib.sha256(body).hexdigest()
+        if digest != record['current']:
+            raise ValueError('captured dependency input differs from its immutable upstream source')
+        return dict(digest=digest, version='verified immutable dependency input')
     if kind == 'docker-apt':
         body = client.get('https://download.docker.com/linux/ubuntu/dists/resolute/stable/binary-amd64/Packages.gz', raw=True)
         entries = []
@@ -290,6 +304,8 @@ def inspect_component(record, client, root=ROOT):
     elif kind == 'ubuntu-security':
         if candidate['notices']:
             result['status'] = 'advisory-review-required'
+    elif kind == 'upstream-lock':
+        pass  # latest() verified both the immutable source and its captured digest.
     else:
         current = record.get('versions', [record['current']])
         pattern = record.get('pattern', r'v?(\d+\.\d+\.\d+)')
@@ -316,7 +332,7 @@ def monitor(records, client=None, root=ROOT):
         except Exception as error:
             return None, {'component': record['name'], 'error': type(error).__name__+': '+str(error)[:300]}
     results, errors = [], []
-    with ThreadPoolExecutor(max_workers=8) as pool:
+    with ThreadPoolExecutor(max_workers=4) as pool:
         for result, error in pool.map(check, records):
             if result is not None:
                 results.append(result)

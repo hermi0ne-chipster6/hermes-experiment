@@ -1,0 +1,82 @@
+# Adapted from the existing SDKcraft/Spread template; no publication credentials.
+name: SDK packaging qualification
+on:
+  workflow_dispatch:
+    inputs:
+      runner_ready:
+        description: I verified an online disposable Ubuntu 26.04 AMD64 KVM runner labeled hermes-sdk-build
+        type: boolean
+        required: true
+        default: false
+permissions:
+  contents: read
+concurrency:
+  group: sdk-qualification
+  cancel-in-progress: false
+jobs:
+  preflight:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+      - name: Require reviewed branch and operator-verified runner
+        env:
+          RUNNER_READY: ${{ inputs.runner_ready }}
+        run: |
+          python3 -m venv "$RUNNER_TEMP/ci-venv"
+          "$RUNNER_TEMP/ci-venv/bin/pip" install --only-binary=:all: --require-hashes -r ci/requirements.txt
+          "$RUNNER_TEMP/ci-venv/bin/python" ci/check.py --build-preflight --branch "$GITHUB_REF_NAME" --runner-ready "$RUNNER_READY"
+      - name: Record preflight failure
+        if: failure()
+        run: echo 'BLOCKED. No SDK compatibility result. A reviewed main branch and operator-verified online Ubuntu 26.04 AMD64 KVM runner are required.' >> "$GITHUB_STEP_SUMMARY"
+  sdk:
+    if: github.ref == 'refs/heads/main'
+    needs: preflight
+    strategy:
+      fail-fast: false
+      max-parallel: 1
+      matrix:
+        role: [hermes-experiment, hermes-execution, hermes-rea]
+    runs-on: [self-hosted, linux, x64, hermes-sdk-build]
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+      - name: Require Ubuntu 26.04 AMD64 and working KVM
+        run: |
+          . /etc/os-release
+          test "$ID" = ubuntu
+          test "$VERSION_ID" = 26.04
+          test "$(uname -m)" = x86_64
+          test -r /dev/kvm
+          workshop --version
+          snap list workshop sdkcraft lxd
+          sudo -n lxc info
+      - name: Build and run Spread smoke suite
+        working-directory: sdks/${{ matrix.role }}
+        run: |
+          set -o pipefail
+          sudo -n sdkcraft clean
+          sudo -n sdkcraft try --build-for amd64 2>&1 | tee try.log
+          sudo -n sdkcraft test --list | tee spread-jobs.txt
+          test -s spread-jobs.txt
+          sudo -n sdkcraft test 2>&1 | tee spread.log
+          sha256sum ./*.sdk > artifact-checksums.txt
+      - name: Retain qualification evidence
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        with:
+          name: qualification-${{ matrix.role }}-${{ github.run_id }}
+          path: |
+            sdks/${{ matrix.role }}/*.sdk
+            sdks/${{ matrix.role }}/artifact-checksums.txt
+            sdks/${{ matrix.role }}/spread-jobs.txt
+            sdks/${{ matrix.role }}/try.log
+            sdks/${{ matrix.role }}/spread.log
+          retention-days: 7
+          if-no-files-found: error
+      - name: Qualification limits
+        run: echo 'Packaging/Spread checks passed for this SDK. Full A/B/C integration acceptance and reviewed Store promotion are still required.' >> "$GITHUB_STEP_SUMMARY"

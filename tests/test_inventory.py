@@ -35,6 +35,37 @@ class InventoryTests(unittest.TestCase):
         self.assertIn('2.0.0-alpha.4', client['versions'])
         self.assertGreater(len([r for r in records if r['kind'] == 'pypi']), 150)
 
+    def test_upstream_worker_locks_are_inventoried_and_bound_to_source_revisions(self):
+        records = inventory(ROOT)
+        self.assertTrue(any(r['kind']=='pypi' and 'hermes-execution' in r['roles'] for r in records))
+        self.assertTrue(any(r['kind']=='npm' and 'upstream-locks/hermes/' in ' '.join(r['inputs']) for r in records))
+        self.assertTrue(any(r['kind']=='upstream-lock' and 'opensandbox' in r['name'] for r in records))
+
+    def test_npm_aliases_monitor_the_real_package_name(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            for name in ('release', 'sdks', 'ci'):
+                shutil.copytree(ROOT/name, root/name, ignore=shutil.ignore_patterns('*.sdk', '__pycache__'))
+            shutil.copy(ROOT/'sources.json', root/'sources.json')
+            path = root/'sdks/hermes-rea/npm/package-lock.json'
+            lock = json.loads(path.read_text())
+            lock['packages']['node_modules/alias-name'] = {'name':'real-package','version':'1.0.0'}
+            path.write_text(json.dumps(lock))
+            names = {r['name'] for r in inventory(root)}
+            self.assertIn('npm:real-package', names)
+            self.assertNotIn('npm:alias-name', names)
+
+    def test_unsupported_manifests_cannot_hide_under_a_classified_part(self):
+        for filename in ('pyproject.toml', 'pnpm-lock.yaml', 'npm-shrinkwrap.json'):
+            with self.subTest(filename=filename), tempfile.TemporaryDirectory() as temp:
+                root = Path(temp)
+                for name in ('release', 'sdks', 'ci'):
+                    shutil.copytree(ROOT/name, root/name, ignore=shutil.ignore_patterns('*.sdk', '__pycache__'))
+                shutil.copy(ROOT/'sources.json', root/'sources.json')
+                (root/'sdks/hermes-rea/npm'/filename).write_text('{}')
+                with self.assertRaisesRegex(ValueError, 'unclassified'):
+                    inventory(root)
+
     def test_new_external_part_cannot_escape_coverage(self):
         import yaml
         with tempfile.TemporaryDirectory() as temp:
@@ -74,4 +105,28 @@ class InventoryTests(unittest.TestCase):
             shutil.copy(ROOT/'sources.json', root/'sources.json')
             (root/'sdks/hermes-experiment/VERSION').write_text('99.0.0\n')
             with self.assertRaisesRegex(ValueError, 'pin mismatch'):
+                inventory(root)
+
+    def test_npm_manifest_changes_require_a_matching_lock(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            for name in ('release', 'sdks', 'ci'):
+                shutil.copytree(ROOT/name, root/name, ignore=shutil.ignore_patterns('*.sdk', '__pycache__'))
+            shutil.copy(ROOT/'sources.json', root/'sources.json')
+            path = root/'sdks/hermes-rea/npm/package.json'
+            document = json.loads(path.read_text())
+            document['dependencies']['rea-agents'] = '99.0.0'
+            path.write_text(json.dumps(document))
+            with self.assertRaisesRegex(ValueError, 'npm manifest'):
+                inventory(root)
+
+    def test_new_python_input_pin_requires_regenerating_the_frozen_lock(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            for name in ('release', 'sdks', 'ci'):
+                shutil.copytree(ROOT/name, root/name, ignore=shutil.ignore_patterns('*.sdk', '__pycache__'))
+            shutil.copy(ROOT/'sources.json', root/'sources.json')
+            path = root/'sdks/hermes-experiment/plugin-requirements.in'
+            path.write_text(path.read_text().replace('opensandbox-mcp==1.2.0','opensandbox-mcp==99.0.0'))
+            with self.assertRaisesRegex(ValueError, 'Python input'):
                 inventory(root)
