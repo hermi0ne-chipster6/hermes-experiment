@@ -38,13 +38,32 @@ def validate_coverage(root=ROOT):
             raise ValueError(f'unlocked npm manifest: {path.relative_to(root)}')
     if not (root/'release/platform-packages.json').is_file():
         raise ValueError('missing observed Ubuntu package baseline')
+    sources = json.loads((root/'sources.json').read_text())
+    for role, expected in [('hermes-experiment', sources['hermes']['tag'].removeprefix('v')),
+                           ('hermes-execution', sources['opensandbox']['tag'].removeprefix('release-')),
+                           ('hermes-rea', sources['rea']['version'])]:
+        if (root/f'sdks/{role}/VERSION').read_text().strip() != expected:
+            raise ValueError(f'pin mismatch: {role}/VERSION and sources.json')
+    for role, expected in [('hermes-experiment', sources['hermes_commit']),
+                           ('hermes-execution', sources['opensandbox']['commit'])]:
+        if expected not in (root/f'sdks/{role}/sdkcraft.yaml').read_text():
+            raise ValueError(f'pin mismatch: {role} source revision')
 
 
 def inventory(root=ROOT):
     root = Path(root)
     validate_coverage(root)
     policy = json.loads((root/'release/components.json').read_text())
-    records = {item['name']: dict(item) for item in policy['components']}
+    sources = json.loads((root/'sources.json').read_text())
+    records = {}
+    for item in policy['components']:
+        record = dict(item)
+        for field, path in record.get('source_keys', {}).items():
+            value = sources
+            for key in path:
+                value = value[key]
+            record[field] = value
+        records[item['name']] = record
 
     def dependency(kind, name, version, path):
         key = f'{kind}:{name.lower().replace("_", "-") if kind == "pypi" else name}'

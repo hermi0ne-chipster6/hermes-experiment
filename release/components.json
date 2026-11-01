@@ -15,7 +15,6 @@
     {
       "name": "hermes",
       "kind": "github-release",
-      "current": "v0.22.5",
       "roles": [
         "hermes-experiment"
       ],
@@ -27,13 +26,20 @@
       "parts": [
         "hermes-experiment/hermes-agent"
       ],
-      "revision": "bf0203a794a07aac3ff764972ab9087baa4e4f4e",
-      "chronological": true
+      "chronological": true,
+      "source_keys": {
+        "current": [
+          "hermes",
+          "tag"
+        ],
+        "revision": [
+          "hermes_commit"
+        ]
+      }
     },
     {
       "name": "opensandbox",
       "kind": "github-release",
-      "current": "release-1.2.0",
       "roles": [
         "hermes-experiment",
         "hermes-execution"
@@ -46,12 +52,20 @@
       "parts": [
         "hermes-execution/opensandbox"
       ],
-      "revision": "62a64f0b48cdd6b410f36e53c74dc7559c87719a"
+      "source_keys": {
+        "current": [
+          "opensandbox",
+          "tag"
+        ],
+        "revision": [
+          "opensandbox",
+          "commit"
+        ]
+      }
     },
     {
       "name": "cloudflared",
       "kind": "github-release",
-      "current": "2026.10.7",
       "roles": [
         "hermes-execution"
       ],
@@ -62,12 +76,17 @@
       "pattern": "(\\d+\\.\\d+\\.\\d+)",
       "parts": [
         "hermes-execution/cloudflared"
-      ]
+      ],
+      "source_keys": {
+        "current": [
+          "cloudflared",
+          "tag"
+        ]
+      }
     },
     {
       "name": "buzz",
       "kind": "github-release",
-      "current": "desktop-v0.5.28",
       "roles": [
         "hermes-experiment"
       ],
@@ -79,12 +98,20 @@
       "parts": [
         "hermes-experiment/buzz-cli"
       ],
-      "revision": "f87c10895ea35a9a2cea629fef1d7532a3fecbc5"
+      "source_keys": {
+        "current": [
+          "buzz",
+          "tag"
+        ],
+        "revision": [
+          "buzz",
+          "commit"
+        ]
+      }
     },
     {
       "name": "sui",
       "kind": "github-release",
-      "current": "mainnet-v1.82.3",
       "roles": [
         "hermes-experiment"
       ],
@@ -95,12 +122,17 @@
       "pattern": "mainnet-v(\\d+\\.\\d+\\.\\d+)",
       "parts": [
         "hermes-experiment/sui"
-      ]
+      ],
+      "source_keys": {
+        "current": [
+          "sui",
+          "tag"
+        ]
+      }
     },
     {
       "name": "ghidra",
       "kind": "github-release",
-      "current": "Ghidra_12.1.4_build",
       "roles": [
         "hermes-rea"
       ],
@@ -112,12 +144,17 @@
       "parts": [
         "hermes-rea/ghidra"
       ],
-      "compatibility": "REA 6.7.0 requires Ghidra 12.1.x; newer lines require coordinated REA qualification."
+      "compatibility": "REA 6.7.0 requires Ghidra 12.1.x; newer lines require coordinated REA qualification.",
+      "source_keys": {
+        "current": [
+          "ghidra",
+          "tag"
+        ]
+      }
     },
     {
       "name": "frida",
       "kind": "github-release",
-      "current": "17.23.2",
       "roles": [
         "hermes-rea"
       ],
@@ -128,12 +165,17 @@
       "pattern": "(\\d+\\.\\d+\\.\\d+)",
       "parts": [
         "hermes-rea/frida-native"
-      ]
+      ],
+      "source_keys": {
+        "current": [
+          "frida_native",
+          "version"
+        ]
+      }
     },
     {
       "name": "node",
       "kind": "node",
-      "current": "v26.13.0",
       "roles": [
         "hermes-experiment",
         "hermes-rea"
@@ -144,12 +186,17 @@
       "parts": [
         "hermes-experiment/node-runtime",
         "hermes-rea/node-runtime"
-      ]
+      ],
+      "source_keys": {
+        "current": [
+          "node",
+          "version"
+        ]
+      }
     },
     {
       "name": "python",
       "kind": "github-tags",
-      "current": "3.14.7",
       "roles": [
         "hermes-experiment",
         "hermes-execution"
@@ -159,12 +206,17 @@
       ],
       "repository": "python/cpython",
       "pattern": "v(\\d+\\.\\d+\\.\\d+)",
-      "compatibility": "Python ABI changes require rebuilding every wheel and checking all plugin locks."
+      "compatibility": "Python ABI changes require rebuilding every wheel and checking all plugin locks.",
+      "source_keys": {
+        "current": [
+          "hindsight_runtime",
+          "python"
+        ]
+      }
     },
     {
       "name": "rea",
       "kind": "npm",
-      "current": "6.7.0",
       "roles": [
         "hermes-rea"
       ],
@@ -174,12 +226,17 @@
       "package": "rea-agents",
       "parts": [
         "hermes-rea/rea"
-      ]
+      ],
+      "source_keys": {
+        "current": [
+          "rea",
+          "version"
+        ]
+      }
     },
     {
       "name": "plugin:hindsight",
       "kind": "hermes-catalog",
-      "current": "d952b6e655fccab4581ee0722b51c5f103873d12",
       "roles": [
         "hermes-experiment"
       ],
@@ -191,12 +248,17 @@
       "subdir": "hindsight-integrations/hermes",
       "parts": [
         "hermes-experiment/official-plugins"
-      ]
+      ],
+      "source_keys": {
+        "current": [
+          "hindsight_plugin",
+          "sha"
+        ]
+      }
     },
     {
       "name": "plugin:hermes_otel",
       "kind": "hermes-catalog",
-      "current": "d234865b13e997e0b3a50dc18aaad7c7d7b1b1fe",
       "roles": [
         "hermes-experiment"
       ],
@@ -208,12 +270,17 @@
       "subdir": "hermes_otel",
       "parts": [
         "hermes-experiment/official-plugins"
-      ]
+      ],
+      "source_keys": {
+        "current": [
+          "hermes_otel_plugin",
+          "sha"
+        ]
+      }
     },
     {
       "name": "plugin:rea",
       "kind": "hermes-catalog",
-      "current": "1690b63a4790cb821fb6a319ba524815d4e09411",
       "roles": [
         "hermes-experiment"
       ],
@@ -225,12 +292,17 @@
       "subdir": "rea",
       "parts": [
         "hermes-experiment/official-plugins"
-      ]
+      ],
+      "source_keys": {
+        "current": [
+          "rea_plugin",
+          "sha"
+        ]
+      }
     },
     {
       "name": "image:opensandbox/code-interpreter",
       "kind": "docker-image",
-      "current": "v1.1.0",
       "roles": [
         "hermes-execution"
       ],
@@ -239,13 +311,27 @@
         "deployment/b/opensandbox.toml.example"
       ],
       "image": "opensandbox/code-interpreter",
-      "digest": "sha256:133a3c1720dd52291a019740c2987e7164ea6de79e23d8198798e58950ae2e6e",
-      "amd64_digest": "sha256:80c7e241f37afbdf58f52ecaa0d76e90e3f1240e833e9f3a6c1326be7b62f4b1"
+      "source_keys": {
+        "current": [
+          "images",
+          "opensandbox/code-interpreter",
+          "tag"
+        ],
+        "digest": [
+          "images",
+          "opensandbox/code-interpreter",
+          "index_digest"
+        ],
+        "amd64_digest": [
+          "images",
+          "opensandbox/code-interpreter",
+          "amd64_digest"
+        ]
+      }
     },
     {
       "name": "image:opensandbox/execd",
       "kind": "docker-image",
-      "current": "v1.1.0",
       "roles": [
         "hermes-execution"
       ],
@@ -254,13 +340,27 @@
         "deployment/b/opensandbox.toml.example"
       ],
       "image": "opensandbox/execd",
-      "digest": "sha256:6cf7dba2f21f0b536e100563d841ac58a9f31c2b0a081b7ac76796a24d6f47e2",
-      "amd64_digest": "sha256:9b856dad9c73488660522361abfaaa1ddbb9032169bcfb44c83348f46bc1cd9a"
+      "source_keys": {
+        "current": [
+          "images",
+          "opensandbox/execd",
+          "tag"
+        ],
+        "digest": [
+          "images",
+          "opensandbox/execd",
+          "index_digest"
+        ],
+        "amd64_digest": [
+          "images",
+          "opensandbox/execd",
+          "amd64_digest"
+        ]
+      }
     },
     {
       "name": "image:opensandbox/egress",
       "kind": "docker-image",
-      "current": "v1.1.7",
       "roles": [
         "hermes-execution"
       ],
@@ -269,13 +369,27 @@
         "deployment/b/opensandbox.toml.example"
       ],
       "image": "opensandbox/egress",
-      "digest": "sha256:db7345d567b0970f384b8e3fa7a93a71b7f43d4b16bb2009de34096e9a87b3b5",
-      "amd64_digest": "sha256:1361851fc54f0175da55c6e63978338d6cfc408a6cdaae6534965b9f76eaf605"
+      "source_keys": {
+        "current": [
+          "images",
+          "opensandbox/egress",
+          "tag"
+        ],
+        "digest": [
+          "images",
+          "opensandbox/egress",
+          "index_digest"
+        ],
+        "amd64_digest": [
+          "images",
+          "opensandbox/egress",
+          "amd64_digest"
+        ]
+      }
     },
     {
       "name": "docker-sdk",
       "kind": "github-file",
-      "current": "29.5.1",
       "roles": [
         "hermes-execution"
       ],
@@ -286,19 +400,30 @@
       "repository": "canonical/docker-sdk",
       "ref": "latest",
       "file": "VERSION",
-      "qualification": "Discovery watches the publisher track; published Store revision/base must be verified with sdk info docker-ce during qualification. A track change is not proof of publication."
+      "qualification": "Discovery watches the publisher track; published Store revision/base must be verified with sdk info docker-ce during qualification. A track change is not proof of publication.",
+      "source_keys": {
+        "current": [
+          "docker_sdk",
+          "version"
+        ]
+      }
     },
     {
       "name": "docker-engine",
       "kind": "docker-apt",
-      "current": "29.9.2",
       "roles": [
         "hermes-execution"
       ],
       "inputs": [
         "sources.json"
       ],
-      "qualification": "Canonical installs Docker from apt; record the actual installed version after each build/refresh."
+      "qualification": "Canonical installs Docker from apt; record the actual installed version after each build/refresh.",
+      "source_keys": {
+        "current": [
+          "docker_sdk",
+          "observed_engine_version"
+        ]
+      }
     },
     {
       "name": "ubuntu-security",

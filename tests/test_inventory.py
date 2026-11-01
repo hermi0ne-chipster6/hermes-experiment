@@ -65,3 +65,13 @@ class InventoryTests(unittest.TestCase):
         before = (ROOT/'sources.json').read_bytes()
         inventory(ROOT)
         self.assertEqual((ROOT/'sources.json').read_bytes(), before)
+
+    def test_version_file_cannot_disagree_with_source_manifest(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            for name in ('release', 'sdks', 'ci'):
+                shutil.copytree(ROOT/name, root/name, ignore=shutil.ignore_patterns('*.sdk', '__pycache__'))
+            shutil.copy(ROOT/'sources.json', root/'sources.json')
+            (root/'sdks/hermes-experiment/VERSION').write_text('99.0.0\n')
+            with self.assertRaisesRegex(ValueError, 'pin mismatch'):
+                inventory(root)
