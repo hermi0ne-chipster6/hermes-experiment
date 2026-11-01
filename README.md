@@ -33,11 +33,11 @@ Native Hermes hooks request and submit an authored heartbeat report. The externa
 
 Start with the [activation checklist](deployment/activation-checklist.md), [network requirements](deployment/networking.md), [execution-isolation decision](deployment/execution-isolation.md) and role-specific `.example` files. The shared LXD bridge provides connectivity; it does not authenticate workers or enforce isolation. Worker tool allowlists and external adapters remain disabled until their actual checks pass. Hindsight is the baseline; existing banks remain untouched. MemPalace evaluation and any restore or migration require separate evidence and approval.
 
-[Release automation](release/README.md) detects stable releases and proposes pinned candidates. It cannot upgrade a running agent or publish an SDK. Review controls promotion of the exact tested artifact; Workshop refresh then downloads that promoted revision. The three SDKs are published on `latest/edge`, and the deployment examples use that channel. Stable promotion remains review-controlled. Future-release CI remains an inactive template; creating the source repository does not activate it.
+[Maintenance CI](release/README.md) monitors the complete declared SDK inventory and produces review reports. Hosted checks run tests, source/configuration validation and secret scanning. Full SDK packaging/Spread qualification is manually dispatched on a dedicated Ubuntu 26.04 AMD64 KVM runner. It cannot upgrade a running agent or publish an SDK. Review controls promotion of the exact tested artifact; Workshop refresh then downloads that promoted revision. The three SDKs remain published on `latest/edge`.
 
 ## Source repository
 
-This integration repository preserves all three publisher SDK sources, shared diary code, deployment examples, dependency locks, tests and reviewed release records. Each SDK remains under `sdks/<name>/`. Build outputs, credentials, runtime databases, local Workshop state and raw diagnostics are excluded; see [verification records](reports/README.md). Keep original test-machine evidence and exact published SDK packages separately. Review and configure the templates under `release/workflows/` before enabling automation.
+This integration repository preserves all three publisher SDK sources, shared diary code, deployment examples, dependency locks, tests and reviewed release records. Each SDK remains under `sdks/<name>/`. Build outputs, credentials, runtime databases, local Workshop state and raw diagnostics are excluded; see [verification records](reports/README.md). Keep original test-machine evidence and exact published SDK packages separately. [Workflow operation](release/workflows/README.md) explains the hosted and manual qualification jobs.
 
 ## Reconnect
 

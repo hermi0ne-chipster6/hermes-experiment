@@ -1,9 +1,28 @@
-# Workflow installation
+# Maintenance workflows
 
-These files are templates, not activated workflows. Paths assume `hermes-experiment/` becomes the root of a protected integration repository. The detector's Ubuntu 24.04 runner performs only standard-library HTTP/JSON work; **every SDK target and the compatibility build host remain Ubuntu 26.04 AMD64**.
+Active definitions live in `.github/workflows/`; the former Hermes-only templates
+have been replaced. See [maintenance instructions](../README.md).
 
-Detection runs every six hours and produces a review artifact. After a candidate's exact tag/revision, plugin pins and dependency locks are updated on a candidate branch, the compatibility workflow runs automatically for its pull request to `latest`. It retains the exact tested SDK bytes and checksums. Configure required checks and operator review on that branch. Failed, empty, blocked or skipped suites cannot support promotion.
+- `checks.yml`: tests, inventory/configuration validation, ShellCheck, actionlint
+  and history secret scanning on pushes and pull requests.
+- `releases.yml`: official-source metadata monitoring every six hours and on
+  relevant main-branch updates; retains JSON and Markdown review artifacts.
+- `sdk-qualification.yml`: manual packaging/Spread checks on the reviewed main
+  branch, after the operator verifies the dedicated KVM runner is online.
 
-The dedicated `hermes-sdk-build` runner needs Workshop/SDKcraft/LXD, passwordless local build privileges, working KVM, adequate free disk/RAM, and a fresh disposable environment. Pin and maintain its toolchain against `sources.json` and the verification report. It must not hold operator or publication credentials. Do not grant runner access to untrusted fork pull requests.
+Lightweight hosted jobs use Ubuntu 24.04. Every SDK target and the full build
+host remain **Ubuntu 26.04 AMD64**. No Store or production credentials are used.
+The current LXD-container deployment does not require KVM; KVM is needed for the
+VM-based qualification suite, which may run on a separate temporary host.
 
-The SDK jobs cover packaging/Spread smoke checks; cross-worker routing, native authenticated gateways, actual heartbeat hooks, memory continuity and refresh/network policy still need the separate activation evidence named by each release candidate. Do not infer that a green smoke workflow proves those checks. Promotion remains an operator review followed by upload/release of the verified artifact. No automatic publishing workflow or runtime updater is supplied.
+The `hermes-sdk-build` runner must be disposable, restricted to trusted operators,
+and have Workshop/SDKcraft/LXD, passwordless build privileges, usable KVM and
+adequate disk/RAM. Do not register the production agent VPS as this privileged
+runner. Keep GitHub Actions usage within the account's configured allowance.
+
+The readiness input is an operator acknowledgment, not remote discovery of runner
+health. A stale acknowledgment can leave jobs queued; verify online status before
+dispatch. The default false input fails preflight promptly and queues no SDK jobs.
+
+Green hosted checks or Spread smoke jobs do not establish full A/B/C integration
+or authorize promotion. Missing, failed and skipped acceptance gates remain open.

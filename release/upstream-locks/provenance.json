@@ -1,0 +1,112 @@
+[
+  {
+    "file": "release/upstream-locks/hermes/package-lock.json",
+    "path": "package-lock.json",
+    "repository": "NousResearch/hermes-agent",
+    "revision": "bf0203a794a07aac3ff764972ab9087baa4e4f4e",
+    "sha256": "d439feaa570d5098f5479f2af154c001f48d5c2d95a938977cc235384978e37c",
+    "roles": [
+      "hermes-experiment"
+    ]
+  },
+  {
+    "file": "release/upstream-locks/hermes/package.json",
+    "path": "package.json",
+    "repository": "NousResearch/hermes-agent",
+    "revision": "bf0203a794a07aac3ff764972ab9087baa4e4f4e",
+    "sha256": "1f2378a4d91f99fa1f407d017a27a09298d509664f8353261c3579d2ecf4d852",
+    "roles": [
+      "hermes-experiment"
+    ]
+  },
+  {
+    "file": "release/upstream-locks/hermes/apps/bootstrap-installer/package.json",
+    "path": "apps/bootstrap-installer/package.json",
+    "repository": "NousResearch/hermes-agent",
+    "revision": "bf0203a794a07aac3ff764972ab9087baa4e4f4e",
+    "sha256": "5f5c9c2818b2c15795b3460e19d9e79dd047fcdcf897596feda016b5cc41d25f",
+    "roles": [
+      "hermes-experiment"
+    ]
+  },
+  {
+    "file": "release/upstream-locks/hermes/apps/desktop/package.json",
+    "path": "apps/desktop/package.json",
+    "repository": "NousResearch/hermes-agent",
+    "revision": "bf0203a794a07aac3ff764972ab9087baa4e4f4e",
+    "sha256": "0dbbf7fc4444ecc4de3375bd9172d15857fcf9ea43602c089125b63e294faf30",
+    "roles": [
+      "hermes-experiment"
+    ]
+  },
+  {
+    "file": "release/upstream-locks/hermes/apps/shared/package.json",
+    "path": "apps/shared/package.json",
+    "repository": "NousResearch/hermes-agent",
+    "revision": "bf0203a794a07aac3ff764972ab9087baa4e4f4e",
+    "sha256": "b9ae25a2a7f088a1f2d4083f19bd10c4432c1e451022d885c59b0f1996cee85e",
+    "roles": [
+      "hermes-experiment"
+    ]
+  },
+  {
+    "file": "release/upstream-locks/hermes/tests-js/package.json",
+    "path": "tests-js/package.json",
+    "repository": "NousResearch/hermes-agent",
+    "revision": "bf0203a794a07aac3ff764972ab9087baa4e4f4e",
+    "sha256": "ba875b0aad7c4d555793f062e75ccf7bc9c90be6304ffc0f1cd44fc24ebd9cba",
+    "roles": [
+      "hermes-experiment"
+    ]
+  },
+  {
+    "file": "release/upstream-locks/hermes/ui-tui/package.json",
+    "path": "ui-tui/package.json",
+    "repository": "NousResearch/hermes-agent",
+    "revision": "bf0203a794a07aac3ff764972ab9087baa4e4f4e",
+    "sha256": "03af8c8c2914f72ee91b1b5afe4f942c6d1614442d501d11d57e812750f30f34",
+    "roles": [
+      "hermes-experiment"
+    ]
+  },
+  {
+    "file": "release/upstream-locks/hermes/ui-tui/packages/hermes-ink/package.json",
+    "path": "ui-tui/packages/hermes-ink/package.json",
+    "repository": "NousResearch/hermes-agent",
+    "revision": "bf0203a794a07aac3ff764972ab9087baa4e4f4e",
+    "sha256": "109258a3f307cf7e687d7e8874edbdd6b51a69022fae0c7c33f82fee7ffd0fd8",
+    "roles": [
+      "hermes-experiment"
+    ]
+  },
+  {
+    "file": "release/upstream-locks/hermes/web/package.json",
+    "path": "web/package.json",
+    "repository": "NousResearch/hermes-agent",
+    "revision": "bf0203a794a07aac3ff764972ab9087baa4e4f4e",
+    "sha256": "30b1a6e95b603e736b7e06056248e93fd0369a6ec4540449e0c52461efa788d0",
+    "roles": [
+      "hermes-experiment"
+    ]
+  },
+  {
+    "file": "release/upstream-locks/opensandbox/server/uv.lock",
+    "path": "server/uv.lock",
+    "repository": "opensandbox-group/OpenSandbox",
+    "revision": "62a64f0b48cdd6b410f36e53c74dc7559c87719a",
+    "sha256": "ac6276890eaecb1cd17afa6cb3ec74539033a26ebd99ff5010625762f6c4eb9b",
+    "roles": [
+      "hermes-execution"
+    ]
+  },
+  {
+    "file": "release/upstream-locks/opensandbox/server/pyproject.toml",
+    "path": "server/pyproject.toml",
+    "repository": "opensandbox-group/OpenSandbox",
+    "revision": "62a64f0b48cdd6b410f36e53c74dc7559c87719a",
+    "sha256": "cead7fc669db4ca916bbec9f7aa2c78011add3632c7de28437dfe16df66f1c8f",
+    "roles": [
+      "hermes-execution"
+    ]
+  }
+]
