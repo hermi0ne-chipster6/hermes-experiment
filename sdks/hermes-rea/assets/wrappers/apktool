@@ -1,0 +1,4 @@
+#!/bin/bash
+set -euo pipefail
+sdk_dir=$(dirname "$(dirname "$(readlink -f "$0")")")
+exec java -jar "$sdk_dir/providers/apktool.jar" "$@"

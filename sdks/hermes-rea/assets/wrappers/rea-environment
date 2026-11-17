@@ -1,0 +1,27 @@
+# Sourced by SDK launchers after resolving sdk_dir, never installed on PATH.
+export PATH="$sdk_dir/node/bin:$sdk_dir/providers/bin:${PATH:-/usr/bin:/bin}:/usr/sbin:/sbin"
+if [[ ! -v REA_BUILD_COMMIT ]]; then
+    IFS= read -r REA_BUILD_COMMIT < "$sdk_dir/rea/UPSTREAM_COMMIT"
+    export REA_BUILD_COMMIT
+fi
+export GHIDRA_INSTALL_DIR="${GHIDRA_INSTALL_DIR-$sdk_dir/ghidra/ghidra_12.1.4_PUBLIC}"
+export REA_GHIDRA_NATIVEAOT_JAR="${REA_GHIDRA_NATIVEAOT_JAR-$sdk_dir/providers/nativeaot/rea-ghidra-nativeaot.jar}"
+export REA_PWNTOOLS_PYTHON="${REA_PWNTOOLS_PYTHON-$sdk_dir/providers/pwntools-venv/bin/python}"
+export REA_PWNDBG_GDB="${REA_PWNDBG_GDB-/usr/bin/gdb}"
+export REA_PWNDBG_GDBINIT="${REA_PWNDBG_GDBINIT-$sdk_dir/providers/pwndbg-venv/share/pwndbg/gdbinit.py}"
+export REA_PWNDBG_VENV_PATH="${REA_PWNDBG_VENV_PATH-$sdk_dir/providers/pwndbg-venv}"
+export REA_GHIDRA_STARTUP_TIMEOUT_MS="${REA_GHIDRA_STARTUP_TIMEOUT_MS-900000}"
+export REA_JADX_MCP_JAR="${REA_JADX_MCP_JAR-$sdk_dir/providers/jadx.jar}"
+export REA_WABT_BIN_DIRECTORY="${REA_WABT_BIN_DIRECTORY-$sdk_dir/providers/wabt/bin}"
+export REA_WAKARU_COMMAND="${REA_WAKARU_COMMAND-$sdk_dir/providers/bin/wakaru}"
+export REA_RIZIN_COMMAND="${REA_RIZIN_COMMAND-$sdk_dir/providers/rizin/bin/rizin}"
+export REA_KUNA_COMMAND="${REA_KUNA_COMMAND-$sdk_dir/providers/kuna/kuna}"
+export REA_MITMDUMP_COMMAND="${REA_MITMDUMP_COMMAND-$sdk_dir/providers/mitmproxy/mitmdump}"
+export REA_ILSPY_CMD_PATH="${REA_ILSPY_CMD_PATH-$sdk_dir/providers/ilspy/tools/any/linux-x64/ilspycmd}"
+export REA_AGENT_ENV_COMMAND="${REA_AGENT_ENV_COMMAND-$sdk_dir/providers/agentenv-venv/bin/agent-env}"
+export REA_DOCKER_COMMAND="${REA_DOCKER_COMMAND-$sdk_dir/providers/bin/docker}"
+export REA_SIGROK_COMMAND="${REA_SIGROK_COMMAND-/usr/bin/sigrok-cli}"
+export REA_APKTOOL_COMMAND="${REA_APKTOOL_COMMAND-$sdk_dir/wrappers/apktool}"
+export REA_BINWALK_COMMAND="${REA_BINWALK_COMMAND-$sdk_dir/providers/bin/binwalk}"
+export REA_UNBLOB_COMMAND="${REA_UNBLOB_COMMAND-$sdk_dir/wrappers/unblob}"
+export REA_BROWSER_EXECUTABLE="${REA_BROWSER_EXECUTABLE-$sdk_dir/providers/chromium/chrome-linux64/chrome}"

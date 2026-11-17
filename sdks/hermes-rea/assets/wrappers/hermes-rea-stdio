@@ -6,10 +6,8 @@ if [[ $# -gt 0 && ( $# -ne 1 || "$1" != '--version' ) ]]; then
     echo 'Only fixed REA MCP stdio or a local version probe is supported.' >&2
     exit 64
 fi
-export PATH="$sdk_dir/node/bin:/usr/bin:/bin"
-export GHIDRA_INSTALL_DIR="$sdk_dir/ghidra/ghidra_12.1.4_PUBLIC"
-export REA_PWNTOOLS_PYTHON=/usr/bin/python3
-export REA_GHIDRA_STARTUP_TIMEOUT_MS=900000
+# shellcheck source=/dev/null
+source "$sdk_dir/wrappers/rea-environment"
 cd /var/lib/hermes-rea/work
 if [[ "${1:-}" == '--version' ]]; then
     exec "$sdk_dir/node/bin/node" "$sdk_dir/rea/node_modules/rea-agents/scripts/rea.mjs" --version

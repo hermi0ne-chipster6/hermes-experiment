@@ -11,3 +11,4 @@ suites:
     summary: Verify hermes-rea
     environment:
       BASE/resolute: ubuntu@26.04
+      EXPECTED_VERSION: '$(HOST: cat "`git rev-parse --show-toplevel`/sdks/hermes-rea/VERSION")'

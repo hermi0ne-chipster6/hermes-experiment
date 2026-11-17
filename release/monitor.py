@@ -26,7 +26,7 @@ except ModuleNotFoundError:
 
 HOSTS = {'api.github.com', 'raw.githubusercontent.com', 'pypi.org',
          'registry.npmjs.org', 'nodejs.org', 'hub.docker.com',
-         'api.snapcraft.io', 'ubuntu.com', 'download.docker.com'}
+         'api.snapcraft.io', 'ubuntu.com', 'download.docker.com', 'api.nuget.org'}
 SHA = re.compile(r'[0-9a-f]{40}\Z')
 COMMON_CHECKS = ['bridge', 'routing', 'memory', 'heartbeat', 'native-gateways',
                  'MCP-protocol-and-authorization', 'refresh-and-rollback']
@@ -117,6 +117,30 @@ def github_release(record, client):
 
 def latest(record, client, root):
     kind = record['kind']
+    if kind == 'github-commit':
+        if not SHA.fullmatch(record['current']):
+            raise ValueError('source pin lacks an immutable revision')
+        item = client.get(api(record['repository'])+'/commits/'+quote(record['ref'], safe=''))
+        revision = item.get('sha', '')
+        if not SHA.fullmatch(revision):
+            raise ValueError('upstream reference lacks an immutable revision')
+        return dict(revision=revision, version=revision,
+                    url='https://github.com/'+record['repository']+'/commit/'+revision)
+    if kind == 'nuget':
+        package = record['package'].lower()
+        if not re.fullmatch(r'[a-z0-9_.-]+', package):
+            raise ValueError('invalid NuGet package name')
+        entries = client.get('https://api.nuget.org/v3-flatcontainer/'+package+'/index.json')['versions']
+        choices = []
+        for value in entries:
+            try:
+                choices.append((stable(value), value))
+            except (InvalidVersion, ValueError):
+                continue
+        if not choices:
+            raise ValueError('no stable NuGet release found')
+        _, version = max(choices)
+        return dict(version=version, url='https://www.nuget.org/packages/'+package+'/'+version)
     if kind in ('github-release', 'github-action'):
         return github_release(record, client)
     if kind == 'github-tags':
@@ -295,7 +319,7 @@ def inspect_component(record, client, root=ROOT):
     elif kind == 'hermes-catalog':
         if candidate['revision'] != record['current'] or candidate['repository'].removeprefix('https://github.com/') != record['repository'] or candidate.get('subdir') != record['subdir']:
             result['status'] = 'review-required'
-    elif kind == 'github-action':
+    elif kind in ('github-action', 'github-commit'):
         if candidate['revision'] != record['current']:
             result['status'] = 'review-required'
     elif kind == 'snap':

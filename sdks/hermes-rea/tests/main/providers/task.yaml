@@ -1,0 +1,182 @@
+summary: Execute real provider operations on synthetic artifacts
+# Capability variants share the SDK's single supported base. Spread variants are
+# a union, not a cross product with the suite's BASE/resolute variant.
+variants: [native, kuna, objdump, binary_layout, rizin, gdb, frida, managed,
+  android, apktool, wasm, firmware, firmware_extract, javascript_recovery,
+  sqlite, runtime, browser, process, mitmproxy, elf_notes, native_exports,
+  binary_hardening, native_initializers, elf_unwind, elf_dependencies, dwarf,
+  elf_debug_link, entropy, model, python_pyc, evm, kernel_module, devicetree, nuget,
+  apple_ips, beam, gpu, rust, v8_cache, windows_shortcut, il2cpp, flutter,
+  apple_graph, harmony_graph, go_binary, pe_imports, pe_certificates, pe_resources,
+  pe_load_config, packet_capture, pcap_summary, signal_recording, recorded_crash,
+  pwndbg_core, kernel_config, electron_fuses, rizin_debugger, browser_scenario,
+  managed_workflow, desktop_application, application_comparison, analysis_view,
+  android_graph, apk_signature, release_exposure, settings, unknown_lifecycle,
+  web_runtime, web_export, web_source, web_modules, api_contracts, playwright_trace,
+  environment_export, ntfs_journal, frida_injection, ilspy_reconstruction,
+  electron_passive, electron_active, provider_no_fallback, full_source,
+  desktop_runtime_pack, cutter, desktop_clients, artifact_resources,
+  desktop_dconf, desktop_capture, firmware_ext2, desktop_build, reconstruction_verification, adb_initialization, tshark_policy, cli_setup, cli_evidence, frida_process_lifecycle,
+  container_asar, container_dotnet_bundle, container_bun_standalone, container_deno_standalone, container_node_sea, container_pyinstaller, container_msix, container_appx, container_hsp, container_app_pack, container_plist_resources, artifact_directory_classification, native_load_mz, native_load_com, native_load_raw, native_load_dol,
+  format_uimage, format_fit, format_intel_hex, format_srec, format_esp_image, format_uf2, format_dfuse, format_esp_flash_image, format_android_boot_image, format_android_ota_payload, format_ines, format_godot_pck, format_unityfs, format_wxapkg]
+environment:
+  BASE: ubuntu@26.04
+  CHECK/native: ghidra
+  CHECK/kuna: kuna
+  CHECK/objdump: objdump
+  CHECK/binary_layout: binary-layout
+  CHECK/rizin: rizin
+  CHECK/gdb: gdb
+  CHECK/frida: frida
+  CHECK/managed: managed
+  CHECK/android: android
+  CHECK/apktool: apktool
+  CHECK/wasm: wasm
+  CHECK/firmware: firmware
+  CHECK/firmware_extract: firmware-extract
+  CHECK/javascript_recovery: javascript-recovery
+  CHECK/sqlite: sqlite
+  CHECK/runtime: runtime
+  CHECK/browser: browser
+  CHECK/process: process
+  CHECK/mitmproxy: mitmproxy
+  CHECK/elf_notes: elf-notes
+  CHECK/native_exports: native-exports
+  CHECK/binary_hardening: binary-hardening
+  CHECK/native_initializers: native-initializers
+  CHECK/elf_unwind: elf-unwind
+  CHECK/elf_dependencies: elf-dependencies
+  CHECK/dwarf: dwarf
+  CHECK/elf_debug_link: elf-debug-link
+  CHECK/entropy: entropy
+  CHECK/model: model
+  CHECK/python_pyc: python-pyc
+  CHECK/evm: evm
+  CHECK/kernel_module: kernel-module
+  CHECK/devicetree: devicetree
+  CHECK/nuget: nuget
+  CHECK/apple_ips: apple-ips
+  CHECK/beam: beam
+  CHECK/gpu: gpu
+  CHECK/rust: rust
+  CHECK/v8_cache: v8-cache
+  CHECK/windows_shortcut: windows-shortcut
+  CHECK/il2cpp: il2cpp
+  CHECK/flutter: flutter
+  CHECK/apple_graph: apple-graph
+  CHECK/harmony_graph: harmony-graph
+  CHECK/go_binary: go-binary
+  CHECK/pe_imports: pe-imports
+  CHECK/pe_certificates: pe-certificates
+  CHECK/pe_resources: pe-resources
+  CHECK/pe_load_config: pe-load-config
+  CHECK/packet_capture: packet-capture
+  CHECK/pcap_summary: pcap-summary
+  CHECK/signal_recording: signal-recording
+  CHECK/recorded_crash: recorded-crash
+  CHECK/pwndbg_core: pwndbg-core
+  CHECK/kernel_config: kernel-config
+  CHECK/electron_fuses: electron-fuses
+  CHECK/rizin_debugger: rizin-debugger
+  CHECK/browser_scenario: browser-scenario
+  CHECK/managed_workflow: managed-workflow
+  CHECK/desktop_application: desktop-application
+  CHECK/application_comparison: application-comparison
+  CHECK/analysis_view: analysis-view
+  CHECK/android_graph: android-graph
+  CHECK/apk_signature: apk-signature
+  CHECK/release_exposure: release-exposure
+  CHECK/settings: settings
+  CHECK/unknown_lifecycle: unknown-lifecycle
+  CHECK/web_runtime: web-runtime
+  CHECK/web_export: web-export
+  CHECK/web_source: web-source
+  CHECK/web_modules: web-modules
+  CHECK/api_contracts: api-contracts
+  CHECK/playwright_trace: playwright-trace
+  CHECK/environment_export: environment-export
+  CHECK/ntfs_journal: ntfs-journal
+  CHECK/frida_injection: frida-injection
+  CHECK/ilspy_reconstruction: ilspy-reconstruction
+  CHECK/electron_passive: electron-passive
+  CHECK/electron_active: electron-active
+  CHECK/provider_no_fallback: provider-no-fallback
+  CHECK/full_source: full-source
+  CHECK/desktop_runtime_pack: desktop-runtime-pack
+  CHECK/cutter: cutter
+  CHECK/desktop_clients: desktop-clients
+  CHECK/artifact_resources: artifact-resources
+  CHECK/desktop_dconf: desktop-dconf
+  CHECK/desktop_capture: desktop-capture
+  CHECK/firmware_ext2: firmware-ext2
+  CHECK/desktop_build: desktop-build
+  CHECK/reconstruction_verification: reconstruction-verification
+  CHECK/adb_initialization: adb-initialization
+  CHECK/tshark_policy: tshark-policy
+  CHECK/cli_setup: cli-setup
+  CHECK/cli_evidence: cli-evidence
+  CHECK/frida_process_lifecycle: frida-process-lifecycle
+  CHECK/container_asar: container-asar
+  CHECK/container_dotnet_bundle: container-dotnet-bundle
+  CHECK/container_bun_standalone: container-bun-standalone
+  CHECK/container_deno_standalone: container-deno-standalone
+  CHECK/container_node_sea: container-node-sea
+  CHECK/container_pyinstaller: container-pyinstaller
+  CHECK/container_msix: container-msix
+  CHECK/container_appx: container-appx
+  CHECK/container_hsp: container-hsp
+  CHECK/container_app_pack: container-app-pack
+  CHECK/container_plist_resources: container-plist-resources
+  CHECK/artifact_directory_classification: artifact-directory-classification
+  CHECK/native_load_mz: native-load-mz
+  CHECK/native_load_com: native-load-com
+  CHECK/native_load_raw: native-load-raw
+  CHECK/native_load_dol: native-load-dol
+  CHECK/format_uimage: format-uimage
+  CHECK/format_fit: format-fit
+  CHECK/format_intel_hex: format-intel-hex
+  CHECK/format_srec: format-srec
+  CHECK/format_esp_image: format-esp-image
+  CHECK/format_uf2: format-uf2
+  CHECK/format_dfuse: format-dfuse
+  CHECK/format_esp_flash_image: format-esp-flash-image
+  CHECK/format_android_boot_image: format-android-boot-image
+  CHECK/format_android_ota_payload: format-android-ota-payload
+  CHECK/format_ines: format-ines
+  CHECK/format_godot_pck: format-godot-pck
+  CHECK/format_unityfs: format-unityfs
+  CHECK/format_wxapkg: format-wxapkg
+prepare: |
+  cp ../launch/*.py ../launch/*.mjs .
+  cp ../launch/*-fixtures.json .
+  cp ../launch/static-fixtures-LICENSE.txt .
+  envsubst '${BASE}' <workshop.yaml.in >workshop.yaml
+  if [ "$CHECK" = desktop-build ]; then
+    sed -i '/^sdks:$/a\  - name: docker-ce' workshop.yaml
+  fi
+  workshop launch
+  workshop changes
+  workshop tasks
+  workshop info
+  workshop exec -I </dev/null -- sudo apt-get update
+  workshop exec -I </dev/null -- sudo eatmydata apt-get install gcc libc6-dev mono-mcs golang-go openbox
+  case "$CHECK" in
+    electron-*) workshop exec -I </dev/null -- sudo -Hu rea bash -c 'cd /var/lib/hermes-rea/work && exec "$@"' -- python3 /project/install_electron_fixture.py /var/lib/hermes-rea/work/electron-fixture ;;
+  esac
+restore: |
+  workshop remove || true
+  workshop changes
+  workshop tasks
+  # info returns exit1 after successful removal; list proves the final Off state.
+  workshop info || true
+  workshop list --no-headers | MATCH '[[:space:]]Off[[:space:]]'
+  rm -f ./*.py ./*.mjs
+  rm -f ./*-fixtures.json
+  rm -f static-fixtures-LICENSE.txt
+execute: |
+  workshop info | MATCH 'status:\s+ready'
+  workshop exec -I </dev/null -- sudo -Hu rea bash -c 'cd /var/lib/hermes-rea/work && exec "$@"' -- python3 /project/functional.py --output "/var/lib/hermes-rea/work/sdk-validation-$CHECK" --only "$CHECK" --require "$CHECK"
+debug: |
+  workshop info || true
+  workshop tasks || true
+  workshop exec -I </dev/null -- sudo cat "/var/lib/hermes-rea/work/sdk-validation-$CHECK/results.json" || true

@@ -1,0 +1,24 @@
+{
+  "status": "published-and-verified",
+  "name": "hermes-rea",
+  "version": "6.9.0",
+  "publisher": "Cody Prevost",
+  "publisher_username": "codyprevost",
+  "revision": 2,
+  "channel": "latest/edge",
+  "base": "ubuntu@26.04",
+  "architecture": "amd64",
+  "sha256": "b21c8af259f232e0547f56abf8152cc38032c2353677745ed37c46140241a4f1",
+  "bytes": 1705844513,
+  "uploaded_at": "2026-11-17T22:58:35Z",
+  "verified_at": "2026-11-17T23:00:49+00:00",
+  "verification": {
+    "sdkcraft_upload": "approved and released",
+    "sdkcraft_revisions": "revision 2 on latest/edge",
+    "sdk_info": "verified publisher, version, base and revision",
+    "sdk_find": "6.9.0 indexed",
+    "other_channels": "empty as before"
+  },
+  "store_url": null,
+  "artifact_filename": "hermes-rea_amd64_ubuntu@26.04.sdk"
+}

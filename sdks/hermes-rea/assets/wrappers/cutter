@@ -1,0 +1,15 @@
+#!/bin/bash
+set -euo pipefail
+sdk_dir=$(dirname "$(dirname "$(readlink -f "$0")")")
+bridge="$sdk_dir/rea/node_modules/rea-agents/bridge/cutter/rea_bridge.py"
+plugin_dir="${XDG_DATA_HOME:-$HOME/.local/share}/rizin/cutter/plugins/python"
+mkdir -p "$plugin_dir"
+if [[ -e "$plugin_dir/rea_bridge.py" || -L "$plugin_dir/rea_bridge.py" ]]; then
+    cmp -s "$bridge" "$plugin_dir/rea_bridge.py" || {
+        echo 'Cutter REA plugin differs from the packaged bridge; review and replace that plugin before launch.' >&2
+        exit 1
+    }
+else
+    install -m 644 "$bridge" "$plugin_dir/rea_bridge.py"
+fi
+exec "$sdk_dir/providers/cutter/AppRun" --pythonhome "$sdk_dir/providers/cutter/usr" "$@"

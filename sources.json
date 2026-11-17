@@ -192,30 +192,37 @@
     }
   },
   "rea": {
-    "version": "6.7.0",
-    "source": "https://registry.npmjs.org/rea-agents/6.7.0",
-    "dist": {
-      "shasum": "11f23ba377303a5c28b3162180cf2bf3f3643708",
-      "tarball": "https://registry.npmjs.org/rea-agents/-/rea-agents-6.7.0.tgz",
-      "fileCount": 1775,
-      "integrity": "sha512-yhIx2ioJYYT1C/tONfYeitC6LhnKmCh+ZwRUOgYuhSc733lGhkkt73zhug9WmLgxoMdKuqIYGCoBfD4fXkOhFw==",
-      "signatures": [
-        {
-          "sig": "MEUCIHfjVXgVvcA/R0R46DQc4pU5c25jTyUsOKRWQJn0wLlrAiEAq6dwgt6G1YGLjbijVJkZJv8O01xPJgQUwvsHt0zZbwo=",
-          "keyid": "SHA256:DhQ8wR5APBvFHLF/+Tc+AYvPOdTpcIDqOhxsBHRwC7U"
+    "version": "6.9.0",
+    "source": "https://codeload.github.com/morluto/rea/tar.gz/51459cf203ae1eb6b586a95b21899eaa0f631823",
+    "commit": "51459cf203ae1eb6b586a95b21899eaa0f631823",
+    "sha256": "6b826f0014436d9cba4dd27e5b7e08ec395cdac5fce321daebe10263e9460beb",
+    "retrieved_at": "2026-11-17",
+    "previous_npm_release": {
+      "version": "6.7.0",
+      "source": "https://registry.npmjs.org/rea-agents/6.7.0",
+      "dist": {
+        "shasum": "11f23ba377303a5c28b3162180cf2bf3f3643708",
+        "tarball": "https://registry.npmjs.org/rea-agents/-/rea-agents-6.7.0.tgz",
+        "fileCount": 1775,
+        "integrity": "sha512-yhIx2ioJYYT1C/tONfYeitC6LhnKmCh+ZwRUOgYuhSc733lGhkkt73zhug9WmLgxoMdKuqIYGCoBfD4fXkOhFw==",
+        "signatures": [
+          {
+            "sig": "MEUCIHfjVXgVvcA/R0R46DQc4pU5c25jTyUsOKRWQJn0wLlrAiEAq6dwgt6G1YGLjbijVJkZJv8O01xPJgQUwvsHt0zZbwo=",
+            "keyid": "SHA256:DhQ8wR5APBvFHLF/+Tc+AYvPOdTpcIDqOhxsBHRwC7U"
+          },
+          {
+            "sig": "MEUCICqYrwatVk9nUkweRYKIZHAXPVJyORdbdQvgFhvBtxQAAiEA/yg3AjoNhKvknQ/WWaetE1Jm1tzmIwQ9as5IPE3Luts=",
+            "keyid": "SHA256:DhQ8wR5APBvFHLF/+Tc+AYvPOdTpcIDqOhxsBHRwC7U"
+          }
+        ],
+        "attestations": {
+          "url": "https://registry.npmjs.org/-/npm/v1/attestations/rea-agents@6.7.0",
+          "provenance": {
+            "predicateType": "https://slsa.dev/provenance/v1"
+          }
         },
-        {
-          "sig": "MEUCICqYrwatVk9nUkweRYKIZHAXPVJyORdbdQvgFhvBtxQAAiEA/yg3AjoNhKvknQ/WWaetE1Jm1tzmIwQ9as5IPE3Luts=",
-          "keyid": "SHA256:DhQ8wR5APBvFHLF/+Tc+AYvPOdTpcIDqOhxsBHRwC7U"
-        }
-      ],
-      "attestations": {
-        "url": "https://registry.npmjs.org/-/npm/v1/attestations/rea-agents@6.7.0",
-        "provenance": {
-          "predicateType": "https://slsa.dev/provenance/v1"
-        }
-      },
-      "unpackedSize": 28575703
+        "unpackedSize": 28575703
+      }
     }
   },
   "node": {
@@ -352,7 +359,7 @@
       }
     ],
     "java_minimum": 25,
-    "compatibility": "REA6.7.0 accepts only12.1.x; native12.2 probe returned unsupported_version. Official12.1.4 is its verified build."
+    "compatibility": "REA source 51459cf requires Ghidra 12.1.x; coordinate future provider upgrades."
   },
   "images": {
     "opensandbox/code-interpreter": {
@@ -402,10 +409,16 @@
     "packaging": "Operator document is outside SDK payloads. Revised September charter excluded."
   },
   "frida_native": {
-    "version": "17.23.2",
-    "url": "https://github.com/frida/frida/releases/download/17.23.2/frida-v17.23.2-napi-v8-linux-x64.tar.gz",
-    "sha256": "9fa8f668ce91eb03713e8564de4f8fbde232233ee91d729c16773fde11dbae95",
-    "reason": "REA npm dependency requires a native binding; disabled general install scripts intentionally do not fetch it at runtime. Bake the verified official release binary separately.",
-    "license": "LGPL-2.0 WITH WxWindows-exception-3.1"
+    "version": "17.25.1",
+    "url": "https://github.com/frida/frida/releases/download/17.25.1/frida-v17.25.1-napi-v8-linux-x64.tar.gz",
+    "sha256": "28f6bf3a8926288ffe79f415777256a37213c2d217cdab4ee81b225b096854bb",
+    "reason": "Matched official Frida17.25.1 module/binding overrides upstream17.23.2 to fix reproduced Linux SIGCHLD/Node child-process deadlock; REA engine and original lock remain unchanged.",
+    "license": "LGPL-2.0 WITH WxWindows-exception-3.1",
+    "compatibility_manifest": "sdks/hermes-rea/dependencies/frida-compatibility.json"
+  },
+  "rea_node": {
+    "version": "v24.22.1",
+    "source": "https://nodejs.org/dist/v24.22.1/node-v24.22.1-linux-x64.tar.xz",
+    "sha256": "6c172a9ab6718f7b801fb5a7bd486af2ee5e32758086a04b84fcce2aa77095e6"
   }
 }

@@ -108,5 +108,25 @@
     "roles": [
       "hermes-execution"
     ]
+  },
+  {
+    "file": "release/upstream-locks/rea/package.json",
+    "path": "package.json",
+    "repository": "morluto/rea",
+    "revision": "51459cf203ae1eb6b586a95b21899eaa0f631823",
+    "sha256": "c7148c309a0dafe275c8ef707063dd64d3f46c9a78fa23e9eed68eb8a89c767d",
+    "roles": [
+      "hermes-rea"
+    ]
+  },
+  {
+    "file": "release/upstream-locks/rea/package-lock.json",
+    "path": "package-lock.json",
+    "repository": "morluto/rea",
+    "revision": "51459cf203ae1eb6b586a95b21899eaa0f631823",
+    "sha256": "9007a84043338a39ef2d766cb1323846813d43ce040e2cf09ddcaa4f5939a0bf",
+    "roles": [
+      "hermes-rea"
+    ]
   }
 ]

@@ -1,0 +1,59 @@
+{
+  "upstream": "https://github.com/morluto/rea",
+  "commit": "51459cf203ae1eb6b586a95b21899eaa0f631823",
+  "packageVersion": "6.9.0",
+  "sourceSha256": "6b826f0014436d9cba4dd27e5b7e08ec395cdac5fce321daebe10263e9460beb",
+  "note": "Unmodified engine source build, newer than the npm6.9.0 release. Dependencies follow the original lock retained at rea/upstream-package-lock.json, except the explicit matched official Frida17.25.1 provider override documented in dependencies/frida-compatibility.json; it fixes reproduced Linux SIGCHLD subprocess deadlock.",
+  "previousSdk": {
+    "revision": 1,
+    "version": "6.7.0",
+    "channel": "latest/edge"
+  },
+  "target": {
+    "base": "ubuntu@26.04",
+    "architecture": "amd64"
+  },
+  "completeSource": {
+    "installPath": "upstream/rea",
+    "manifestPath": "upstream/rea.manifest.json",
+    "archivePath": "upstream/rea.source.tar.gz",
+    "archiveChecksumPath": "upstream/rea.source.tar.gz.sha256",
+    "gitHistoryIncluded": false,
+    "export": "Every tracked Git blob is retained byte-for-byte, including hidden files and recursive submodules; derived dist/node_modules/skills links reuse installed runtime outputs.",
+    "submodules": [
+      {
+        "path": "third_party/binwalk",
+        "url": "https://github.com/ReFirmLabs/binwalk.git",
+        "commit": "4fdab3d464d97b68e0af9088df3f9e2e1545b21c"
+      },
+      {
+        "path": "third_party/ghidra-nativeaot",
+        "url": "https://github.com/Washi1337/ghidra-nativeaot.git",
+        "commit": "effeb734fc570c32650f88b159608979dc7b423e"
+      },
+      {
+        "path": "third_party/jadx-headless-mcp",
+        "url": "https://github.com/1013503897/jadx-headless-mcp.git",
+        "commit": "5844800a486d2248fa949b74c9896285f5b54de2"
+      },
+      {
+        "path": "third_party/unblob",
+        "url": "https://github.com/onekey-sec/unblob.git",
+        "commit": "1fcc7a0a584a70a96c31f5a276c20944d199a089"
+      },
+      {
+        "path": "third_party/wakaru",
+        "url": "https://github.com/pionxzh/wakaru.git",
+        "commit": "8219bf5016a063d7fb215101a8c45d5959ec733f"
+      }
+    ]
+  },
+  "runtimeDependencyOverrides": {
+    "frida": {
+      "upstream": "17.23.2",
+      "sdk": "17.25.1",
+      "manifest": "dependencies/frida-compatibility.json",
+      "installed_manifest": "rea/node_modules/frida/hermes-rea-compatibility.json"
+    }
+  }
+}

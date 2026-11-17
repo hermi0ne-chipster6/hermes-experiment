@@ -1,0 +1,3751 @@
+{
+  "schema_version": 1,
+  "upstream_commit": "51459cf203ae1eb6b586a95b21899eaa0f631823",
+  "status_policy": "Statuses describe recorded representative operations, not exhaustive upstream functionality or final artifact acceptance. Fully functional means mapped representative operations passed and no observed unresolved integration failure affects that claim. Original Frida17.23.2 has an observed same-process subprocess regression; matched17.25.1 passes controlled scratch tests but awaits artifact acceptance. Fresh c7373502 policy/HOME installation, packet/ADB tests and model-free desktop lifecycle passed. Tools/list and client versions never establish provider functionality. Historical runs and failures are retained.",
+  "capabilities": {
+    "adbDevice": {
+      "scope": "Android device inspection, shell/package observations",
+      "prerequisites": "ADB executable; selected attached/emulated device; REA_ADB_PATH",
+      "test_ids": [
+        "adb-initialization"
+      ],
+      "status": "Partially functional",
+      "execution_evidence": [
+        {
+          "test": "adb-initialization",
+          "status": "pass",
+          "source_run": "adb-initialization-validation3",
+          "results_file": "/home/rea-sdk-dev/.local/share/workshop/id/65743ca5/validation/mount/hermes-rea/state/work/adb-initialization-validation3/results.json",
+          "evidence_archive": "/root/dev/rea-sdk/validation-logs/installed-functional/home-adb-ssh-evidence.tar.gz",
+          "archive_member": "adb-initialization-validation3/results.json",
+          "runtime_variant": "Historical artifact77fc26d with live HOME/shell correction; final fresh artifact pending",
+          "semantic_result": {
+            "home": {
+              "path": "/var/lib/hermes-rea",
+              "uid": 999,
+              "owner": "rea",
+              "mode": "0o700",
+              "bytes": 4096
+            },
+            "new_hidden_directory": {
+              "path": "/var/lib/hermes-rea/.hermes-provider-home-probe-c0w83q64",
+              "uid": 999,
+              "owner": "rea",
+              "mode": "0o700",
+              "bytes": 4096
+            },
+            "probe_removed": true,
+            "android_directory_preexisted": true,
+            "android_directory": {
+              "path": "/var/lib/hermes-rea/.android",
+              "uid": 999,
+              "owner": "rea",
+              "mode": "0o750",
+              "bytes": 4096
+            },
+            "private_key_metadata": {
+              "path": "/var/lib/hermes-rea/.android/adbkey",
+              "uid": 999,
+              "owner": "rea",
+              "mode": "0o600",
+              "bytes": 1704
+            },
+            "public_key_metadata": {
+              "path": "/var/lib/hermes-rea/.android/adbkey.pub",
+              "uid": 999,
+              "owner": "rea",
+              "mode": "0o644",
+              "bytes": 715
+            },
+            "key_contents_read": false,
+            "server_socket": "tcp:36403",
+            "owned_server_pid": 3105,
+            "adb_path": "/usr/lib/android-sdk/platform-tools/adb",
+            "adb_version": "34.0.5-debian",
+            "device_count": 0,
+            "rea_evidence_id": "ev_fd487ef9a2162ca221e7b88cac9d89b961a4b751226b727efbc5c0db27d0b26a",
+            "direct_and_rea_enumeration_match": true,
+            "scope": "Real daemon/key-directory initialization and device enumeration only; no physical device, shell, package, transfer or emulator operation qualified",
+            "cleanup": {
+              "mode": "terminated-owned-foreground-server",
+              "exit_code": -15,
+              "listener_closed": true
+            }
+          }
+        },
+        {
+          "test": "adb-initialization",
+          "status": "pass",
+          "source_run": "sdk-validation-final-remaining",
+          "results_file": "/home/rea-sdk-dev/.local/share/workshop/id/782b8b9c/validation-final/mount/hermes-rea/state/work/sdk-validation-final-remaining/results.json",
+          "results_sha256": "c3287534a3572ec9d38e4ddd30a65cfe78d3a93383ffa4b0e160e0fa64c66b1d",
+          "runtime_variant": "Fresh installed policy/HOME-corrected SDK c7373502e97f32c34be99ba7fd92e7ea5832caf31121aa79a747badd27cf22c5; retains original Frida 17.23.2; overall acceptance failed on subsequent subprocess sequence",
+          "semantic_result": {
+            "home": {
+              "path": "/var/lib/hermes-rea",
+              "uid": 999,
+              "owner": "rea",
+              "mode": "0o700",
+              "bytes": 4096
+            },
+            "new_hidden_directory": {
+              "path": "/var/lib/hermes-rea/.hermes-provider-home-probe-ejul6pgt",
+              "uid": 999,
+              "owner": "rea",
+              "mode": "0o700",
+              "bytes": 4096
+            },
+            "probe_removed": true,
+            "android_directory_preexisted": false,
+            "android_directory": {
+              "path": "/var/lib/hermes-rea/.android",
+              "uid": 999,
+              "owner": "rea",
+              "mode": "0o750",
+              "bytes": 4096
+            },
+            "private_key_metadata": {
+              "path": "/var/lib/hermes-rea/.android/adbkey",
+              "uid": 999,
+              "owner": "rea",
+              "mode": "0o600",
+              "bytes": 1704
+            },
+            "public_key_metadata": {
+              "path": "/var/lib/hermes-rea/.android/adbkey.pub",
+              "uid": 999,
+              "owner": "rea",
+              "mode": "0o644",
+              "bytes": 721
+            },
+            "key_contents_read": false,
+            "server_socket": "tcp:43387",
+            "owned_server_pid": 14869,
+            "adb_path": "/usr/lib/android-sdk/platform-tools/adb",
+            "adb_version": "34.0.5-debian",
+            "device_count": 0,
+            "rea_evidence_id": "ev_fd487ef9a2162ca221e7b88cac9d89b961a4b751226b727efbc5c0db27d0b26a",
+            "direct_and_rea_enumeration_match": true,
+            "scope": "Real daemon/key-directory initialization and device enumeration only; no physical device, shell, package, transfer or emulator operation qualified",
+            "cleanup": {
+              "mode": "terminated-owned-foreground-server",
+              "exit_code": -15,
+              "listener_closed": true
+            }
+          }
+        }
+      ],
+      "limitation_cause": "unconfigured-external-provider",
+      "limitation": "Real owned ADB daemon, key-directory initialization and direct/MCP enumeration passed on fresh artifact c7373502 with zero devices; attached/emulated device, shell, package and transfer operations remain unconfigured. Corrected-Frida final artifact reinstall remains pending.",
+      "pending_tests": [],
+      "maximum_status": "Partially functional"
+    },
+    "analysisView": {
+      "scope": "Retained Evidence views, filtering and paging",
+      "prerequisites": "Built-in Node runtime",
+      "test_ids": [
+        "analysis-view"
+      ],
+      "status": "Fully functional",
+      "execution_evidence": [
+        {
+          "test": "analysis-view",
+          "status": "pass",
+          "source_run": "sdk-validation-first",
+          "results_file": "/root/dev/rea-sdk/validation-logs/installed-functional/after-policy-results.json",
+          "evidence_archive": "/root/dev/rea-sdk/validation-logs/installed-functional/first-installed-evidence.tar.gz",
+          "archive_member": "sdk-validation-first/results.json",
+          "runtime_variant": "Development installed Workshop; final artifact acceptance pending",
+          "semantic_result": {
+            "retained_parent": "ev_1e24416387a5d5509a3ad0ab68413fca9d795a9195982b9c4a578589bf06116d",
+            "tensor": "weights",
+            "source_removed_before_query": true
+          }
+        }
+      ],
+      "limitation_cause": null,
+      "limitation": "Representative tests only; unsupported input variants and exhaustive operation coverage are not implied.",
+      "pending_tests": []
+    },
+    "android": {
+      "scope": "APK classes, methods, resources and Android analysis",
+      "prerequisites": "jadx-headless-mcp 0.7.1 JAR; full JDK; REA_JADX_MCP_JAR",
+      "test_ids": [
+        "android"
+      ],
+      "status": "Fully functional",
+      "execution_evidence": [
+        {
+          "test": "android",
+          "status": "pass",
+          "source_run": "sdk-validation-retry3",
+          "results_file": "/root/dev/rea-sdk/validation-logs/installed-functional/after-policy-results.json",
+          "evidence_archive": "/root/dev/rea-sdk/validation-logs/installed-functional/first-installed-evidence.tar.gz",
+          "archive_member": "sdk-validation-retry3/results.json",
+          "runtime_variant": "Development installed Workshop; final artifact acceptance pending",
+          "semantic_result": "Real APK manifest/package and class metadata inspection plus exact JADX method decompilation; no device execution"
+        }
+      ],
+      "limitation_cause": null,
+      "limitation": "Representative tests only; unsupported input variants and exhaustive operation coverage are not implied.",
+      "pending_tests": []
+    },
+    "androidApplicationGraph": {
+      "scope": "Android application/component/native dependency graph",
+      "prerequisites": "Built-in parsers; deeper class facts need JADX",
+      "test_ids": [
+        "android-graph"
+      ],
+      "status": "Fully functional",
+      "execution_evidence": [
+        {
+          "test": "android-graph",
+          "status": "pass",
+          "source_run": "sdk-validation-first",
+          "results_file": "/root/dev/rea-sdk/validation-logs/installed-functional/after-policy-results.json",
+          "evidence_archive": "/root/dev/rea-sdk/validation-logs/installed-functional/first-installed-evidence.tar.gz",
+          "archive_member": "sdk-validation-first/results.json",
+          "runtime_variant": "Development installed Workshop; final artifact acceptance pending",
+          "semantic_result": {
+            "dex": "classes.dex",
+            "manifest": "AndroidManifest.xml",
+            "scope": "Path inventory only, separate JADX test exercises DEX decoding"
+          }
+        }
+      ],
+      "limitation_cause": null,
+      "limitation": "Representative tests only; unsupported input variants and exhaustive operation coverage are not implied.",
+      "pending_tests": []
+    },
+    "apkSignature": {
+      "scope": "APK signing-block inspection",
+      "prerequisites": "Built-in parser; no trust or signer authenticity inference",
+      "test_ids": [
+        "apk-signature"
+      ],
+      "status": "Fully functional",
+      "execution_evidence": [
+        {
+          "test": "apk-signature",
+          "status": "pass",
+          "source_run": "sdk-validation-first",
+          "results_file": "/root/dev/rea-sdk/validation-logs/installed-functional/after-policy-results.json",
+          "evidence_archive": "/root/dev/rea-sdk/validation-logs/installed-functional/first-installed-evidence.tar.gz",
+          "archive_member": "sdk-validation-first/results.json",
+          "runtime_variant": "Development installed Workshop; final artifact acceptance pending",
+          "semantic_result": {
+            "v1_signers": 1,
+            "certificate_subject": "REA Fixture",
+            "signature_authenticity_verified": false
+          }
+        }
+      ],
+      "limitation_cause": null,
+      "limitation": "V1 CMS signer/certificate metadata and exact file digest; v2/v3/v3.1 and cryptographic trust not exercised.",
+      "pending_tests": []
+    },
+    "apktool": {
+      "scope": "Decoded Android resource inspection",
+      "prerequisites": "Apktool >=2.7.0 and Java; REA_APKTOOL_COMMAND",
+      "test_ids": [
+        "apktool"
+      ],
+      "status": "Fully functional",
+      "execution_evidence": [
+        {
+          "test": "apktool",
+          "status": "pass",
+          "source_run": "sdk-validation-retry2",
+          "results_file": "/root/dev/rea-sdk/validation-logs/installed-functional/after-policy-results.json",
+          "evidence_archive": "/root/dev/rea-sdk/validation-logs/installed-functional/first-installed-evidence.tar.gz",
+          "archive_member": "sdk-validation-retry2/results.json",
+          "runtime_variant": "Development installed Workshop; final artifact acceptance pending",
+          "semantic_result": "Real Apktool decoded synthetic APK manifest and application label"
+        }
+      ],
+      "limitation_cause": null,
+      "limitation": "Representative tests only; unsupported input variants and exhaustive operation coverage are not implied.",
+      "pending_tests": []
+    },
+    "appleApplicationGraph": {
+      "scope": "Apple application graph",
+      "prerequisites": "Built-in archive/Mach-O/plist inspection; no macOS execution implied",
+      "test_ids": [
+        "apple-graph"
+      ],
+      "status": "Fully functional",
+      "execution_evidence": [
+        {
+          "test": "apple-graph",
+          "status": "pass",
+          "source_run": "sdk-validation-first",
+          "results_file": "/root/dev/rea-sdk/validation-logs/installed-functional/after-policy-results.json",
+          "evidence_archive": "/root/dev/rea-sdk/validation-logs/installed-functional/first-installed-evidence.tar.gz",
+          "archive_member": "sdk-validation-first/results.json",
+          "runtime_variant": "Development installed Workshop; final artifact acceptance pending",
+          "semantic_result": {
+            "root_format": "ipa",
+            "application_root": "Payload/Hermes.app",
+            "scope": "Static path inventory, no plist/signature semantic claim"
+          }
+        }
+      ],
+      "limitation_cause": null,
+      "limitation": "Representative tests only; unsupported input variants and exhaustive operation coverage are not implied.",
+      "pending_tests": []
+    },
+    "appleIps": {
+      "scope": "Recorded Apple IPS crashes",
+      "prerequisites": "Built-in parser; supplied crash file",
+      "test_ids": [
+        "apple-ips"
+      ],
+      "status": "Fully functional",
+      "execution_evidence": [
+        {
+          "test": "apple-ips",
+          "status": "pass",
+          "source_run": "sdk-validation-first",
+          "results_file": "/root/dev/rea-sdk/validation-logs/installed-functional/after-policy-results.json",
+          "evidence_archive": "/root/dev/rea-sdk/validation-logs/installed-functional/first-installed-evidence.tar.gz",
+          "archive_member": "sdk-validation-first/results.json",
+          "runtime_variant": "Development installed Workshop; final artifact acceptance pending",
+          "semantic_result": {
+            "faulting_thread": 0,
+            "image_arch": "arm64",
+            "report_executed": false
+          }
+        }
+      ],
+      "limitation_cause": null,
+      "limitation": "Representative tests only; unsupported input variants and exhaustive operation coverage are not implied.",
+      "pending_tests": []
+    },
+    "applicationWorkflows": {
+      "scope": "Application comparison, semantic tracing, guidance and reconstruction coverage",
+      "prerequisites": "Built-in workflows plus source Evidence/providers selected by task",
+      "test_ids": [
+        "application-comparison"
+      ],
+      "status": "Fully functional",
+      "execution_evidence": [
+        {
+          "test": "application-comparison",
+          "status": "pass",
+          "source_run": "sdk-validation-first",
+          "results_file": "/root/dev/rea-sdk/validation-logs/installed-functional/after-policy-results.json",
+          "evidence_archive": "/root/dev/rea-sdk/validation-logs/installed-functional/first-installed-evidence.tar.gz",
+          "archive_member": "sdk-validation-first/results.json",
+          "runtime_variant": "Development installed Workshop; final artifact acceptance pending",
+          "semantic_result": {
+            "summary": {
+              "unchanged": 1,
+              "added": 4,
+              "removed": 3,
+              "changed": 1,
+              "unknown": 2
+            },
+            "new_export": "hermes_second"
+          }
+        }
+      ],
+      "limitation_cause": null,
+      "limitation": "Representative tests only; unsupported input variants and exhaustive operation coverage are not implied.",
+      "pending_tests": []
+    },
+    "artifactGraph": {
+      "scope": "Artifact inventory, extraction and comparison",
+      "prerequisites": "Built-in format readers; selected compression/extractor boundaries apply",
+      "test_ids": [
+        "archive",
+        "apple-graph",
+        "harmony-graph",
+        "android-graph",
+        "container-asar",
+        "container-dotnet-bundle",
+        "container-bun-standalone",
+        "container-deno-standalone",
+        "container-node-sea",
+        "container-pyinstaller",
+        "container-msix",
+        "container-appx",
+        "container-hsp",
+        "container-app-pack",
+        "container-plist-resources",
+        "artifact-directory-classification",
+        "format-uimage",
+        "format-fit",
+        "format-intel-hex",
+        "format-srec",
+        "format-esp-image",
+        "format-uf2",
+        "format-dfuse",
+        "format-esp-flash-image",
+        "format-android-boot-image",
+        "format-android-ota-payload",
+        "format-ines",
+        "format-godot-pck",
+        "format-unityfs",
+        "format-wxapkg"
+      ],
+      "status": "Fully functional",
+      "execution_evidence": [
+        {
+          "test": "archive",
+          "status": "pass",
+          "source_run": "sdk-validation-first",
+          "results_file": "/root/dev/rea-sdk/validation-logs/installed-functional/after-policy-results.json",
+          "evidence_archive": "/root/dev/rea-sdk/validation-logs/installed-functional/first-installed-evidence.tar.gz",
+          "archive_member": "sdk-validation-first/results.json",
+          "runtime_variant": "Development installed Workshop; final artifact acceptance pending",
+          "semantic_result": "ZIP inventory contains both exact member paths"
+        },
+        {
+          "test": "apple-graph",
+          "status": "pass",
+          "source_run": "sdk-validation-first",
+          "results_file": "/root/dev/rea-sdk/validation-logs/installed-functional/after-policy-results.json",
+          "evidence_archive": "/root/dev/rea-sdk/validation-logs/installed-functional/first-installed-evidence.tar.gz",
+          "archive_member": "sdk-validation-first/results.json",
+          "runtime_variant": "Development installed Workshop; final artifact acceptance pending",
+          "semantic_result": {
+            "root_format": "ipa",
+            "application_root": "Payload/Hermes.app",
+            "scope": "Static path inventory, no plist/signature semantic claim"
+          }
+        },
+        {
+          "test": "harmony-graph",
+          "status": "pass",
+          "source_run": "sdk-validation-first",
+          "results_file": "/root/dev/rea-sdk/validation-logs/installed-functional/after-policy-results.json",
+          "evidence_archive": "/root/dev/rea-sdk/validation-logs/installed-functional/first-installed-evidence.tar.gz",
+          "archive_member": "sdk-validation-first/results.json",
+          "runtime_variant": "Development installed Workshop; final artifact acceptance pending",
+          "semantic_result": {
+            "root_format": "hap",
+            "packaging_model": "stage",
+            "scope": "Static paths, no Ark bytecode execution or decompilation claim"
+          }
+        },
+        {
+          "test": "android-graph",
+          "status": "pass",
+          "source_run": "sdk-validation-first",
+          "results_file": "/root/dev/rea-sdk/validation-logs/installed-functional/after-policy-results.json",
+          "evidence_archive": "/root/dev/rea-sdk/validation-logs/installed-functional/first-installed-evidence.tar.gz",
+          "archive_member": "sdk-validation-first/results.json",
+          "runtime_variant": "Development installed Workshop; final artifact acceptance pending",
+          "semantic_result": {
+            "dex": "classes.dex",
+            "manifest": "AndroidManifest.xml",
+            "scope": "Path inventory only, separate JADX test exercises DEX decoding"
+          }
+        }
+      ],
+      "limitation_cause": null,
+      "limitation": "Representative tests only; unsupported input variants and exhaustive operation coverage are not implied.",
+      "pending_tests": [
+        "container-asar",
+        "container-dotnet-bundle",
+        "container-bun-standalone",
+        "container-deno-standalone",
+        "container-node-sea",
+        "container-pyinstaller",
+        "container-msix",
+        "container-appx",
+        "container-hsp",
+        "container-app-pack",
+        "container-plist-resources",
+        "artifact-directory-classification",
+        "format-uimage",
+        "format-fit",
+        "format-intel-hex",
+        "format-srec",
+        "format-esp-image",
+        "format-uf2",
+        "format-dfuse",
+        "format-esp-flash-image",
+        "format-android-boot-image",
+        "format-android-ota-payload",
+        "format-ines",
+        "format-godot-pck",
+        "format-unityfs",
+        "format-wxapkg"
+      ]
+    },
+    "artifactResources": {
+      "scope": "Owned input/output resources and cleanup",
+      "prerequisites": "Built-in resource lifetime management; filesystem permissions",
+      "test_ids": [
+        "archive",
+        "artifact-resources",
+        "container-asar",
+        "container-dotnet-bundle",
+        "container-bun-standalone",
+        "container-deno-standalone",
+        "container-node-sea",
+        "container-pyinstaller",
+        "container-msix",
+        "container-appx",
+        "container-hsp",
+        "container-app-pack",
+        "container-plist-resources",
+        "format-uimage",
+        "format-fit",
+        "format-intel-hex",
+        "format-srec",
+        "format-esp-image",
+        "format-uf2",
+        "format-dfuse",
+        "format-esp-flash-image",
+        "format-android-boot-image",
+        "format-android-ota-payload",
+        "format-ines",
+        "format-godot-pck",
+        "format-unityfs",
+        "format-wxapkg"
+      ],
+      "status": "Fully functional",
+      "execution_evidence": [
+        {
+          "test": "archive",
+          "status": "pass",
+          "source_run": "sdk-validation-first",
+          "results_file": "/root/dev/rea-sdk/validation-logs/installed-functional/after-policy-results.json",
+          "evidence_archive": "/root/dev/rea-sdk/validation-logs/installed-functional/first-installed-evidence.tar.gz",
+          "archive_member": "sdk-validation-first/results.json",
+          "runtime_variant": "Development installed Workshop; final artifact acceptance pending",
+          "semantic_result": "ZIP inventory contains both exact member paths"
+        },
+        {
+          "test": "artifact-resources",
+          "status": "pass",
+          "source_run": "sdk-validation-first",
+          "results_file": "/root/dev/rea-sdk/validation-logs/installed-functional/after-policy-results.json",
+          "evidence_archive": "/root/dev/rea-sdk/validation-logs/installed-functional/first-installed-evidence.tar.gz",
+          "archive_member": "sdk-validation-first/results.json",
+          "runtime_variant": "Development installed Workshop; final artifact acceptance pending",
+          "semantic_result": {
+            "public_archive_close_denies_inspection": true,
+            "reopen_inventory_intact": true,
+            "published_output_retained": true,
+            "ownership_primitives": {
+              "closed_handle_read": "EBADF",
+              "scratch_removed": true,
+              "scratch_path": "/var/lib/hermes-rea/work/sdk-validation-first/fixtures/artifact-owned-Vq5AQ0",
+              "fresh_handle_bytes_equal": true,
+              "source_sha256": "ae4aadedc2106a8640e29bf166d90edaff10f6674a41e7e340011c0f83f1dfdc"
+            },
+            "scope": "Normal real file/private-root lifecycle; cancellation/fault retries and exhaustive leak testing excluded"
+          }
+        }
+      ],
+      "limitation_cause": null,
+      "limitation": "Direct normal lifecycle checks cover public archive close/reopen, real owned file handle invalidation/reopen and private scratch removal. Published extraction output intentionally persists. Cancellation, fault-retry and exhaustive descriptor-leak coverage are not implied.",
+      "pending_tests": [
+        "container-asar",
+        "container-dotnet-bundle",
+        "container-bun-standalone",
+        "container-deno-standalone",
+        "container-node-sea",
+        "container-pyinstaller",
+        "container-msix",
+        "container-appx",
+        "container-hsp",
+        "container-app-pack",
+        "container-plist-resources",
+        "format-uimage",
+        "format-fit",
+        "format-intel-hex",
+        "format-srec",
+        "format-esp-image",
+        "format-uf2",
+        "format-dfuse",
+        "format-esp-flash-image",
+        "format-android-boot-image",
+        "format-android-ota-payload",
+        "format-ines",
+        "format-godot-pck",
+        "format-unityfs",
+        "format-wxapkg"
+      ]
+    },
+    "binaryLayout": {
+      "scope": "ELF/PE/Mach-O layout through pwntools",
+      "prerequisites": "Python3 + pwntools; REA_PWNTOOLS_PYTHON",
+      "test_ids": [
+        "binary-layout"
+      ],
+      "status": "Fully functional",
+      "execution_evidence": [
+        {
+          "test": "binary-layout",
+          "status": "pass",
+          "source_run": "sdk-validation-retry1",
+          "results_file": "/root/dev/rea-sdk/validation-logs/installed-functional/after-policy-results.json",
+          "evidence_archive": "/root/dev/rea-sdk/validation-logs/installed-functional/first-installed-evidence.tar.gz",
+          "archive_member": "sdk-validation-retry1/results.json",
+          "runtime_variant": "Development installed Workshop; final artifact acceptance pending",
+          "semantic_result": "Real pwntools ELF symbol/section inspection"
+        }
+      ],
+      "limitation_cause": null,
+      "limitation": "Representative tests only; unsupported input variants and exhaustive operation coverage are not implied.",
+      "pending_tests": []
+    },
+    "browserObservation": {
+      "scope": "Browser targets, pages, DOM and network observations",
+      "prerequisites": "Reachable caller-selected local CDP browser endpoint",
+      "test_ids": [
+        "browser"
+      ],
+      "status": "Fully functional",
+      "execution_evidence": [
+        {
+          "test": "browser",
+          "status": "pass",
+          "source_run": "sdk-validation-first",
+          "results_file": "/root/dev/rea-sdk/validation-logs/installed-functional/after-policy-results.json",
+          "evidence_archive": "/root/dev/rea-sdk/validation-logs/installed-functional/first-installed-evidence.tar.gz",
+          "archive_member": "sdk-validation-first/results.json",
+          "runtime_variant": "Development installed Workshop; final artifact acceptance pending",
+          "semantic_result": {
+            "assertion": "Real headless browser CDP target discovery and DOM/accessibility inspection",
+            "sandbox_mode": "enabled",
+            "sandbox_failure": null
+          }
+        }
+      ],
+      "limitation_cause": null,
+      "limitation": "Real local browser target discovery and DOM/accessibility observation; does not cover every browser tool.",
+      "pending_tests": []
+    },
+    "browserScenarioCapture": {
+      "scope": "Browser scenario execution and capture",
+      "prerequisites": "playwright-core dependency plus compatible browser executable/runtime libraries",
+      "test_ids": [
+        "browser-scenario"
+      ],
+      "status": "Fully functional",
+      "execution_evidence": [
+        {
+          "test": "browser-scenario",
+          "status": "pass",
+          "source_run": "sdk-validation-first",
+          "results_file": "/root/dev/rea-sdk/validation-logs/installed-functional/after-policy-results.json",
+          "evidence_archive": "/root/dev/rea-sdk/validation-logs/installed-functional/first-installed-evidence.tar.gz",
+          "archive_member": "sdk-validation-first/results.json",
+          "runtime_variant": "Development installed Workshop; final artifact acceptance pending",
+          "semantic_result": {
+            "assertion": "Real browser click action changed captured accessibility",
+            "sandbox_mode": "enabled",
+            "sandbox_failure": null
+          }
+        }
+      ],
+      "limitation_cause": null,
+      "limitation": "Representative tests only; unsupported input variants and exhaustive operation coverage are not implied.",
+      "pending_tests": []
+    },
+    "byteEntropy": {
+      "scope": "Byte-range entropy",
+      "prerequisites": "Built-in parser",
+      "test_ids": [
+        "entropy"
+      ],
+      "status": "Fully functional",
+      "execution_evidence": [
+        {
+          "test": "entropy",
+          "status": "pass",
+          "source_run": "sdk-validation-first",
+          "results_file": "/root/dev/rea-sdk/validation-logs/installed-functional/after-policy-results.json",
+          "evidence_archive": "/root/dev/rea-sdk/validation-logs/installed-functional/first-installed-evidence.tar.gz",
+          "archive_member": "sdk-validation-first/results.json",
+          "runtime_variant": "Development installed Workshop; final artifact acceptance pending",
+          "semantic_result": {
+            "block_entropies": [
+              0,
+              8
+            ]
+          }
+        }
+      ],
+      "limitation_cause": null,
+      "limitation": "Representative tests only; unsupported input variants and exhaustive operation coverage are not implied.",
+      "pending_tests": []
+    },
+    "cutter": {
+      "scope": "Cutter disassembly/decompilation/analysis bridge",
+      "prerequisites": "Packaged Cutter2.5.0 Qt5/PySide2 AppImage and unchanged bridge; owned local GUI session with X11 or Xvfb.",
+      "test_ids": [
+        "cutter"
+      ],
+      "status": "Fully functional",
+      "execution_evidence": [
+        {
+          "test": "cutter",
+          "status": "pass",
+          "source_run": "sdk-validation-retry1",
+          "results_file": "/root/dev/rea-sdk/validation-logs/installed-functional/after-policy-results.json",
+          "evidence_archive": "/root/dev/rea-sdk/validation-logs/installed-functional/first-installed-evidence.tar.gz",
+          "archive_member": "sdk-validation-retry1/results.json",
+          "runtime_variant": "Development installed Workshop; final artifact acceptance pending",
+          "semantic_result": {
+            "cutter_version": "2.5.0-HEAD-a6f6ad7",
+            "bridge_source": "packaged",
+            "document_generation": 1,
+            "fixture_sha256_before_and_after": "5e71e451dd22c3917e9d673aac829362c8d9deab49790259697e015aab6c0aab",
+            "assertions": [
+              "private authenticated local bridge",
+              "ELF x86-64 metadata",
+              "exact sdk_cutter_add symbol",
+              "actual add/ret disassembly",
+              "terminated owned GUI session"
+            ],
+            "identity_scope": "Upstream Cutter identity remains partial; input hash verified locally by fixture"
+          }
+        }
+      ],
+      "limitation": "Packaged Linux Cutter 2.5.0 Qt5 with unchanged REA bridge; requires an owned running GUI session and display (Xvfb provided for headless use). Representative session commands and cleanup do not imply every Cutter command was tested.",
+      "pending_tests": []
+    },
+    "desktopApplication": {
+      "scope": "Desktop application analysis/export/capture workflows",
+      "prerequisites": "Static workflows built in; runtime capture needs an owned desktop app/display; X11 helpers and dconf reader are packaged",
+      "test_ids": [
+        "desktop-application",
+        "desktop-capture"
+      ],
+      "status": "Fully functional",
+      "execution_evidence": [
+        {
+          "test": "desktop-application",
+          "status": "pass",
+          "source_run": "sdk-validation-first",
+          "results_file": "/root/dev/rea-sdk/validation-logs/installed-functional/after-policy-results.json",
+          "evidence_archive": "/root/dev/rea-sdk/validation-logs/installed-functional/first-installed-evidence.tar.gz",
+          "archive_member": "sdk-validation-first/results.json",
+          "runtime_variant": "Development installed Workshop; final artifact acceptance pending",
+          "semantic_result": {
+            "runtime_candidate": "dotnet",
+            "assembly": "Hermes.dll",
+            "application_executed": false
+          }
+        },
+        {
+          "test": "desktop-capture",
+          "status": "pass",
+          "source_run": "sdk-validation-first",
+          "results_file": "/root/dev/rea-sdk/validation-logs/installed-functional/after-policy-results.json",
+          "evidence_archive": "/root/dev/rea-sdk/validation-logs/installed-functional/first-installed-evidence.tar.gz",
+          "archive_member": "sdk-validation-first/results.json",
+          "runtime_variant": "Development installed Workshop; final artifact acceptance pending",
+          "semantic_result": {
+            "assertion": "Real Xvfb/Openbox EWMH window captured with owning process and changed INI state; both retained versions decoded through CLI",
+            "window_count": 1,
+            "cleanup_verified": true,
+            "scope": "Owned local desktop capture/state; no model-driven desktop build"
+          }
+        }
+      ],
+      "limitation_cause": null,
+      "limitation": "Representative tests only; unsupported input variants and exhaustive operation coverage are not implied.",
+      "pending_tests": []
+    },
+    "desktopBuildComputers": {
+      "scope": "Owned desktop build-computer lifecycle, actions, checkpoints, captured state and teardown; model-free representative test",
+      "prerequisites": "Docker engine/CLI; agentenv-framework 0.9.1485; packed REA runtime archive",
+      "test_ids": [
+        "desktop-clients",
+        "desktop-runtime-pack",
+        "desktop-build"
+      ],
+      "status": "Partially functional",
+      "execution_evidence": [
+        {
+          "test": "desktop-clients",
+          "status": "pass",
+          "source_run": "sdk-validation-first",
+          "results_file": "/root/dev/rea-sdk/validation-logs/installed-functional/after-policy-results.json",
+          "evidence_archive": "/root/dev/rea-sdk/validation-logs/installed-functional/first-installed-evidence.tar.gz",
+          "archive_member": "sdk-validation-first/results.json",
+          "runtime_variant": "Development installed Workshop; final artifact acceptance pending",
+          "semantic_result": {
+            "versions": {
+              "docker": "Docker version 29.1.3, build 29.1.3-0ubuntu4.1",
+              "buildx": "github.com/docker/buildx 0.30.1 0.30.1-0ubuntu1",
+              "compose": "Docker Compose version 2.40.3+ds1-0ubuntu1",
+              "agentenv": "agent-env 0.9.1485"
+            },
+            "python_imports": {
+              "framework": "0.9.1485",
+              "protocol": "0.1.500",
+              "bundle_runner": true
+            },
+            "scope": "Client initialization only; no Docker daemon, container build, remote endpoint, or model run tested"
+          }
+        },
+        {
+          "test": "desktop-runtime-pack",
+          "status": "pass",
+          "source_run": "sdk-validation-first",
+          "results_file": "/root/dev/rea-sdk/validation-logs/installed-functional/after-policy-results.json",
+          "evidence_archive": "/root/dev/rea-sdk/validation-logs/installed-functional/first-installed-evidence.tar.gz",
+          "archive_member": "sdk-validation-first/results.json",
+          "runtime_variant": "Development installed Workshop; final artifact acceptance pending",
+          "semantic_result": {
+            "archive": "/var/lib/hermes-rea/work/sdk-validation-first/fixtures/desktop-build-runtime.tar.xz",
+            "sha256": "205cbf1a8f68597c2fbd0047a16572ba195f78a21e5f36d85123127f3a8b01ea",
+            "bytes": 19019656,
+            "required_entries": [
+              "scripts/rea.mjs",
+              "dist/main.js",
+              "dist/mcp-catalog.json",
+              "package.json",
+              "package-lock.json",
+              "node_modules/playwright-core/package.json"
+            ],
+            "scope": "Unchanged upstream runtime archive producer; no remote desktop execution"
+          }
+        },
+        {
+          "test": "desktop-build",
+          "status": "pass",
+          "source_run": "desktop-final2",
+          "results_file": "/home/rea-sdk-dev/.local/share/workshop/id/782b8b9c/validation-final/mount/hermes-rea/state/work/desktop-final2/results.json",
+          "results_sha256": "74139ee82e09c9bb79c579d792a34005e97e016db8940fd75f57c8e908fcfd9d",
+          "runtime_variant": "Fresh installed policy/HOME-corrected SDK c7373502e97f32c34be99ba7fd92e7ea5832caf31121aa79a747badd27cf22c5; retains original Frida 17.23.2; overall acceptance failed on subsequent subprocess sequence",
+          "semantic_result": {
+            "assertion": "Real no-model AgentEnv computer ran owned xterm command; computer typing changed retained INI values; screenshots decoded and teardown confirmed",
+            "sandbox_id": "local-f9fe1856",
+            "runtime_archive_sha256": "2a9ffacca7ff13c5fb3398521226c383a09f88eca2cab02bf07a6248ae2ca638",
+            "screenshots": [
+              {
+                "file": "/var/lib/hermes-rea/work/desktop-final2/desktop-build/001-2.image",
+                "bytes": 9702,
+                "sha256": "879b81d7183456062a4543de0b7b0cb8fa8b3aac61f077b266985dc2aa058892",
+                "format": "PNG",
+                "width": 1280,
+                "height": 800,
+                "mode": "RGB"
+              },
+              {
+                "file": "/var/lib/hermes-rea/work/desktop-final2/desktop-build/002-2.image",
+                "bytes": 25876,
+                "sha256": "c70414065f7eec4e00cc0184b5f6b19f9b9cc25362daa8633c15ce4c9648c280",
+                "format": "PNG",
+                "width": 1280,
+                "height": 800,
+                "mode": "RGB"
+              },
+              {
+                "file": "/var/lib/hermes-rea/work/desktop-final2/desktop-build/005-2.image",
+                "bytes": 26533,
+                "sha256": "fe6c262a52b4d4ba487c76a6b904e349651db4a53f13ba60b516926dafe0ecf6",
+                "format": "PNG",
+                "width": 1280,
+                "height": 800,
+                "mode": "RGB"
+              }
+            ],
+            "teardown": "agentenv",
+            "scope": "Real local Docker desktop lifecycle and captured state; no external model endpoint or A-side orchestration"
+          }
+        }
+      ],
+      "limitation_cause": "unconfigured-external-provider",
+      "limitation": "Real model-free Docker/AgentEnv lifecycle, xterm typing, retained INI changes, decoded screenshots and teardown passed on artifact c7373502. Model-driven solve/measure requires a caller model endpoint and credentials; complete export variants and corrected-Frida final artifact reinstall remain untested.",
+      "maximum_status": "Partially functional",
+      "pending_tests": []
+    },
+    "devicetree": {
+      "scope": "Flattened Device Tree inspection",
+      "prerequisites": "Built-in FDT reader",
+      "test_ids": [
+        "devicetree"
+      ],
+      "status": "Fully functional",
+      "execution_evidence": [
+        {
+          "test": "devicetree",
+          "status": "pass",
+          "source_run": "sdk-validation-first",
+          "results_file": "/root/dev/rea-sdk/validation-logs/installed-functional/after-policy-results.json",
+          "evidence_archive": "/root/dev/rea-sdk/validation-logs/installed-functional/first-installed-evidence.tar.gz",
+          "archive_member": "sdk-validation-first/results.json",
+          "runtime_variant": "Development installed Workshop; final artifact acceptance pending",
+          "semantic_result": {
+            "root_compatible": "hermes,sdk-fixture"
+          }
+        }
+      ],
+      "limitation_cause": null,
+      "limitation": "Representative tests only; unsupported input variants and exhaustive operation coverage are not implied.",
+      "pending_tests": []
+    },
+    "dwarfUnits": {
+      "scope": "DWARF compilation/type unit inspection",
+      "prerequisites": "Built-in DWARF reader; new after npm 6.9.0 tag",
+      "test_ids": [
+        "dwarf"
+      ],
+      "status": "Fully functional",
+      "execution_evidence": [
+        {
+          "test": "dwarf",
+          "status": "pass",
+          "source_run": "sdk-validation-retry1",
+          "results_file": "/root/dev/rea-sdk/validation-logs/installed-functional/after-policy-results.json",
+          "evidence_archive": "/root/dev/rea-sdk/validation-logs/installed-functional/first-installed-evidence.tar.gz",
+          "archive_member": "sdk-validation-retry1/results.json",
+          "runtime_variant": "Development installed Workshop; final artifact acceptance pending",
+          "semantic_result": {
+            "compile_units": 1
+          }
+        }
+      ],
+      "limitation_cause": null,
+      "limitation": "Representative tests only; unsupported input variants and exhaustive operation coverage are not implied.",
+      "pending_tests": []
+    },
+    "electronActiveObservation": {
+      "scope": "Active Electron scenario capture",
+      "prerequisites": "Caller-supplied Electron executable/app; Playwright; runtime libraries/display",
+      "test_ids": [
+        "electron-active"
+      ],
+      "status": "Fully functional",
+      "execution_evidence": [
+        {
+          "test": "electron-active",
+          "status": "pass",
+          "source_run": "sdk-validation-first",
+          "results_file": "/root/dev/rea-sdk/validation-logs/installed-functional/after-policy-results.json",
+          "evidence_archive": "/root/dev/rea-sdk/validation-logs/installed-functional/first-installed-evidence.tar.gz",
+          "archive_member": "sdk-validation-first/results.json",
+          "runtime_variant": "Development installed Workshop; final artifact acceptance pending",
+          "semantic_result": {
+            "ipc_events": 1,
+            "electron_version": "45.3.3",
+            "cleanup": "terminated-owned-process",
+            "sandbox_mode": "enabled",
+            "sandbox_failure": null
+          }
+        }
+      ],
+      "limitation_cause": null,
+      "limitation": "Dedicated Electron45.3.3 test-only target with actual IPC handler invocation; arbitrary target runtime compatibility is not implied.",
+      "pending_tests": []
+    },
+    "electronFuses": {
+      "scope": "Electron fuse configuration inspection",
+      "prerequisites": "Built-in static binary reader",
+      "test_ids": [
+        "electron-fuses"
+      ],
+      "status": "Fully functional",
+      "execution_evidence": [
+        {
+          "test": "electron-fuses",
+          "status": "pass",
+          "source_run": "sdk-validation-retry1",
+          "results_file": "/root/dev/rea-sdk/validation-logs/installed-functional/after-policy-results.json",
+          "evidence_archive": "/root/dev/rea-sdk/validation-logs/installed-functional/first-installed-evidence.tar.gz",
+          "archive_member": "sdk-validation-retry1/results.json",
+          "runtime_variant": "Development installed Workshop; final artifact acceptance pending",
+          "semantic_result": {
+            "version": 1,
+            "observed_fuse_bytes": [
+              48,
+              49,
+              48,
+              48,
+              48,
+              48,
+              48,
+              49
+            ],
+            "electron_executed": false
+          }
+        }
+      ],
+      "limitation_cause": null,
+      "limitation": "Representative tests only; unsupported input variants and exhaustive operation coverage are not implied.",
+      "pending_tests": []
+    },
+    "electronObservation": {
+      "scope": "Passive Electron targets and page inspection",
+      "prerequisites": "Local Electron CDP endpoint",
+      "test_ids": [
+        "electron-passive"
+      ],
+      "status": "Fully functional",
+      "execution_evidence": [
+        {
+          "test": "electron-passive",
+          "status": "pass",
+          "source_run": "sdk-validation-retry1",
+          "results_file": "/root/dev/rea-sdk/validation-logs/installed-functional/after-policy-results.json",
+          "evidence_archive": "/root/dev/rea-sdk/validation-logs/installed-functional/first-installed-evidence.tar.gz",
+          "archive_member": "sdk-validation-retry1/results.json",
+          "runtime_variant": "Development installed Workshop; final artifact acceptance pending",
+          "semantic_result": {
+            "target_id": "B9F29365C90A0CE1AE40219F032B7D95",
+            "assertion": "Real Electron file-page DOM structure and exact retained renderer source",
+            "renderer_sha256": "afcadb5a9495068c444db510853478d8be2f77df491abbc331e8ec4ba77fb875",
+            "sandbox_mode": "enabled",
+            "sandbox_failure": null
+          }
+        }
+      ],
+      "limitation_cause": null,
+      "limitation": "Dedicated Electron45.3.3 test-only target for file CDP DOM/source; ordinary browser CDP is not substituted.",
+      "pending_tests": []
+    },
+    "elfDependencies": {
+      "scope": "ELF dependency/version requirements and caller-selected resolution",
+      "prerequisites": "Built-in reader; new after npm 6.9.0 tag",
+      "test_ids": [
+        "elf-dependencies"
+      ],
+      "status": "Fully functional",
+      "execution_evidence": [
+        {
+          "test": "elf-dependencies",
+          "status": "pass",
+          "source_run": "sdk-validation-retry1",
+          "results_file": "/root/dev/rea-sdk/validation-logs/installed-functional/after-policy-results.json",
+          "evidence_archive": "/root/dev/rea-sdk/validation-logs/installed-functional/first-installed-evidence.tar.gz",
+          "archive_member": "sdk-validation-retry1/results.json",
+          "runtime_variant": "Development installed Workshop; final artifact acceptance pending",
+          "semantic_result": {
+            "needed": [
+              {
+                "index": 0,
+                "name": "libc.so.6",
+                "name_offset": 39
+              }
+            ]
+          }
+        }
+      ],
+      "limitation_cause": null,
+      "limitation": "Representative tests only; unsupported input variants and exhaustive operation coverage are not implied.",
+      "pending_tests": []
+    },
+    "elfNotes": {
+      "scope": "ELF notes and build identifiers",
+      "prerequisites": "Built-in parser",
+      "test_ids": [
+        "elf-notes"
+      ],
+      "status": "Fully functional",
+      "execution_evidence": [
+        {
+          "test": "elf-notes",
+          "status": "pass",
+          "source_run": "sdk-validation-retry1",
+          "results_file": "/root/dev/rea-sdk/validation-logs/installed-functional/after-policy-results.json",
+          "evidence_archive": "/root/dev/rea-sdk/validation-logs/installed-functional/first-installed-evidence.tar.gz",
+          "archive_member": "sdk-validation-retry1/results.json",
+          "runtime_variant": "Development installed Workshop; final artifact acceptance pending",
+          "semantic_result": {
+            "gnu_build_ids": [
+              "08c129b9297f57118ddf72e802470437920e9adb",
+              "08c129b9297f57118ddf72e802470437920e9adb"
+            ]
+          }
+        }
+      ],
+      "limitation_cause": null,
+      "limitation": "Representative tests only; unsupported input variants and exhaustive operation coverage are not implied.",
+      "pending_tests": []
+    },
+    "elfDebugLink": {
+      "scope": "ELF debug-link and selected debug companion inspection",
+      "prerequisites": "Built-in reader; new after npm 6.9.0 tag",
+      "test_ids": [
+        "elf-debug-link"
+      ],
+      "status": "Fully functional",
+      "execution_evidence": [
+        {
+          "test": "elf-debug-link",
+          "status": "pass",
+          "source_run": "sdk-validation-retry1",
+          "results_file": "/root/dev/rea-sdk/validation-logs/installed-functional/after-policy-results.json",
+          "evidence_archive": "/root/dev/rea-sdk/validation-logs/installed-functional/first-installed-evidence.tar.gz",
+          "archive_member": "sdk-validation-retry1/results.json",
+          "runtime_variant": "Development installed Workshop; final artifact acceptance pending",
+          "semantic_result": {
+            "verification": {
+              "status": "matches",
+              "reason": null,
+              "crc32": {
+                "status": "match",
+                "expected_hex": "b155bd70",
+                "observed_hex": "b155bd70",
+                "reason": null
+              },
+              "build_id": {
+                "status": "match",
+                "binary_hex": "08c129b9297f57118ddf72e802470437920e9adb",
+                "candidate_hex": "08c129b9297f57118ddf72e802470437920e9adb",
+                "reason": null
+              }
+            }
+          }
+        }
+      ],
+      "limitation_cause": null,
+      "limitation": "Representative tests only; unsupported input variants and exhaustive operation coverage are not implied.",
+      "pending_tests": []
+    },
+    "nativeInitializers": {
+      "scope": "Native initializer inventories",
+      "prerequisites": "Built-in native format parsers",
+      "test_ids": [
+        "native-initializers"
+      ],
+      "status": "Fully functional",
+      "execution_evidence": [
+        {
+          "test": "native-initializers",
+          "status": "pass",
+          "source_run": "sdk-validation-retry1",
+          "results_file": "/root/dev/rea-sdk/validation-logs/installed-functional/after-policy-results.json",
+          "evidence_archive": "/root/dev/rea-sdk/validation-logs/installed-functional/first-installed-evidence.tar.gz",
+          "archive_member": "sdk-validation-retry1/results.json",
+          "runtime_variant": "Development installed Workshop; final artifact acceptance pending",
+          "semantic_result": {
+            "initializers": 5
+          }
+        }
+      ],
+      "limitation_cause": null,
+      "limitation": "Representative tests only; unsupported input variants and exhaustive operation coverage are not implied.",
+      "pending_tests": []
+    },
+    "elfUnwindRanges": {
+      "scope": "ELF unwind ranges",
+      "prerequisites": "Built-in parser",
+      "test_ids": [
+        "elf-unwind"
+      ],
+      "status": "Fully functional",
+      "execution_evidence": [
+        {
+          "test": "elf-unwind",
+          "status": "pass",
+          "source_run": "sdk-validation-retry1",
+          "results_file": "/root/dev/rea-sdk/validation-logs/installed-functional/after-policy-results.json",
+          "evidence_archive": "/root/dev/rea-sdk/validation-logs/installed-functional/first-installed-evidence.tar.gz",
+          "archive_member": "sdk-validation-retry1/results.json",
+          "runtime_variant": "Development installed Workshop; final artifact acceptance pending",
+          "semantic_result": {
+            "ranges": 7
+          }
+        }
+      ],
+      "limitation_cause": null,
+      "limitation": "Representative tests only; unsupported input variants and exhaustive operation coverage are not implied.",
+      "pending_tests": []
+    },
+    "erlangBeam": {
+      "scope": "Erlang BEAM metadata/instructions",
+      "prerequisites": "Built-in BEAM parser; no Erlang runtime required for static inspection",
+      "test_ids": [
+        "beam"
+      ],
+      "status": "Fully functional",
+      "execution_evidence": [
+        {
+          "test": "beam",
+          "status": "pass",
+          "source_run": "sdk-validation-first",
+          "results_file": "/root/dev/rea-sdk/validation-logs/installed-functional/after-policy-results.json",
+          "evidence_archive": "/root/dev/rea-sdk/validation-logs/installed-functional/first-installed-evidence.tar.gz",
+          "archive_member": "sdk-validation-first/results.json",
+          "runtime_variant": "Development installed Workshop; final artifact acceptance pending",
+          "semantic_result": {
+            "module": "hermes_beam",
+            "exports": 3,
+            "imports": 1,
+            "executed": false
+          }
+        }
+      ],
+      "limitation_cause": null,
+      "limitation": "Representative tests only; unsupported input variants and exhaustive operation coverage are not implied.",
+      "pending_tests": []
+    },
+    "evmInterface": {
+      "scope": "EVM bytecode interface/selector analysis",
+      "prerequisites": "Bundled evmole npm dependency",
+      "test_ids": [
+        "evm"
+      ],
+      "status": "Fully functional",
+      "execution_evidence": [
+        {
+          "test": "evm",
+          "status": "pass",
+          "source_run": "sdk-validation-first",
+          "results_file": "/root/dev/rea-sdk/validation-logs/installed-functional/after-policy-results.json",
+          "evidence_archive": "/root/dev/rea-sdk/validation-logs/installed-functional/first-installed-evidence.tar.gz",
+          "archive_member": "sdk-validation-first/results.json",
+          "runtime_variant": "Development installed Workshop; final artifact acceptance pending",
+          "semantic_result": {
+            "selectors": [
+              "0x00000000"
+            ]
+          }
+        }
+      ],
+      "limitation_cause": null,
+      "limitation": "Representative tests only; unsupported input variants and exhaustive operation coverage are not implied.",
+      "pending_tests": []
+    },
+    "firmwareAnalysis": {
+      "scope": "Binwalk region inspection and Unblob extraction",
+      "prerequisites": "Binwalk 3.1.x; Unblob 26.6.x; prlimit; format-specific extractors",
+      "test_ids": [
+        "firmware",
+        "firmware-extract",
+        "firmware-ext2"
+      ],
+      "status": "Fully functional",
+      "execution_evidence": [
+        {
+          "test": "firmware",
+          "status": "pass",
+          "source_run": "sdk-validation-first",
+          "results_file": "/root/dev/rea-sdk/validation-logs/installed-functional/after-policy-results.json",
+          "evidence_archive": "/root/dev/rea-sdk/validation-logs/installed-functional/first-installed-evidence.tar.gz",
+          "archive_member": "sdk-validation-first/results.json",
+          "runtime_variant": "Development installed Workshop; final artifact acceptance pending",
+          "semantic_result": "Real Binwalk found the embedded gzip signature"
+        },
+        {
+          "test": "firmware-extract",
+          "status": "pass",
+          "source_run": "sdk-validation-first",
+          "results_file": "/root/dev/rea-sdk/validation-logs/installed-functional/after-policy-results.json",
+          "evidence_archive": "/root/dev/rea-sdk/validation-logs/installed-functional/first-installed-evidence.tar.gz",
+          "archive_member": "sdk-validation-first/results.json",
+          "runtime_variant": "Development installed Workshop; final artifact acceptance pending",
+          "semantic_result": {
+            "assertion": "Real Unblob extracted exact gzip payload bytes",
+            "output_files": 1
+          }
+        },
+        {
+          "test": "firmware-ext2",
+          "status": "pass",
+          "source_run": "sdk-validation-first",
+          "results_file": "/root/dev/rea-sdk/validation-logs/installed-functional/after-policy-results.json",
+          "evidence_archive": "/root/dev/rea-sdk/validation-logs/installed-functional/first-installed-evidence.tar.gz",
+          "archive_member": "sdk-validation-first/results.json",
+          "runtime_variant": "Development installed Workshop; final artifact acceptance pending",
+          "semantic_result": {
+            "assertion": "Real Unblob/debugfs extracted owned ext2 file with exact bytes after REA launched with PATH=/usr/bin:/bin",
+            "payload_sha256": "eda137e434bc888485a713618e26e780235f89d57b5321be687f60bc03a625af",
+            "extracted_paths": [
+              "/var/lib/hermes-rea/work/sdk-validation-first/firmware-ext2/extracted/firmware.bin_extract/sdk-marker.txt"
+            ],
+            "scope": "Mounted no filesystem; generated an owned 8 MiB ext2 image with declared e2fsprogs"
+          }
+        }
+      ],
+      "limitation_cause": null,
+      "limitation": "Representative region/extractor operation; format-specific Unblob extractors require separate fixtures.",
+      "pending_tests": []
+    },
+    "flutter": {
+      "scope": "Flutter application and AOT metadata inspection",
+      "prerequisites": "Built-in static provider; supported input/layout admission applies",
+      "test_ids": [
+        "flutter"
+      ],
+      "status": "Fully functional",
+      "execution_evidence": [
+        {
+          "test": "flutter",
+          "status": "pass",
+          "source_run": "sdk-validation-first",
+          "results_file": "/root/dev/rea-sdk/validation-logs/installed-functional/after-policy-results.json",
+          "evidence_archive": "/root/dev/rea-sdk/validation-logs/installed-functional/first-installed-evidence.tar.gz",
+          "archive_member": "sdk-validation-first/results.json",
+          "runtime_variant": "Development installed Workshop; final artifact acceptance pending",
+          "semantic_result": {
+            "abi": "x86_64",
+            "snapshot_hash_sources": 2,
+            "package_uri": "package:animations/src/fade_scale_transition.dart"
+          }
+        }
+      ],
+      "limitation_cause": null,
+      "limitation": "Synthetic admitted APK snapshot headers and Dart string-pool evidence, not arbitrary Dart decompilation.",
+      "pending_tests": []
+    },
+    "fridaInstrumentation": {
+      "scope": "Local process/device instrumentation",
+      "prerequisites": "Complete matched Frida 17.25.1 npm/native SDK override; unchanged REA source pins 17.23.2; process/device permissions and selected target",
+      "test_ids": [
+        "frida",
+        "frida-injection",
+        "frida-process-lifecycle"
+      ],
+      "status": "Partially functional",
+      "execution_evidence": [
+        {
+          "test": "frida",
+          "status": "pass",
+          "source_run": "sdk-validation-first",
+          "results_file": "/root/dev/rea-sdk/validation-logs/installed-functional/after-policy-results.json",
+          "evidence_archive": "/root/dev/rea-sdk/validation-logs/installed-functional/first-installed-evidence.tar.gz",
+          "archive_member": "sdk-validation-first/results.json",
+          "runtime_variant": "Development installed Workshop; final artifact acceptance pending",
+          "semantic_result": "Real Frida native binding enumerated local device and this test process; injection is separate coverage"
+        },
+        {
+          "test": "frida-injection",
+          "status": "pass",
+          "source_run": "sdk-validation-retry1",
+          "results_file": "/root/dev/rea-sdk/validation-logs/installed-functional/after-policy-results.json",
+          "evidence_archive": "/root/dev/rea-sdk/validation-logs/installed-functional/first-installed-evidence.tar.gz",
+          "archive_member": "sdk-validation-retry1/results.json",
+          "runtime_variant": "Development installed Workshop; final artifact acceptance pending",
+          "semantic_result": {
+            "assertion": "Spawned owned native process, injected script, read exact exported memory and PID, unloaded and resumed",
+            "pid": 13976,
+            "script_sha256": "d6fa1edce4f345b0656c1b2c331e67c389f7b90540cc0dffce880fb6c5a5ff2b"
+          }
+        },
+        {
+          "test": "frida",
+          "status": "pass",
+          "source_run": "frida-mixed-fixed",
+          "results_file": "/home/rea-sdk-dev/.local/share/workshop/id/782b8b9c/validation-final/mount/hermes-rea/state/work/frida-mixed-fixed/results.json",
+          "results_sha256": "9f0a7159c8a3e0a395e994551799fd69a965846a51ab01a44a87cd0bb1617d80",
+          "runtime_variant": "Scratch runtime using matched official Frida17.25.1 with 3,550 unchanged REA engine files; not a rebuilt installed SDK",
+          "semantic_result": "Real Frida native binding enumerated local device and this test process; injection is separate coverage"
+        },
+        {
+          "test": "frida-injection",
+          "status": "pass",
+          "source_run": "frida-mixed-fixed",
+          "results_file": "/home/rea-sdk-dev/.local/share/workshop/id/782b8b9c/validation-final/mount/hermes-rea/state/work/frida-mixed-fixed/results.json",
+          "results_sha256": "9f0a7159c8a3e0a395e994551799fd69a965846a51ab01a44a87cd0bb1617d80",
+          "runtime_variant": "Scratch runtime using matched official Frida17.25.1 with 3,550 unchanged REA engine files; not a rebuilt installed SDK",
+          "semantic_result": {
+            "assertion": "Spawned owned native process, injected script, read exact exported memory and PID, unloaded and resumed",
+            "pid": 16694,
+            "script_sha256": "d6fa1edce4f345b0656c1b2c331e67c389f7b90540cc0dffce880fb6c5a5ff2b"
+          }
+        }
+      ],
+      "limitation_cause": "upstream-limitation",
+      "limitation": "Original 17.23.2 instrumentation passes alone but breaks subsequent Node child reaping in the same process. Official matched 17.25.1 scratch override passes 37 direct lifecycle records and five mixed REA cases; rebuilt-artifact full-suite and reinstall proof remain pending. See frida-compatibility.md.",
+      "pending_tests": [
+        "frida-process-lifecycle"
+      ],
+      "maximum_status": "Partially functional",
+      "sequencing_regression": {
+        "baseline": {
+          "version": "17.23.2",
+          "records": 37,
+          "failed_records": 15,
+          "log": "/root/dev/rea-sdk/validation-logs/frida-direct-baseline.log",
+          "exit_code": 1
+        },
+        "candidate": {
+          "version": "17.25.1",
+          "records": 37,
+          "failed_records": 0,
+          "log": "/root/dev/rea-sdk/validation-logs/frida-direct-fixed.log",
+          "exit_code": 0
+        },
+        "mixed_session": {
+          "tests": [
+            "javascript",
+            "frida",
+            "frida-injection",
+            "sqlite",
+            "ghidra"
+          ],
+          "passed": 5,
+          "log": "/root/dev/rea-sdk/validation-logs/frida-mixed-fixed.log",
+          "exit_code": 0
+        },
+        "acceptance": "Candidate proof only; no final artifact acceptance"
+      }
+    },
+    "gdbSessions": {
+      "scope": "Native debugging sessions",
+      "prerequisites": "GDB executable; suitable target and ptrace permissions",
+      "test_ids": [
+        "gdb"
+      ],
+      "status": "Fully functional",
+      "execution_evidence": [
+        {
+          "test": "gdb",
+          "status": "pass",
+          "source_run": "sdk-validation-retry1",
+          "results_file": "/root/dev/rea-sdk/validation-logs/installed-functional/after-policy-results.json",
+          "evidence_archive": "/root/dev/rea-sdk/validation-logs/installed-functional/first-installed-evidence.tar.gz",
+          "archive_member": "sdk-validation-retry1/results.json",
+          "runtime_variant": "Development installed Workshop; final artifact acceptance pending",
+          "semantic_result": "Persistent real GDB/MI session disassembled sdk_add and closed"
+        }
+      ],
+      "limitation_cause": null,
+      "limitation": "Representative tests only; unsupported input variants and exhaustive operation coverage are not implied.",
+      "pending_tests": []
+    },
+    "ghidra": {
+      "scope": "Native analysis, procedures, decompilation and cross references",
+      "prerequisites": "Ghidra 12.x >=12.1; supported full JDK; GHIDRA_INSTALL_DIR",
+      "test_ids": [
+        "ghidra",
+        "native-load-mz",
+        "native-load-com",
+        "native-load-raw",
+        "native-load-dol"
+      ],
+      "status": "Fully functional",
+      "execution_evidence": [
+        {
+          "test": "ghidra",
+          "status": "pass",
+          "source_run": "sdk-validation-retry2",
+          "results_file": "/root/dev/rea-sdk/validation-logs/installed-functional/after-policy-results.json",
+          "evidence_archive": "/root/dev/rea-sdk/validation-logs/installed-functional/first-installed-evidence.tar.gz",
+          "archive_member": "sdk-validation-retry2/results.json",
+          "runtime_variant": "Development installed Workshop; final artifact acceptance pending",
+          "semantic_result": "Ghidra decompiled sdk_add, read assembly, saved/reopened target-bound snapshot"
+        }
+      ],
+      "limitation_cause": null,
+      "limitation": "Representative C native decompilation/procedure operation; architecture-wide and optional NativeAOT extension coverage remain separate.",
+      "pending_tests": [
+        "native-load-mz",
+        "native-load-com",
+        "native-load-raw",
+        "native-load-dol"
+      ]
+    },
+    "goBinary": {
+      "scope": "Go build info, symbols and runtime metadata",
+      "prerequisites": "Built-in parser; no Go runtime required for static inspection",
+      "test_ids": [
+        "go-binary"
+      ],
+      "status": "Fully functional",
+      "execution_evidence": [
+        {
+          "test": "go-binary",
+          "status": "pass",
+          "source_run": "sdk-validation-first",
+          "results_file": "/root/dev/rea-sdk/validation-logs/installed-functional/after-policy-results.json",
+          "evidence_archive": "/root/dev/rea-sdk/validation-logs/installed-functional/first-installed-evidence.tar.gz",
+          "archive_member": "sdk-validation-first/results.json",
+          "runtime_variant": "Development installed Workshop; final artifact acceptance pending",
+          "semantic_result": {
+            "fixture": "compiler-produced ELF",
+            "build_info": "Go version and command-line-arguments module"
+          }
+        }
+      ],
+      "limitation_cause": null,
+      "limitation": "Representative tests only; unsupported input variants and exhaustive operation coverage are not implied.",
+      "pending_tests": []
+    },
+    "gpuCodeObjects": {
+      "scope": "GPU code object metadata",
+      "prerequisites": "Built-in static parser; not GPU execution",
+      "test_ids": [
+        "gpu"
+      ],
+      "status": "Fully functional",
+      "execution_evidence": [
+        {
+          "test": "gpu",
+          "status": "pass",
+          "source_run": "sdk-validation-first",
+          "results_file": "/root/dev/rea-sdk/validation-logs/installed-functional/after-policy-results.json",
+          "evidence_archive": "/root/dev/rea-sdk/validation-logs/installed-functional/first-installed-evidence.tar.gz",
+          "archive_member": "sdk-validation-first/results.json",
+          "runtime_variant": "Development installed Workshop; final artifact acceptance pending",
+          "semantic_result": {
+            "kernel": "hermes_kernel",
+            "parameters": 1,
+            "gpu_execution": false
+          }
+        }
+      ],
+      "limitation_cause": null,
+      "limitation": "PTX kernel parameter/register declarations, not GPU execution or every CUDA/AMDGPU container.",
+      "pending_tests": []
+    },
+    "harmonyApplicationGraph": {
+      "scope": "Harmony application graph",
+      "prerequisites": "Built-in artifact/application parsers",
+      "test_ids": [
+        "harmony-graph"
+      ],
+      "status": "Fully functional",
+      "execution_evidence": [
+        {
+          "test": "harmony-graph",
+          "status": "pass",
+          "source_run": "sdk-validation-first",
+          "results_file": "/root/dev/rea-sdk/validation-logs/installed-functional/after-policy-results.json",
+          "evidence_archive": "/root/dev/rea-sdk/validation-logs/installed-functional/first-installed-evidence.tar.gz",
+          "archive_member": "sdk-validation-first/results.json",
+          "runtime_variant": "Development installed Workshop; final artifact acceptance pending",
+          "semantic_result": {
+            "root_format": "hap",
+            "packaging_model": "stage",
+            "scope": "Static paths, no Ark bytecode execution or decompilation claim"
+          }
+        }
+      ],
+      "limitation_cause": null,
+      "limitation": "Representative tests only; unsupported input variants and exhaustive operation coverage are not implied.",
+      "pending_tests": []
+    },
+    "hopper": {
+      "scope": "Hopper native analysis provider",
+      "prerequisites": "Caller-provisioned Hopper and applicable license/demo constraints; Linux display/Python prerequisites",
+      "test_ids": [],
+      "status": "Not yet tested",
+      "execution_evidence": [],
+      "limitation_cause": "unconfigured-external-provider",
+      "limitation": "Requires separately provisioned Hopper engine and applicable license/GUI bridge.",
+      "pending_tests": []
+    },
+    "ida": {
+      "scope": "IDA native analysis through selected MCP registration",
+      "prerequisites": "Caller-provisioned IDA and MCP integration; REA_IDA_MCP_CONFIG",
+      "test_ids": [],
+      "status": "Not yet tested",
+      "execution_evidence": [],
+      "limitation_cause": "unconfigured-external-provider",
+      "limitation": "Requires separately provisioned IDA engine, applicable license and MCP configuration.",
+      "pending_tests": []
+    },
+    "il2cppMetadata": {
+      "scope": "Unity IL2CPP metadata",
+      "prerequisites": "Built-in parser; native code correlation additionally needs qualified binary provider",
+      "test_ids": [
+        "il2cpp"
+      ],
+      "status": "Fully functional",
+      "execution_evidence": [
+        {
+          "test": "il2cpp",
+          "status": "pass",
+          "source_run": "sdk-validation-first",
+          "results_file": "/root/dev/rea-sdk/validation-logs/installed-functional/after-policy-results.json",
+          "evidence_archive": "/root/dev/rea-sdk/validation-logs/installed-functional/first-installed-evidence.tar.gz",
+          "archive_member": "sdk-validation-first/results.json",
+          "runtime_variant": "Development installed Workshop; final artifact acceptance pending",
+          "semantic_result": {
+            "version": 29,
+            "image": "Assembly-CSharp.dll",
+            "type": "Game.Player"
+          }
+        }
+      ],
+      "limitation_cause": null,
+      "limitation": "Representative tests only; unsupported input variants and exhaustive operation coverage are not implied.",
+      "pending_tests": []
+    },
+    "javascriptApplication": {
+      "scope": "JavaScript/TypeScript/bundle application structure",
+      "prerequisites": "Built-in parser and bundled dependencies",
+      "test_ids": [
+        "javascript"
+      ],
+      "status": "Fully functional",
+      "execution_evidence": [
+        {
+          "test": "javascript",
+          "status": "pass",
+          "source_run": "sdk-validation-first",
+          "results_file": "/root/dev/rea-sdk/validation-logs/installed-functional/after-policy-results.json",
+          "evidence_archive": "/root/dev/rea-sdk/validation-logs/installed-functional/first-installed-evidence.tar.gz",
+          "archive_member": "sdk-validation-first/results.json",
+          "runtime_variant": "Development installed Workshop; final artifact acceptance pending",
+          "semantic_result": {
+            "assertions": [
+              "CLI/MCP main/helper module graph",
+              "Electron IPC sdk-greeting",
+              "retained Evidence identity"
+            ],
+            "scope": "Static source analysis; no Electron runtime claim"
+          }
+        }
+      ],
+      "limitation_cause": null,
+      "limitation": "Representative tests only; unsupported input variants and exhaustive operation coverage are not implied.",
+      "pending_tests": []
+    },
+    "javascriptRecovery": {
+      "scope": "Recovered/deobfuscated JavaScript through Wakaru",
+      "prerequisites": "Standalone Wakaru ^1.13.0 Linux x64 binary and prlimit; REA_WAKARU_COMMAND",
+      "test_ids": [
+        "javascript-recovery"
+      ],
+      "status": "Fully functional",
+      "execution_evidence": [
+        {
+          "test": "javascript-recovery",
+          "status": "pass",
+          "source_run": "sdk-validation-first",
+          "results_file": "/root/dev/rea-sdk/validation-logs/installed-functional/after-policy-results.json",
+          "evidence_archive": "/root/dev/rea-sdk/validation-logs/installed-functional/first-installed-evidence.tar.gz",
+          "archive_member": "sdk-validation-first/results.json",
+          "runtime_variant": "Development installed Workshop; final artifact acceptance pending",
+          "semantic_result": "Real Wakaru recovery produced derived source containing the exact fixture string"
+        }
+      ],
+      "limitation_cause": null,
+      "limitation": "Representative tests only; unsupported input variants and exhaustive operation coverage are not implied.",
+      "pending_tests": []
+    },
+    "javascriptRuntimeObservation": {
+      "scope": "Node/V8 runtime inspection",
+      "prerequisites": "Local V8 Inspector endpoint or selected supported Node process",
+      "test_ids": [
+        "runtime"
+      ],
+      "status": "Fully functional",
+      "execution_evidence": [
+        {
+          "test": "runtime",
+          "status": "pass",
+          "source_run": "sdk-validation-first",
+          "results_file": "/root/dev/rea-sdk/validation-logs/installed-functional/after-policy-results.json",
+          "evidence_archive": "/root/dev/rea-sdk/validation-logs/installed-functional/first-installed-evidence.tar.gz",
+          "archive_member": "sdk-validation-first/results.json",
+          "runtime_variant": "Development installed Workshop; final artifact acceptance pending",
+          "semantic_result": "Real local Node Inspector observation and correlation with static application Evidence"
+        }
+      ],
+      "limitation_cause": null,
+      "limitation": "Representative tests only; unsupported input variants and exhaustive operation coverage are not implied.",
+      "pending_tests": []
+    },
+    "javascriptRuntimeReconciliation": {
+      "scope": "Static/runtime JavaScript evidence reconciliation",
+      "prerequisites": "Built-in workflow plus real static/runtime evidence",
+      "test_ids": [
+        "runtime"
+      ],
+      "status": "Fully functional",
+      "execution_evidence": [
+        {
+          "test": "runtime",
+          "status": "pass",
+          "source_run": "sdk-validation-first",
+          "results_file": "/root/dev/rea-sdk/validation-logs/installed-functional/after-policy-results.json",
+          "evidence_archive": "/root/dev/rea-sdk/validation-logs/installed-functional/first-installed-evidence.tar.gz",
+          "archive_member": "sdk-validation-first/results.json",
+          "runtime_variant": "Development installed Workshop; final artifact acceptance pending",
+          "semantic_result": "Real local Node Inspector observation and correlation with static application Evidence"
+        }
+      ],
+      "limitation_cause": null,
+      "limitation": "Representative tests only; unsupported input variants and exhaustive operation coverage are not implied.",
+      "pending_tests": []
+    },
+    "jeb": {
+      "scope": "JEB analysis MCP provider",
+      "prerequisites": "Activated JEB engine, local MCP endpoint; REA_JEB_MCP_URL",
+      "test_ids": [],
+      "status": "Not yet tested",
+      "execution_evidence": [],
+      "limitation_cause": "unconfigured-external-provider",
+      "limitation": "Requires activated JEB with applicable license and local MCP endpoint; CE is not equivalent to licensed Android decompilation.",
+      "pending_tests": []
+    },
+    "kernelBuildConfig": {
+      "scope": "Embedded Linux kernel configuration",
+      "prerequisites": "Built-in parser",
+      "test_ids": [
+        "kernel-config"
+      ],
+      "status": "Fully functional",
+      "execution_evidence": [
+        {
+          "test": "kernel-config",
+          "status": "pass",
+          "source_run": "sdk-validation-retry1",
+          "results_file": "/root/dev/rea-sdk/validation-logs/installed-functional/after-policy-results.json",
+          "evidence_archive": "/root/dev/rea-sdk/validation-logs/installed-functional/first-installed-evidence.tar.gz",
+          "archive_member": "sdk-validation-retry1/results.json",
+          "runtime_variant": "Development installed Workshop; final artifact acceptance pending",
+          "semantic_result": {
+            "config_options": {
+              "CONFIG_SECURITY_SELINUX": "y",
+              "CONFIG_MODULE_SIG": "m",
+              "CONFIG_MODULE_SIG_FORCE": null,
+              "CONFIG_HZ": "250"
+            },
+            "kernel_executed": false
+          }
+        }
+      ],
+      "limitation_cause": null,
+      "limitation": "Representative tests only; unsupported input variants and exhaustive operation coverage are not implied.",
+      "pending_tests": []
+    },
+    "kernelModule": {
+      "scope": "Linux kernel module metadata",
+      "prerequisites": "Built-in ELF/module parser",
+      "test_ids": [
+        "kernel-module"
+      ],
+      "status": "Fully functional",
+      "execution_evidence": [
+        {
+          "test": "kernel-module",
+          "status": "pass",
+          "source_run": "sdk-validation-first",
+          "results_file": "/root/dev/rea-sdk/validation-logs/installed-functional/after-policy-results.json",
+          "evidence_archive": "/root/dev/rea-sdk/validation-logs/installed-functional/first-installed-evidence.tar.gz",
+          "archive_member": "sdk-validation-first/results.json",
+          "runtime_variant": "Development installed Workshop; final artifact acceptance pending",
+          "semantic_result": {
+            "modinfo": "license=GPL;description=hermes-sdk-fixture",
+            "module_loaded": false
+          }
+        }
+      ],
+      "limitation_cause": null,
+      "limitation": "Representative tests only; unsupported input variants and exhaustive operation coverage are not implied.",
+      "pending_tests": []
+    },
+    "kuna": {
+      "scope": "Kuna native decompiler provider",
+      "prerequisites": "Packaged Linux x64 Kuna 1.990 executable; REA_KUNA_COMMAND override",
+      "test_ids": [
+        "kuna"
+      ],
+      "status": "Fully functional",
+      "execution_evidence": [
+        {
+          "test": "kuna",
+          "status": "pass",
+          "source_run": "sdk-validation-retry1",
+          "results_file": "/root/dev/rea-sdk/validation-logs/installed-functional/after-policy-results.json",
+          "evidence_archive": "/root/dev/rea-sdk/validation-logs/installed-functional/first-installed-evidence.tar.gz",
+          "archive_member": "sdk-validation-retry1/results.json",
+          "runtime_variant": "Development installed Workshop; final artifact acceptance pending",
+          "semantic_result": "Selected Kuna explicitly and decompiled the synthetic addition function"
+        }
+      ],
+      "limitation_cause": null,
+      "limitation": "Explicitly selected Linux Kuna decompiled a synthetic addition function. Upstream release notes only qualified macOS arm64; this installed Linux representative proof does not imply all architectures or operations.",
+      "pending_tests": []
+    },
+    "managedStatic": {
+      "scope": ".NET PE/CLI metadata and CIL inspection",
+      "prerequisites": "Built-in TypeScript parser; .NET runtime and ILSpy not required",
+      "test_ids": [
+        "managed"
+      ],
+      "status": "Fully functional",
+      "execution_evidence": [
+        {
+          "test": "managed",
+          "status": "pass",
+          "source_run": "sdk-validation-first",
+          "results_file": "/root/dev/rea-sdk/validation-logs/installed-functional/after-policy-results.json",
+          "evidence_archive": "/root/dev/rea-sdk/validation-logs/installed-functional/first-installed-evidence.tar.gz",
+          "archive_member": "sdk-validation-first/results.json",
+          "runtime_variant": "Development installed Workshop; final artifact acceptance pending",
+          "semantic_result": "Built-in PE/CLI metadata and CIL member/string inspection; assembly was not executed"
+        }
+      ],
+      "limitation_cause": null,
+      "limitation": "Representative tests only; unsupported input variants and exhaustive operation coverage are not implied.",
+      "pending_tests": []
+    },
+    "managedWorkflow": {
+      "scope": "Managed application, interop and reconstruction workflows",
+      "prerequisites": "Built-in parser/workflows; supplied reconstruction evidence; optional ILSpy oracle",
+      "test_ids": [
+        "managed-workflow"
+      ],
+      "status": "Fully functional",
+      "execution_evidence": [
+        {
+          "test": "managed-workflow",
+          "status": "pass",
+          "source_run": "sdk-validation-first",
+          "results_file": "/root/dev/rea-sdk/validation-logs/installed-functional/after-policy-results.json",
+          "evidence_archive": "/root/dev/rea-sdk/validation-logs/installed-functional/first-installed-evidence.tar.gz",
+          "archive_member": "sdk-validation-first/results.json",
+          "runtime_variant": "Development installed Workshop; final artifact acceptance pending",
+          "semantic_result": {
+            "type": "Hermes.HermesWorkflow",
+            "method": "Greet",
+            "source_evidence": "ev_8665d882bfd0e45d94d9233c4abcc47ce22c30945ac73f1a7c405ad49b1c526a"
+          }
+        }
+      ],
+      "limitation_cause": null,
+      "limitation": "Representative tests only; unsupported input variants and exhaustive operation coverage are not implied.",
+      "pending_tests": []
+    },
+    "modelArtifact": {
+      "scope": "ML model artifact inventory",
+      "prerequisites": "Built-in static format parsers; no model inference/runtime implied",
+      "test_ids": [
+        "model"
+      ],
+      "status": "Fully functional",
+      "execution_evidence": [
+        {
+          "test": "model",
+          "status": "pass",
+          "source_run": "sdk-validation-first",
+          "results_file": "/root/dev/rea-sdk/validation-logs/installed-functional/after-policy-results.json",
+          "evidence_archive": "/root/dev/rea-sdk/validation-logs/installed-functional/first-installed-evidence.tar.gz",
+          "archive_member": "sdk-validation-first/results.json",
+          "runtime_variant": "Development installed Workshop; final artifact acceptance pending",
+          "semantic_result": {
+            "tensor": {
+              "index": 0,
+              "name": "weights",
+              "type": "F32",
+              "type_id": null,
+              "shape": [
+                "2"
+              ],
+              "data_offset": 0,
+              "file_offset": 120,
+              "byte_length": 8,
+              "parameter_count": "2",
+              "byte_length_state": "declared",
+              "storage_validation": "consistent",
+              "source_offset": 8,
+              "source_length": 112,
+              "json_pointer": "/weights"
+            },
+            "payload_executed": false
+          }
+        }
+      ],
+      "limitation_cause": null,
+      "limitation": "Representative tests only; unsupported input variants and exhaustive operation coverage are not implied.",
+      "pending_tests": []
+    },
+    "nativeExports": {
+      "scope": "PE/ELF/Mach-O export inventory",
+      "prerequisites": "Built-in parser",
+      "test_ids": [
+        "native-exports"
+      ],
+      "status": "Fully functional",
+      "execution_evidence": [
+        {
+          "test": "native-exports",
+          "status": "pass",
+          "source_run": "sdk-validation-retry1",
+          "results_file": "/root/dev/rea-sdk/validation-logs/installed-functional/after-policy-results.json",
+          "evidence_archive": "/root/dev/rea-sdk/validation-logs/installed-functional/first-installed-evidence.tar.gz",
+          "archive_member": "sdk-validation-retry1/results.json",
+          "runtime_variant": "Development installed Workshop; final artifact acceptance pending",
+          "semantic_result": {
+            "export": "hermes_static_export",
+            "count": 9
+          }
+        }
+      ],
+      "limitation_cause": null,
+      "limitation": "Representative tests only; unsupported input variants and exhaustive operation coverage are not implied.",
+      "pending_tests": []
+    },
+    "nativeMacOS": {
+      "scope": "Native macOS UI/runtime/LLDB observations",
+      "prerequisites": "macOS facilities and permissions; cannot be supplied by Linux packages",
+      "test_ids": [],
+      "status": "Unsupported on target platform",
+      "execution_evidence": [],
+      "limitation_cause": "incompatible-platform",
+      "limitation": "Native macOS framework/UI/runtime operations require Darwin and cannot execute on Ubuntu.",
+      "pending_tests": []
+    },
+    "packetCapture": {
+      "scope": "Packet capture inspection through tshark",
+      "prerequisites": "Wireshark tshark 4.x; REA_TSHARK_COMMAND",
+      "test_ids": [
+        "packet-capture"
+      ],
+      "status": "Fully functional",
+      "execution_evidence": [
+        {
+          "test": "packet-capture",
+          "status": "pass",
+          "source_run": "tshark-policy-acceptance",
+          "results_file": "/root/dev/rea-sdk/validation-logs/installed-functional/after-policy-results.json",
+          "evidence_archive": "/root/dev/rea-sdk/validation-logs/installed-functional/tshark-policy-evidence.tar.gz",
+          "archive_member": "tshark-policy-acceptance/results.json",
+          "runtime_variant": "Scoped AppArmor policy applied to running Workshop; final SDK repack/reinstall pending",
+          "semantic_result": {
+            "evidence_id": "ev_de3cc03e24a2cc76428935eed83029be751fb639a97e5c22a38e740389367d2c",
+            "packets": [
+              {
+                "frame.number": [
+                  "1"
+                ],
+                "ip.src": [
+                  "192.0.2.10"
+                ],
+                "ip.dst": [
+                  "198.51.100.20"
+                ],
+                "udp.srcport": [
+                  "53000"
+                ],
+                "udp.dstport": [
+                  "53"
+                ],
+                "dns.qry.name": [
+                  "sdk.hermes.test"
+                ]
+              }
+            ],
+            "tshark": "TShark (Wireshark) 4.6.4.\n\nCopyright 1998-2026 Gerald Combs <gerald@wireshark.org> and contributors.\nLicensed under the terms of the GNU General Public License (version 2 or later).\nThis is free software; see the file named COPYING in the distribution. There is\nNO WARRANTY; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n\nCompile-time info:\n Bit width: 64-bit\n  Compiler: GCC 15.2.0\n      GLib: 2.87.3\n With:\n  +brotli                      +MaxMind\n  +Gcrypt 1.12.0               +nghttp2 1.68.0\n  +GnuTLS 3.8.12 and PKCS#11   +nghttp3 1.12.0\n  +Kerberos (MIT)              +PCRE2 10.46 2025-08-27\n  +libnl 3                     +POSIX capabilities (Linux)\n  +libpcap                     +Snappy 1.2.2\n  +libsmi 0.4.8                +xxhash 0.8.3\n  +libxml2 2.15.1              +zlib 1.3.1\n  +Lua 5.4.8                   +Zstandard 1.5.7\n  +LZ4 1.10.0\n Without:\n  -zlib-ng\n\nRuntime info:\n      OS: Linux 7.0.0-30-generic\n     CPU: Intel Xeon Processor (Skylake, IBRS, no TSX) (with SSE4.2)\n  Memory: 3814 MB of physical memory\n    GLib: 2.88.0\n  Locale: LC_TYPE=C.UTF-8\n Plugins: supported, 0 loaded\n With:\n  +brotli 1.2.0\n  +c-ares 1.34.6\n  +Gcrypt 1.12.0\n  +GnuTLS 3.8.12\n  +libpcap 1.10.6 (64-bit time_t, with TPACKET_V3)\n  +libsmi 0.4.8\n  +LZ4 1.10.0\n  +nghttp2 1.68.0\n  +nghttp3 1.12.0\n  +PCRE2 10.46 2025-08-27\n  +xxhash 803\n  +zlib 1.3.1\n  +Zstandard 1.5.7\n",
+            "sha256": "ead56edaf9a07e2949826f6a9e55ed929804a921ef6589df178e7fc969ebb136"
+          }
+        },
+        {
+          "test": "packet-capture",
+          "status": "pass",
+          "source_run": "sdk-validation-final-remaining",
+          "results_file": "/home/rea-sdk-dev/.local/share/workshop/id/782b8b9c/validation-final/mount/hermes-rea/state/work/sdk-validation-final-remaining/results.json",
+          "results_sha256": "c3287534a3572ec9d38e4ddd30a65cfe78d3a93383ffa4b0e160e0fa64c66b1d",
+          "runtime_variant": "Fresh installed policy/HOME-corrected SDK c7373502e97f32c34be99ba7fd92e7ea5832caf31121aa79a747badd27cf22c5; retains original Frida 17.23.2; overall acceptance failed on subsequent subprocess sequence",
+          "semantic_result": {
+            "evidence_id": "ev_adca56ba68f955f3d51fee60061b08b9442c0025d844900865972c1fbdb953ea",
+            "packets": [
+              {
+                "frame.number": [
+                  "1"
+                ],
+                "ip.src": [
+                  "192.0.2.10"
+                ],
+                "ip.dst": [
+                  "198.51.100.20"
+                ],
+                "udp.srcport": [
+                  "53000"
+                ],
+                "udp.dstport": [
+                  "53"
+                ],
+                "dns.qry.name": [
+                  "sdk.hermes.test"
+                ]
+              }
+            ],
+            "tshark": "TShark (Wireshark) 4.6.4.\n\nCopyright 1998-2026 Gerald Combs <gerald@wireshark.org> and contributors.\nLicensed under the terms of the GNU General Public License (version 2 or later).\nThis is free software; see the file named COPYING in the distribution. There is\nNO WARRANTY; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n\nCompile-time info:\n Bit width: 64-bit\n  Compiler: GCC 15.2.0\n      GLib: 2.87.3\n With:\n  +brotli                      +MaxMind\n  +Gcrypt 1.12.0               +nghttp2 1.68.0\n  +GnuTLS 3.8.12 and PKCS#11   +nghttp3 1.12.0\n  +Kerberos (MIT)              +PCRE2 10.46 2025-08-27\n  +libnl 3                     +POSIX capabilities (Linux)\n  +libpcap                     +Snappy 1.2.2\n  +libsmi 0.4.8                +xxhash 0.8.3\n  +libxml2 2.15.1              +zlib 1.3.1\n  +Lua 5.4.8                   +Zstandard 1.5.7\n  +LZ4 1.10.0\n Without:\n  -zlib-ng\n\nRuntime info:\n      OS: Linux 7.0.0-30-generic\n     CPU: Intel Xeon Processor (Skylake, IBRS, no TSX) (with SSE4.2)\n  Memory: 3814 MB of physical memory\n    GLib: 2.88.0\n  Locale: LC_TYPE=C.UTF-8\n Plugins: supported, 0 loaded\n With:\n  +brotli 1.2.0\n  +c-ares 1.34.6\n  +Gcrypt 1.12.0\n  +GnuTLS 3.8.12\n  +libpcap 1.10.6 (64-bit time_t, with TPACKET_V3)\n  +libsmi 0.4.8\n  +LZ4 1.10.0\n  +nghttp2 1.68.0\n  +nghttp3 1.12.0\n  +PCRE2 10.46 2025-08-27\n  +xxhash 803\n  +zlib 1.3.1\n  +Zstandard 1.5.7\n",
+            "sha256": "ead56edaf9a07e2949826f6a9e55ed929804a921ef6589df178e7fc969ebb136"
+          }
+        }
+      ],
+      "limitation_cause": "packaging-policy-fix-awaiting-reinstall",
+      "limitation": "Real recorded DNS packet inspection passed after the original live AppArmor correction and again through the normal launcher in fresh policy-bearing artifact c7373502. The corrected-Frida replacement artifact and independent reinstall remain pending.",
+      "pending_tests": []
+    },
+    "pcap": {
+      "scope": "PCAP/PCAPNG inspection and stream queries",
+      "prerequisites": "tshark and capinfos 4.x; REA_TSHARK_COMMAND/REA_CAPINFOS_COMMAND",
+      "test_ids": [
+        "pcap-summary"
+      ],
+      "status": "Fully functional",
+      "execution_evidence": [
+        {
+          "test": "pcap-summary",
+          "status": "pass",
+          "source_run": "tshark-policy-acceptance",
+          "results_file": "/root/dev/rea-sdk/validation-logs/installed-functional/after-policy-results.json",
+          "evidence_archive": "/root/dev/rea-sdk/validation-logs/installed-functional/tshark-policy-evidence.tar.gz",
+          "archive_member": "tshark-policy-acceptance/results.json",
+          "runtime_variant": "Scoped AppArmor policy applied to running Workshop; final SDK repack/reinstall pending",
+          "semantic_result": {
+            "evidence_id": "ev_2201fa44565f0d8ea2e460ff8acd2a0b1c7f6ab46c2410bdb0bd01efbaaa1750",
+            "packet_count": 1,
+            "endpoints": [
+              {
+                "address": "192.0.2.10",
+                "port": null,
+                "packet_count": 1
+              },
+              {
+                "address": "198.51.100.20",
+                "port": null,
+                "packet_count": 1
+              }
+            ],
+            "dns_queries": [
+              {
+                "query": "sdk.hermes.test",
+                "query_labels_hex": null,
+                "response_addresses": [],
+                "response_address_count": 0
+              }
+            ],
+            "client": {
+              "tshark_command": "/usr/bin/tshark",
+              "tshark_source": "path",
+              "tshark_version": "TShark (Wireshark) 4.6.4.",
+              "tshark_resolved_path": "/usr/bin/tshark",
+              "tshark_sha256": "826fa1c134d5587c256275913a7bd7a37e4dff3950a5b9731757059e028ec30b",
+              "tshark_identity_status": "verified",
+              "capinfos_command": "/usr/bin/capinfos",
+              "capinfos_source": "path",
+              "capinfos_version": "Capinfos (Wireshark) 4.6.4.",
+              "capinfos_resolved_path": "/usr/bin/capinfos",
+              "capinfos_sha256": "sha256:1689785ffcd95b07d654dae0b0de8655b8cf2a088e54e6aecceb16e3cc1bc4a8",
+              "capinfos_identity_status": "verified"
+            }
+          }
+        },
+        {
+          "test": "pcap-summary",
+          "status": "pass",
+          "source_run": "sdk-validation-final-remaining",
+          "results_file": "/home/rea-sdk-dev/.local/share/workshop/id/782b8b9c/validation-final/mount/hermes-rea/state/work/sdk-validation-final-remaining/results.json",
+          "results_sha256": "c3287534a3572ec9d38e4ddd30a65cfe78d3a93383ffa4b0e160e0fa64c66b1d",
+          "runtime_variant": "Fresh installed policy/HOME-corrected SDK c7373502e97f32c34be99ba7fd92e7ea5832caf31121aa79a747badd27cf22c5; retains original Frida 17.23.2; overall acceptance failed on subsequent subprocess sequence",
+          "semantic_result": {
+            "evidence_id": "ev_117b1e0caa0f022084635edd15eb0b648e04d834ccc6bc86ac05aa13a5d008e5",
+            "packet_count": 1,
+            "endpoints": [
+              {
+                "address": "192.0.2.10",
+                "port": null,
+                "packet_count": 1
+              },
+              {
+                "address": "198.51.100.20",
+                "port": null,
+                "packet_count": 1
+              }
+            ],
+            "dns_queries": [
+              {
+                "query": "sdk.hermes.test",
+                "query_labels_hex": null,
+                "response_addresses": [],
+                "response_address_count": 0
+              }
+            ],
+            "client": {
+              "tshark_command": "/usr/bin/tshark",
+              "tshark_source": "path",
+              "tshark_version": "TShark (Wireshark) 4.6.4.",
+              "tshark_resolved_path": "/usr/bin/tshark",
+              "tshark_sha256": "826fa1c134d5587c256275913a7bd7a37e4dff3950a5b9731757059e028ec30b",
+              "tshark_identity_status": "verified",
+              "capinfos_command": "/usr/bin/capinfos",
+              "capinfos_source": "path",
+              "capinfos_version": "Capinfos (Wireshark) 4.6.4.",
+              "capinfos_resolved_path": "/usr/bin/capinfos",
+              "capinfos_sha256": "sha256:1689785ffcd95b07d654dae0b0de8655b8cf2a088e54e6aecceb16e3cc1bc4a8",
+              "capinfos_identity_status": "verified"
+            }
+          }
+        }
+      ],
+      "limitation_cause": "packaging-policy-fix-awaiting-reinstall",
+      "limitation": "Real recorded DNS packet inspection passed after the original live AppArmor correction and again through the normal launcher in fresh policy-bearing artifact c7373502. The corrected-Frida replacement artifact and independent reinstall remain pending.",
+      "pending_tests": []
+    },
+    "peCertificates": {
+      "scope": "PE certificate table inspection",
+      "prerequisites": "Built-in parser; not signature trust validation",
+      "test_ids": [
+        "pe-certificates"
+      ],
+      "status": "Fully functional",
+      "execution_evidence": [
+        {
+          "test": "pe-certificates",
+          "status": "pass",
+          "source_run": "sdk-validation-first",
+          "results_file": "/root/dev/rea-sdk/validation-logs/installed-functional/after-policy-results.json",
+          "evidence_archive": "/root/dev/rea-sdk/validation-logs/installed-functional/first-installed-evidence.tar.gz",
+          "archive_member": "sdk-validation-first/results.json",
+          "runtime_variant": "Development installed Workshop; final artifact acceptance pending",
+          "semantic_result": {
+            "pkcs7_entries": 1,
+            "signers": 1,
+            "certificate_subject": "REA Fixture",
+            "trust_verified": false
+          }
+        }
+      ],
+      "limitation_cause": null,
+      "limitation": "PKCS7 metadata extraction from synthetic WIN_CERTIFICATE; no cryptographic trust claim.",
+      "pending_tests": []
+    },
+    "peImports": {
+      "scope": "PE imports/delay imports",
+      "prerequisites": "Built-in parser",
+      "test_ids": [
+        "pe-imports"
+      ],
+      "status": "Fully functional",
+      "execution_evidence": [
+        {
+          "test": "pe-imports",
+          "status": "pass",
+          "source_run": "sdk-validation-first",
+          "results_file": "/root/dev/rea-sdk/validation-logs/installed-functional/after-policy-results.json",
+          "evidence_archive": "/root/dev/rea-sdk/validation-logs/installed-functional/first-installed-evidence.tar.gz",
+          "archive_member": "sdk-validation-first/results.json",
+          "runtime_variant": "Development installed Workshop; final artifact acceptance pending",
+          "semantic_result": {
+            "library": "KERNEL32.dll",
+            "imports": [
+              "GetProcAddress",
+              "ExitProcess"
+            ]
+          }
+        }
+      ],
+      "limitation_cause": null,
+      "limitation": "Representative tests only; unsupported input variants and exhaustive operation coverage are not implied.",
+      "pending_tests": []
+    },
+    "peLoadConfig": {
+      "scope": "PE load configuration",
+      "prerequisites": "Built-in parser",
+      "test_ids": [
+        "pe-load-config"
+      ],
+      "status": "Fully functional",
+      "execution_evidence": [
+        {
+          "test": "pe-load-config",
+          "status": "pass",
+          "source_run": "sdk-validation-first",
+          "results_file": "/root/dev/rea-sdk/validation-logs/installed-functional/after-policy-results.json",
+          "evidence_archive": "/root/dev/rea-sdk/validation-logs/installed-functional/first-installed-evidence.tar.gz",
+          "archive_member": "sdk-validation-first/results.json",
+          "runtime_variant": "Development installed Workshop; final artifact acceptance pending",
+          "semantic_result": {
+            "tls_callbacks": 3,
+            "guard_flags": "0x500",
+            "callbacks_executed": false
+          }
+        }
+      ],
+      "limitation_cause": null,
+      "limitation": "Representative tests only; unsupported input variants and exhaustive operation coverage are not implied.",
+      "pending_tests": []
+    },
+    "binaryHardening": {
+      "scope": "Static binary hardening evidence",
+      "prerequisites": "Built-in ELF/PE/Mach-O readers",
+      "test_ids": [
+        "binary-hardening"
+      ],
+      "status": "Fully functional",
+      "execution_evidence": [
+        {
+          "test": "binary-hardening",
+          "status": "pass",
+          "source_run": "sdk-validation-retry1",
+          "results_file": "/root/dev/rea-sdk/validation-logs/installed-functional/after-policy-results.json",
+          "evidence_archive": "/root/dev/rea-sdk/validation-logs/installed-functional/first-installed-evidence.tar.gz",
+          "archive_member": "sdk-validation-retry1/results.json",
+          "runtime_variant": "Development installed Workshop; final artifact acceptance pending",
+          "semantic_result": {
+            "properties": [
+              {
+                "property": "pie",
+                "state": "enabled",
+                "confidence": "derived",
+                "basis": "e_type is ET_DYN and DF_1_PIE is set.",
+                "location": {
+                  "offset": 12056,
+                  "bytes": 16
+                },
+                "note": null,
+                "next_probe": null
+              },
+              {
+                "property": "nx",
+                "state": "enabled",
+                "confidence": "observed",
+                "basis": "PT_GNU_STACK p_flags does not include PF_X.",
+                "location": {
+                  "offset": 740,
+                  "bytes": 4
+                },
+                "note": null,
+                "next_probe": null
+              },
+              {
+                "property": "relro",
+                "state": "enabled",
+                "confidence": "derived",
+                "basis": "PT_GNU_RELRO is present and BIND_NOW is set.",
+                "location": {
+                  "offset": 792,
+                  "bytes": 56
+                },
+                "note": null,
+                "next_probe": null
+              },
+              {
+                "property": "stack_protector",
+                "state": "unknown",
+                "confidence": "observed",
+                "basis": "No __stack_chk_fail symbol was found in the dynamic symbol table. A static or stripped image can omit that import while still using a stack protector.",
+                "location": null,
+                "note": "No __stack_chk_fail symbol was found in the dynamic symbol table. A static or stripped image can omit that import while still using a stack protector.",
+                "next_probe": null
+              },
+              {
+                "property": "fortify",
+                "state": "unknown",
+                "confidence": "observed",
+                "basis": "No fortify symbol was found in the dynamic symbol table. A static or stripped image can omit those imports while still using FORTIFY.",
+                "location": null,
+                "note": "No fortify symbol was found in the dynamic symbol table. A static or stripped image can omit those imports while still using FORTIFY.",
+                "next_probe": null
+              },
+              {
+                "property": "cet_ibt_shstk",
+                "state": "enabled",
+                "confidence": "derived",
+                "basis": "CET IBT and SHSTK GNU property word is 0x3.",
+                "location": {
+                  "offset": 8552,
+                  "bytes": 4
+                },
+                "note": null,
+                "next_probe": null
+              },
+              {
+                "property": "aarch64_bti_pac",
+                "state": "not_applicable",
+                "confidence": "observed",
+                "basis": "AArch64 BTI and PAC notes apply to a different architecture.",
+                "location": null,
+                "note": null,
+                "next_probe": null
+              },
+              {
+                "property": "rpath",
+                "state": "disabled",
+                "confidence": "observed",
+                "basis": "DT_RPATH is absent.",
+                "location": null,
+                "note": null,
+                "next_probe": null
+              },
+              {
+                "property": "runpath",
+                "state": "disabled",
+                "confidence": "observed",
+                "basis": "DT_RUNPATH is absent.",
+                "location": null,
+                "note": null,
+                "next_probe": null
+              },
+              {
+                "property": "stripped",
+                "state": "disabled",
+                "confidence": "observed",
+                "basis": "A section header has type SHT_SYMTAB.",
+                "location": {
+                  "offset": 17392,
+                  "bytes": 64
+                },
+                "note": null,
+                "next_probe": null
+              }
+            ]
+          }
+        }
+      ],
+      "limitation_cause": null,
+      "limitation": "Representative tests only; unsupported input variants and exhaustive operation coverage are not implied.",
+      "pending_tests": []
+    },
+    "peResources": {
+      "scope": "PE resource inventory",
+      "prerequisites": "Built-in parser",
+      "test_ids": [
+        "pe-resources"
+      ],
+      "status": "Fully functional",
+      "execution_evidence": [
+        {
+          "test": "pe-resources",
+          "status": "pass",
+          "source_run": "sdk-validation-first",
+          "results_file": "/root/dev/rea-sdk/validation-logs/installed-functional/after-policy-results.json",
+          "evidence_archive": "/root/dev/rea-sdk/validation-logs/installed-functional/first-installed-evidence.tar.gz",
+          "archive_member": "sdk-validation-first/results.json",
+          "runtime_variant": "Development installed Workshop; final artifact acceptance pending",
+          "semantic_result": {
+            "resources": 5,
+            "exact_payload_hashes": [
+              "Hello",
+              "World"
+            ]
+          }
+        }
+      ],
+      "limitation_cause": null,
+      "limitation": "Representative tests only; unsupported input variants and exhaustive operation coverage are not implied.",
+      "pending_tests": []
+    },
+    "windowsShortcut": {
+      "scope": "Windows LNK inspection",
+      "prerequisites": "Built-in parser; no Windows execution required",
+      "test_ids": [
+        "windows-shortcut"
+      ],
+      "status": "Fully functional",
+      "execution_evidence": [
+        {
+          "test": "windows-shortcut",
+          "status": "pass",
+          "source_run": "sdk-validation-first",
+          "results_file": "/root/dev/rea-sdk/validation-logs/installed-functional/after-policy-results.json",
+          "evidence_archive": "/root/dev/rea-sdk/validation-logs/installed-functional/first-installed-evidence.tar.gz",
+          "archive_member": "sdk-validation-first/results.json",
+          "runtime_variant": "Development installed Workshop; final artifact acceptance pending",
+          "semantic_result": {
+            "arguments": "--fixture",
+            "relative_path": ".\\hermes.exe",
+            "target_executed": false
+          }
+        }
+      ],
+      "limitation_cause": null,
+      "limitation": "Representative tests only; unsupported input variants and exhaustive operation coverage are not implied.",
+      "pending_tests": []
+    },
+    "pythonPyc": {
+      "scope": "Python bytecode inspection",
+      "prerequisites": "Built-in parser for admitted bytecode versions; not arbitrary execution",
+      "test_ids": [
+        "python-pyc"
+      ],
+      "status": "Fully functional",
+      "execution_evidence": [
+        {
+          "test": "python-pyc",
+          "status": "pass",
+          "source_run": "sdk-validation-first",
+          "results_file": "/root/dev/rea-sdk/validation-logs/installed-functional/after-policy-results.json",
+          "evidence_archive": "/root/dev/rea-sdk/validation-logs/installed-functional/first-installed-evidence.tar.gz",
+          "archive_member": "sdk-validation-first/results.json",
+          "runtime_variant": "Development installed Workshop; final artifact acceptance pending",
+          "semantic_result": {
+            "code_objects": [
+              "<module>",
+              "hermes_static_python"
+            ],
+            "python_source_executed": false
+          }
+        }
+      ],
+      "limitation_cause": null,
+      "limitation": "Representative tests only; unsupported input variants and exhaustive operation coverage are not implied.",
+      "pending_tests": []
+    },
+    "nugetNupkg": {
+      "scope": "NuGet package inventory/dependencies",
+      "prerequisites": "Built-in ZIP/XML readers; new after npm 6.9.0 tag",
+      "test_ids": [
+        "nuget"
+      ],
+      "status": "Fully functional",
+      "execution_evidence": [
+        {
+          "test": "nuget",
+          "status": "pass",
+          "source_run": "sdk-validation-first",
+          "results_file": "/root/dev/rea-sdk/validation-logs/installed-functional/after-policy-results.json",
+          "evidence_archive": "/root/dev/rea-sdk/validation-logs/installed-functional/first-installed-evidence.tar.gz",
+          "archive_member": "sdk-validation-first/results.json",
+          "runtime_variant": "Development installed Workshop; final artifact acceptance pending",
+          "semantic_result": {
+            "package": "Hermes.Fixture",
+            "version": "1.2.3",
+            "dependency": "Example.Dependency"
+          }
+        }
+      ],
+      "limitation_cause": null,
+      "limitation": "Representative tests only; unsupported input variants and exhaustive operation coverage are not implied.",
+      "pending_tests": []
+    },
+    "releaseExposure": {
+      "scope": "Release exposure inventory and comparison",
+      "prerequisites": "Built-in static workflow; selected local artifacts",
+      "test_ids": [
+        "release-exposure"
+      ],
+      "status": "Fully functional",
+      "execution_evidence": [
+        {
+          "test": "release-exposure",
+          "status": "pass",
+          "source_run": "sdk-validation-first",
+          "results_file": "/root/dev/rea-sdk/validation-logs/installed-functional/after-policy-results.json",
+          "evidence_archive": "/root/dev/rea-sdk/validation-logs/installed-functional/first-installed-evidence.tar.gz",
+          "archive_member": "sdk-validation-first/results.json",
+          "runtime_variant": "Development installed Workshop; final artifact acceptance pending",
+          "semantic_result": {
+            "exposed_checks": [
+              "javascript.source_map_sources",
+              "javascript.source_maps"
+            ]
+          }
+        }
+      ],
+      "limitation_cause": null,
+      "limitation": "Representative tests only; unsupported input variants and exhaustive operation coverage are not implied.",
+      "pending_tests": []
+    },
+    "v8CodeCache": {
+      "scope": "V8 code-cache inspection",
+      "prerequisites": "Built-in static reader; version-specific admission",
+      "test_ids": [
+        "v8-cache"
+      ],
+      "status": "Fully functional",
+      "execution_evidence": [
+        {
+          "test": "v8-cache",
+          "status": "pass",
+          "source_run": "sdk-validation-first",
+          "results_file": "/root/dev/rea-sdk/validation-logs/installed-functional/after-policy-results.json",
+          "evidence_archive": "/root/dev/rea-sdk/validation-logs/installed-functional/first-installed-evidence.tar.gz",
+          "archive_member": "sdk-validation-first/results.json",
+          "runtime_variant": "Development installed Workshop; final artifact acceptance pending",
+          "semantic_result": {
+            "source_length": 57,
+            "cached_data_bytes": 504,
+            "source_executed": false
+          }
+        }
+      ],
+      "limitation_cause": null,
+      "limitation": "Representative tests only; unsupported input variants and exhaustive operation coverage are not implied.",
+      "pending_tests": []
+    },
+    "recordedCrash": {
+      "scope": "Recorded core/crash inspection",
+      "prerequisites": "Python3 + pwntools and supported recorded artifacts",
+      "test_ids": [
+        "recorded-crash",
+        "pwndbg-core"
+      ],
+      "status": "Fully functional",
+      "execution_evidence": [
+        {
+          "test": "recorded-crash",
+          "status": "pass",
+          "source_run": "sdk-validation-retry1",
+          "results_file": "/root/dev/rea-sdk/validation-logs/installed-functional/after-policy-results.json",
+          "evidence_archive": "/root/dev/rea-sdk/validation-logs/installed-functional/first-installed-evidence.tar.gz",
+          "archive_member": "sdk-validation-retry1/results.json",
+          "runtime_variant": "Development installed Workshop; final artifact acceptance pending",
+          "semantic_result": {
+            "evidence_id": "ev_92f111d03601b324bb9ac66b090119bf10d481ac34fd993456b9032a2558b4eb",
+            "threads": 1,
+            "signals": [
+              {
+                "note_index": 4,
+                "number": 11,
+                "code": 1,
+                "errno": 0,
+                "fault_address": "0x123",
+                "fault_address_meaning": "recorded-sigsegv-address",
+                "thread_association": "unknown"
+              }
+            ],
+            "known_register": "rdi=0x1122334455667788"
+          }
+        },
+        {
+          "test": "pwndbg-core",
+          "status": "pass",
+          "source_run": "sdk-validation-retry1",
+          "results_file": "/root/dev/rea-sdk/validation-logs/installed-functional/after-policy-results.json",
+          "evidence_archive": "/root/dev/rea-sdk/validation-logs/installed-functional/first-installed-evidence.tar.gz",
+          "archive_member": "sdk-validation-retry1/results.json",
+          "runtime_variant": "Development installed Workshop; final artifact acceptance pending",
+          "semantic_result": {
+            "evidence_id": "ev_0259f81b87d99a1b8de60697e1ad962a6d84af7913136c4ce698867474b85ff8",
+            "threads": 1,
+            "signals": [
+              {
+                "note_index": 4,
+                "number": 11,
+                "code": 1,
+                "errno": 0,
+                "fault_address": "0x123",
+                "fault_address_meaning": "recorded-sigsegv-address",
+                "thread_association": "unknown"
+              }
+            ],
+            "known_register": "rdi=0x1122334455667788",
+            "pwndbg_version": "2026.09.15",
+            "gdb_version": "17.1",
+            "core_maps": 22
+          }
+        }
+      ],
+      "limitation_cause": null,
+      "limitation": "Representative tests only; unsupported input variants and exhaustive operation coverage are not implied.",
+      "pending_tests": []
+    },
+    "reverseEngineering": {
+      "scope": "Objdump inspection and Rizin commands",
+      "prerequisites": "binutils objdump; separate Rizin executable/REA_RIZIN_COMMAND",
+      "test_ids": [
+        "objdump",
+        "rizin"
+      ],
+      "status": "Fully functional",
+      "execution_evidence": [
+        {
+          "test": "objdump",
+          "status": "pass",
+          "source_run": "sdk-validation-retry1",
+          "results_file": "/root/dev/rea-sdk/validation-logs/installed-functional/after-policy-results.json",
+          "evidence_archive": "/root/dev/rea-sdk/validation-logs/installed-functional/first-installed-evidence.tar.gz",
+          "archive_member": "sdk-validation-retry1/results.json",
+          "runtime_variant": "Development installed Workshop; final artifact acceptance pending",
+          "semantic_result": "GNU objdump disassembled the synthetic sdk_add function"
+        },
+        {
+          "test": "rizin",
+          "status": "pass",
+          "source_run": "sdk-validation-retry1",
+          "results_file": "/root/dev/rea-sdk/validation-logs/installed-functional/after-policy-results.json",
+          "evidence_archive": "/root/dev/rea-sdk/validation-logs/installed-functional/first-installed-evidence.tar.gz",
+          "archive_member": "sdk-validation-retry1/results.json",
+          "runtime_variant": "Development installed Workshop; final artifact acceptance pending",
+          "semantic_result": "Real Rizin symbol inventory includes sdk_add"
+        }
+      ],
+      "limitation_cause": null,
+      "limitation": "Representative tests only; unsupported input variants and exhaustive operation coverage are not implied.",
+      "pending_tests": []
+    },
+    "rizinDebugSessions": {
+      "scope": "Rizin native debugger sessions",
+      "prerequisites": "Rizin executable, compatible target and ptrace permissions",
+      "test_ids": [
+        "rizin-debugger"
+      ],
+      "status": "Fully functional",
+      "execution_evidence": [
+        {
+          "test": "rizin-debugger",
+          "status": "pass",
+          "source_run": "sdk-validation-retry1",
+          "results_file": "/root/dev/rea-sdk/validation-logs/installed-functional/after-policy-results.json",
+          "evidence_archive": "/root/dev/rea-sdk/validation-logs/installed-functional/first-installed-evidence.tar.gz",
+          "archive_member": "sdk-validation-retry1/results.json",
+          "runtime_variant": "Development installed Workshop; final artifact acceptance pending",
+          "semantic_result": {
+            "assertion": "Real Rizin debugger lifecycle, register read and owned inferior execution",
+            "register_count": 27
+          }
+        }
+      ],
+      "limitation_cause": null,
+      "limitation": "Representative tests only; unsupported input variants and exhaustive operation coverage are not implied.",
+      "pending_tests": []
+    },
+    "rustBinary": {
+      "scope": "Rust binary metadata/symbol inspection",
+      "prerequisites": "Built-in static parser; no Rust runtime required for static inspection",
+      "test_ids": [
+        "rust"
+      ],
+      "status": "Fully functional",
+      "execution_evidence": [
+        {
+          "test": "rust",
+          "status": "pass",
+          "source_run": "sdk-validation-retry1",
+          "results_file": "/root/dev/rea-sdk/validation-logs/installed-functional/after-policy-results.json",
+          "evidence_archive": "/root/dev/rea-sdk/validation-logs/installed-functional/first-installed-evidence.tar.gz",
+          "archive_member": "sdk-validation-retry1/results.json",
+          "runtime_variant": "Development installed Workshop; final artifact acceptance pending",
+          "semantic_result": {
+            "synthetic_cargo_auditable_section": true,
+            "root": "hermes-root",
+            "dependency_edges": 1
+          }
+        }
+      ],
+      "limitation_cause": null,
+      "limitation": "Synthetic cargo-auditable ELF dependency metadata, not Rust execution or full symbol recovery.",
+      "pending_tests": []
+    },
+    "signalRecording": {
+      "scope": "Recorded signal decoding and decoder inventory",
+      "prerequisites": "sigrok-cli 0.7.2 + libsigrokdecode; Linux prlimit; REA_SIGROK_COMMAND",
+      "test_ids": [
+        "signal-recording"
+      ],
+      "status": "Fully functional",
+      "execution_evidence": [
+        {
+          "test": "signal-recording",
+          "status": "pass",
+          "source_run": "sdk-validation-first",
+          "results_file": "/root/dev/rea-sdk/validation-logs/installed-functional/after-policy-results.json",
+          "evidence_archive": "/root/dev/rea-sdk/validation-logs/installed-functional/first-installed-evidence.tar.gz",
+          "archive_member": "sdk-validation-first/results.json",
+          "runtime_variant": "Development installed Workshop; final artifact acceptance pending",
+          "semantic_result": {
+            "evidence_id": "ev_4c916660be8e47f36d8fc881cd89cb443092f3c9bf3e740474e25b9062b9e4b0",
+            "decoded_ascii": "SDK",
+            "annotations": "1104-1938 uart-1: 53\n2352-3186 uart-1: 44\n3600-4434 uart-1: 4B\n",
+            "sigrok": "sigrok-cli 0.7.2\n\nLibraries and features:\n- libsigrok 0.5.2/5:1:1 (rt: 0.5.2/5:1:1).\n - Libs:\n  - glib 2.87.2 (rt: 2.88.0/8800:0)\n  - libzip 1.11.4\n  - libserialport 0.1.1/1:0:1 (rt: 0.1.1/1:0:1)\n  - libusb-1.0 1.0.29.11953 API 0x0100010b\n  - hidapi 0.15.0\n  - bluez 5.85\n  - libftdi 1.6rc1\n  - Host: x86_64-pc-linux-gnu, little-endian.\n  - SCPI backends: TCP, serial, USBTMC.\n- libsigrokdecode 0.5.3/6:1:2 (rt: 0.5.3/6:1:2).\n - Libs:\n  - glib 2.86.3 (rt: 2.88.0/8800:0)\n  - Python 3.14.2 / 0x30e02f0 (API 1013, ABI 3)\n  - Host: x86_64-pc-linux-gnu, little-endian.\n"
+          }
+        }
+      ],
+      "limitation_cause": null,
+      "limitation": "Representative tests only; unsupported input variants and exhaustive operation coverage are not implied.",
+      "pending_tests": []
+    },
+    "sqliteDatabase": {
+      "scope": "Read-only SQLite schema/query analysis",
+      "prerequisites": "Node bundled SQLite capability and REA read-only workflow",
+      "test_ids": [
+        "sqlite"
+      ],
+      "status": "Fully functional",
+      "execution_evidence": [
+        {
+          "test": "sqlite",
+          "status": "pass",
+          "source_run": "sdk-validation-first",
+          "results_file": "/root/dev/rea-sdk/validation-logs/installed-functional/after-policy-results.json",
+          "evidence_archive": "/root/dev/rea-sdk/validation-logs/installed-functional/first-installed-evidence.tar.gz",
+          "archive_member": "sdk-validation-first/results.json",
+          "runtime_variant": "Development installed Workshop; final artifact acceptance pending",
+          "semantic_result": "Built-in SQLite provider read exact fixture table and row"
+        }
+      ],
+      "limitation_cause": null,
+      "limitation": "Representative tests only; unsupported input variants and exhaustive operation coverage are not implied.",
+      "pending_tests": []
+    },
+    "wasmArtifact": {
+      "scope": "WASM validation, disassembly and WAT inspection",
+      "prerequisites": "WABT >=1.0.42 <1.1.0; REA_WABT_BIN_DIRECTORY",
+      "test_ids": [
+        "wasm"
+      ],
+      "status": "Fully functional",
+      "execution_evidence": [
+        {
+          "test": "wasm",
+          "status": "pass",
+          "source_run": "sdk-validation-first",
+          "results_file": "/root/dev/rea-sdk/validation-logs/installed-functional/after-policy-results.json",
+          "evidence_archive": "/root/dev/rea-sdk/validation-logs/installed-functional/first-installed-evidence.tar.gz",
+          "archive_member": "sdk-validation-first/results.json",
+          "runtime_variant": "Development installed Workshop; final artifact acceptance pending",
+          "semantic_result": "Real WABT validation, export inventory and WAT decoding"
+        }
+      ],
+      "limitation_cause": null,
+      "limitation": "Representative tests only; unsupported input variants and exhaustive operation coverage are not implied.",
+      "pending_tests": []
+    },
+    "webModuleTrace": {
+      "scope": "Web module import tracing",
+      "prerequisites": "Built-in parser and captured scripts",
+      "test_ids": [
+        "web-modules"
+      ],
+      "status": "Fully functional",
+      "execution_evidence": [
+        {
+          "test": "web-modules",
+          "status": "pass",
+          "source_run": "sdk-validation-retry1",
+          "results_file": "/root/dev/rea-sdk/validation-logs/installed-functional/after-policy-results.json",
+          "evidence_archive": "/root/dev/rea-sdk/validation-logs/installed-functional/first-installed-evidence.tar.gz",
+          "archive_member": "sdk-validation-retry1/results.json",
+          "runtime_variant": "Development installed Workshop; final artifact acceptance pending",
+          "semantic_result": {
+            "assertion": "Native browser resolver resolved an ES import to its captured dependency",
+            "sandbox_mode": "enabled",
+            "sandbox_failure": null
+          }
+        }
+      ],
+      "limitation_cause": null,
+      "limitation": "Representative tests only; unsupported input variants and exhaustive operation coverage are not implied.",
+      "pending_tests": []
+    },
+    "webNetworkCapture": {
+      "scope": "HAR, SAZ, mitmproxy and qlog evidence",
+      "prerequisites": "HAR/SAZ/qlog readers built in; mitmproxy capture decoding may require configured Python/mitmproxy",
+      "test_ids": [
+        "mitmproxy",
+        "environment-export"
+      ],
+      "status": "Fully functional",
+      "execution_evidence": [
+        {
+          "test": "mitmproxy",
+          "status": "pass",
+          "source_run": "sdk-validation-first",
+          "results_file": "/root/dev/rea-sdk/validation-logs/installed-functional/after-policy-results.json",
+          "evidence_archive": "/root/dev/rea-sdk/validation-logs/installed-functional/first-installed-evidence.tar.gz",
+          "archive_member": "sdk-validation-first/results.json",
+          "runtime_variant": "Development installed Workshop; final artifact acceptance pending",
+          "semantic_result": "Recorded a real local HTTP proxy transaction and decoded its saved mitmproxy flow"
+        },
+        {
+          "test": "environment-export",
+          "status": "pass",
+          "source_run": "sdk-validation-first",
+          "results_file": "/root/dev/rea-sdk/validation-logs/installed-functional/after-policy-results.json",
+          "evidence_archive": "/root/dev/rea-sdk/validation-logs/installed-functional/first-installed-evidence.tar.gz",
+          "archive_member": "sdk-validation-first/results.json",
+          "runtime_variant": "Development installed Workshop; final artifact acceptance pending",
+          "semantic_result": {
+            "capture_records": 1,
+            "tools": 1,
+            "bundle_directory": "/var/lib/hermes-rea/work/sdk-validation-first/fixtures/exported-environment",
+            "local_http_environment": {
+              "transport": "Real loopback HTTP MCP initialized and invoked exported fixture tool",
+              "tools": 1,
+              "called_tool": "get_items",
+              "response_body": {
+                "items": [
+                  {
+                    "id": "hermes-fixture",
+                    "value": 37
+                  }
+                ]
+              },
+              "served_state": {
+                "served": true,
+                "evidence_id": "ev_8d3422ea6c98f26f15dfb29c1d915f865b34e5feb061f4455674aae31bf180b1"
+              },
+              "shutdown_exit": 143,
+              "listener_closed": true,
+              "evidence_directory": "/var/lib/hermes-rea/work/sdk-validation-first/fixtures/exported-environment-http-proof"
+            },
+            "external_service_or_model_used": false
+          }
+        }
+      ],
+      "limitation_cause": null,
+      "limitation": "Native mitmproxy flow decoding and HAR ingestion/export; SAZ and qlog not individually exercised.",
+      "pending_tests": []
+    },
+    "webRuntime": {
+      "scope": "Web runtime evidence",
+      "prerequisites": "Local CDP browser and selected session",
+      "test_ids": [
+        "web-runtime"
+      ],
+      "status": "Fully functional",
+      "execution_evidence": [
+        {
+          "test": "web-runtime",
+          "status": "pass",
+          "source_run": "sdk-validation-first",
+          "results_file": "/root/dev/rea-sdk/validation-logs/installed-functional/after-policy-results.json",
+          "evidence_archive": "/root/dev/rea-sdk/validation-logs/installed-functional/first-installed-evidence.tar.gz",
+          "archive_member": "sdk-validation-first/results.json",
+          "runtime_variant": "Development installed Workshop; final artifact acceptance pending",
+          "semantic_result": {
+            "assertion": "Inspected a real registered click listener and its source",
+            "sandbox_mode": "enabled",
+            "sandbox_failure": null
+          }
+        }
+      ],
+      "limitation_cause": null,
+      "limitation": "Representative local browser runtime observation; arbitrary target execution and every CDP tool are not implied.",
+      "pending_tests": []
+    },
+    "webScriptExport": {
+      "scope": "Captured web script export",
+      "prerequisites": "Built-in workflow with retained browser/script Evidence",
+      "test_ids": [
+        "web-export"
+      ],
+      "status": "Fully functional",
+      "execution_evidence": [
+        {
+          "test": "web-export",
+          "status": "pass",
+          "source_run": "sdk-validation-retry1",
+          "results_file": "/root/dev/rea-sdk/validation-logs/installed-functional/after-policy-results.json",
+          "evidence_archive": "/root/dev/rea-sdk/validation-logs/installed-functional/first-installed-evidence.tar.gz",
+          "archive_member": "sdk-validation-retry1/results.json",
+          "runtime_variant": "Development installed Workshop; final artifact acceptance pending",
+          "semantic_result": {
+            "assertion": "Captured and exported exact browser script bytes and SHA256",
+            "sandbox_mode": "enabled",
+            "sandbox_failure": null
+          }
+        }
+      ],
+      "limitation_cause": null,
+      "limitation": "Representative tests only; unsupported input variants and exhaustive operation coverage are not implied.",
+      "pending_tests": []
+    },
+    "webSourceLocation": {
+      "scope": "Source-map/source-location correlation",
+      "prerequisites": "Built-in parser, source maps and captured script Evidence",
+      "test_ids": [
+        "web-source"
+      ],
+      "status": "Fully functional",
+      "execution_evidence": [
+        {
+          "test": "web-source",
+          "status": "pass",
+          "source_run": "sdk-validation-retry1",
+          "results_file": "/root/dev/rea-sdk/validation-logs/installed-functional/after-policy-results.json",
+          "evidence_archive": "/root/dev/rea-sdk/validation-logs/installed-functional/first-installed-evidence.tar.gz",
+          "archive_member": "sdk-validation-retry1/results.json",
+          "runtime_variant": "Development installed Workshop; final artifact acceptance pending",
+          "semantic_result": {
+            "assertion": "Traced exported script position to exact embedded original source",
+            "sandbox_mode": "enabled",
+            "sandbox_failure": null
+          }
+        }
+      ],
+      "limitation_cause": null,
+      "limitation": "Representative tests only; unsupported input variants and exhaustive operation coverage are not implied.",
+      "pending_tests": []
+    }
+  },
+  "shared_workflows": {
+    "cli": {
+      "test_ids": [
+        "cli",
+        "cli-setup",
+        "cli-evidence",
+        "javascript"
+      ],
+      "status": "Fully functional",
+      "scope": "Native CLI diagnostics, bundled shared-skill installation and idempotence, real JS Evidence publication/import/export and typed no-overwrite refusal",
+      "execution_evidence": [
+        {
+          "test": "cli",
+          "status": "pass",
+          "source_run": "sdk-validation-first",
+          "results_file": "/root/dev/rea-sdk/validation-logs/installed-functional/after-policy-results.json",
+          "evidence_archive": "/root/dev/rea-sdk/validation-logs/installed-functional/first-installed-evidence.tar.gz",
+          "archive_member": "sdk-validation-first/results.json",
+          "runtime_variant": "Development installed Workshop; final artifact acceptance pending",
+          "semantic_result": {
+            "version": "6.9.0",
+            "reports": {
+              "doctor": {
+                "exit_code": 1,
+                "keys": [
+                  "checks",
+                  "environment_healthy",
+                  "healthy",
+                  "identity",
+                  "informational_checks",
+                  "providerInspections",
+                  "scope",
+                  "scope_checks"
+                ]
+              },
+              "providers": {
+                "exit_code": 0,
+                "keys": [
+                  "analysis_activity",
+                  "analysis_provider_binding",
+                  "analysis_provider_candidates",
+                  "analysis_provider_candidates_observed",
+                  "analysis_run",
+                  "capabilities",
+                  "cleanup_pending",
+                  "investigation",
+                  "open",
+                  "provider_operation_health",
+                  "server_identity"
+                ]
+              },
+              "capabilities": {
+                "exit_code": 0,
+                "keys": [
+                  "analysis_activity",
+                  "analysis_provider_binding",
+                  "analysis_provider_candidates",
+                  "analysis_provider_candidates_observed",
+                  "analysis_run",
+                  "capabilities",
+                  "cleanup_pending",
+                  "investigation",
+                  "open",
+                  "provider_operation_health",
+                  "server_identity"
+                ]
+              }
+            },
+            "scope": "CLI contracts; provider readiness is recorded separately"
+          }
+        },
+        {
+          "test": "javascript",
+          "status": "pass",
+          "source_run": "sdk-validation-first",
+          "results_file": "/root/dev/rea-sdk/validation-logs/installed-functional/after-policy-results.json",
+          "evidence_archive": "/root/dev/rea-sdk/validation-logs/installed-functional/first-installed-evidence.tar.gz",
+          "archive_member": "sdk-validation-first/results.json",
+          "runtime_variant": "Development installed Workshop; final artifact acceptance pending",
+          "semantic_result": {
+            "assertions": [
+              "CLI/MCP main/helper module graph",
+              "Electron IPC sdk-greeting",
+              "retained Evidence identity"
+            ],
+            "scope": "Static source analysis; no Electron runtime claim"
+          }
+        }
+      ],
+      "pending_tests": []
+    },
+    "mcpCatalog": {
+      "test_ids": [
+        "mcp-catalog"
+      ],
+      "status": "Fully functional",
+      "scope": "Initialize and compare complete tools/list to packaged source catalog and binary_session inventory.",
+      "execution_evidence": [
+        {
+          "test": "mcp-catalog",
+          "status": "pass",
+          "source_run": "sdk-validation-first",
+          "results_file": "/root/dev/rea-sdk/validation-logs/installed-functional/after-policy-results.json",
+          "evidence_archive": "/root/dev/rea-sdk/validation-logs/installed-functional/first-installed-evidence.tar.gz",
+          "archive_member": "sdk-validation-first/results.json",
+          "runtime_variant": "Development installed Workshop; final artifact acceptance pending",
+          "semantic_result": {
+            "tool_count": 259,
+            "binary_session_inventory_matches": true,
+            "packaged_canonical_contracts_match": true
+          }
+        }
+      ],
+      "pending_tests": []
+    },
+    "binarySession": {
+      "test_ids": [
+        "mcp-catalog",
+        "ghidra",
+        "rizin",
+        "gdb",
+        "provider-no-fallback"
+      ],
+      "status": "Partially functional",
+      "scope": "Actual explicitly selected Ghidra/Rizin/GDB operations and lifecycle; Ghidra snapshot reopen; explicit unavailable Ghidra selection refuses without opening a substitute provider. Other providers, cancellation and fault cleanup are separate.",
+      "execution_evidence": [
+        {
+          "test": "mcp-catalog",
+          "status": "pass",
+          "source_run": "sdk-validation-first",
+          "results_file": "/root/dev/rea-sdk/validation-logs/installed-functional/after-policy-results.json",
+          "evidence_archive": "/root/dev/rea-sdk/validation-logs/installed-functional/first-installed-evidence.tar.gz",
+          "archive_member": "sdk-validation-first/results.json",
+          "runtime_variant": "Development installed Workshop; final artifact acceptance pending",
+          "semantic_result": {
+            "tool_count": 259,
+            "binary_session_inventory_matches": true,
+            "packaged_canonical_contracts_match": true
+          }
+        },
+        {
+          "test": "ghidra",
+          "status": "pass",
+          "source_run": "sdk-validation-retry2",
+          "results_file": "/root/dev/rea-sdk/validation-logs/installed-functional/after-policy-results.json",
+          "evidence_archive": "/root/dev/rea-sdk/validation-logs/installed-functional/first-installed-evidence.tar.gz",
+          "archive_member": "sdk-validation-retry2/results.json",
+          "runtime_variant": "Development installed Workshop; final artifact acceptance pending",
+          "semantic_result": "Ghidra decompiled sdk_add, read assembly, saved/reopened target-bound snapshot"
+        },
+        {
+          "test": "rizin",
+          "status": "pass",
+          "source_run": "sdk-validation-retry1",
+          "results_file": "/root/dev/rea-sdk/validation-logs/installed-functional/after-policy-results.json",
+          "evidence_archive": "/root/dev/rea-sdk/validation-logs/installed-functional/first-installed-evidence.tar.gz",
+          "archive_member": "sdk-validation-retry1/results.json",
+          "runtime_variant": "Development installed Workshop; final artifact acceptance pending",
+          "semantic_result": "Real Rizin symbol inventory includes sdk_add"
+        },
+        {
+          "test": "gdb",
+          "status": "pass",
+          "source_run": "sdk-validation-retry1",
+          "results_file": "/root/dev/rea-sdk/validation-logs/installed-functional/after-policy-results.json",
+          "evidence_archive": "/root/dev/rea-sdk/validation-logs/installed-functional/first-installed-evidence.tar.gz",
+          "archive_member": "sdk-validation-retry1/results.json",
+          "runtime_variant": "Development installed Workshop; final artifact acceptance pending",
+          "semantic_result": "Persistent real GDB/MI session disassembled sdk_add and closed"
+        },
+        {
+          "test": "provider-no-fallback",
+          "status": "pass",
+          "source_run": "sdk-validation-retry1",
+          "results_file": "/root/dev/rea-sdk/validation-logs/installed-functional/after-policy-results.json",
+          "evidence_archive": "/root/dev/rea-sdk/validation-logs/installed-functional/first-installed-evidence.tar.gz",
+          "archive_member": "sdk-validation-retry1/results.json",
+          "runtime_variant": "Development installed Workshop; final artifact acceptance pending",
+          "semantic_result": {
+            "selected_provider": "ghidra",
+            "error_code": "provider_unavailable",
+            "error_message": "Provider selection failed local readiness checks. No target-support refusal was reported. Review the local provider diagnostics or run `rea doctor`, then retry.",
+            "raw_error": "/var/lib/hermes-rea/work/sdk-validation-retry1/provider-no-fallback/unavailable-selected-provider.json",
+            "open_after_failure": false,
+            "analysis_provider_binding": null,
+            "scope": "Explicit selected-provider failure; no implicit local substitute"
+          }
+        }
+      ],
+      "maximum_status": "Partially functional",
+      "pending_tests": []
+    },
+    "evidenceLifecycle": {
+      "test_ids": [
+        "evidence"
+      ],
+      "status": "Fully functional",
+      "scope": "Export/reset/import with exact Evidence identity passed inside one installed environment; fresh-instance and mount persistence remain separate.",
+      "execution_evidence": [
+        {
+          "test": "evidence",
+          "status": "pass",
+          "source_run": "sdk-validation-first",
+          "results_file": "/root/dev/rea-sdk/validation-logs/installed-functional/after-policy-results.json",
+          "evidence_archive": "/root/dev/rea-sdk/validation-logs/installed-functional/first-installed-evidence.tar.gz",
+          "archive_member": "sdk-validation-first/results.json",
+          "runtime_variant": "Development installed Workshop; final artifact acceptance pending",
+          "semantic_result": {
+            "evidence_id": "ev_fe92e3a9507c7f2b316d1ea86efb6cb3f8d53a85b14062a742fe9a94dc19ee82",
+            "export_reset_import": true,
+            "bundle_sha256": "28045bb762e2181f2f4909c3e706aef651560bd41b5854a25d0c8bac10fe91a7"
+          }
+        }
+      ],
+      "pending_tests": []
+    },
+    "analysisSettings": {
+      "test_ids": [
+        "settings"
+      ],
+      "status": "Fully functional",
+      "scope": "Inspect/change/reset a runtime setting with revision/value assertions.",
+      "execution_evidence": [
+        {
+          "test": "settings",
+          "status": "pass",
+          "source_run": "sdk-validation-first",
+          "results_file": "/root/dev/rea-sdk/validation-logs/installed-functional/after-policy-results.json",
+          "evidence_archive": "/root/dev/rea-sdk/validation-logs/installed-functional/first-installed-evidence.tar.gz",
+          "archive_member": "sdk-validation-first/results.json",
+          "runtime_variant": "Development installed Workshop; final artifact acceptance pending",
+          "semantic_result": {
+            "setting": "asar.max_header_bytes",
+            "selected_value": 1,
+            "changed": true,
+            "restored": true
+          }
+        }
+      ],
+      "pending_tests": []
+    },
+    "apiContracts": {
+      "test_ids": [
+        "api-contracts"
+      ],
+      "status": "Fully functional",
+      "scope": "OpenAPI operations and GraphQL SDL/query field binding; runtime endpoint correlation remains separate.",
+      "execution_evidence": [
+        {
+          "test": "api-contracts",
+          "status": "pass",
+          "source_run": "sdk-validation-first",
+          "results_file": "/root/dev/rea-sdk/validation-logs/installed-functional/after-policy-results.json",
+          "evidence_archive": "/root/dev/rea-sdk/validation-logs/installed-functional/first-installed-evidence.tar.gz",
+          "archive_member": "sdk-validation-first/results.json",
+          "runtime_variant": "Development installed Workshop; final artifact acceptance pending",
+          "semantic_result": {
+            "openapi": "GET /hermes",
+            "graphql": "Query.hermes",
+            "network_requests": false
+          }
+        }
+      ],
+      "pending_tests": []
+    },
+    "ntfsEvidence": {
+      "test_ids": [
+        "ntfs-journal"
+      ],
+      "status": "Fully functional",
+      "scope": "Recorded USN V2 with paired MFT fixups, exact digests and sequence-checked file reference; V3/V4 remain separate.",
+      "execution_evidence": [
+        {
+          "test": "ntfs-journal",
+          "status": "pass",
+          "source_run": "sdk-validation-first",
+          "results_file": "/root/dev/rea-sdk/validation-logs/installed-functional/after-policy-results.json",
+          "evidence_archive": "/root/dev/rea-sdk/validation-logs/installed-functional/first-installed-evidence.tar.gz",
+          "archive_member": "sdk-validation-first/results.json",
+          "runtime_variant": "Development installed Workshop; final artifact acceptance pending",
+          "semantic_result": {
+            "mft_records": 1,
+            "usn": "37",
+            "name": "hermes.txt",
+            "sequence_checked_reference": true
+          }
+        }
+      ],
+      "pending_tests": []
+    },
+    "playwrightTraceImport": {
+      "test_ids": [
+        "playwright-trace"
+      ],
+      "status": "Fully functional",
+      "scope": "Offline v10 trace network/screencast references without replay or network.",
+      "execution_evidence": [
+        {
+          "test": "playwright-trace",
+          "status": "pass",
+          "source_run": "sdk-validation-first",
+          "results_file": "/root/dev/rea-sdk/validation-logs/installed-functional/after-policy-results.json",
+          "evidence_archive": "/root/dev/rea-sdk/validation-logs/installed-functional/first-installed-evidence.tar.gz",
+          "archive_member": "sdk-validation-first/results.json",
+          "runtime_variant": "Development installed Workshop; final artifact acceptance pending",
+          "semantic_result": {
+            "events": 2,
+            "unavailable_references": 0,
+            "recorded_url_contacted": false
+          }
+        }
+      ],
+      "pending_tests": []
+    },
+    "processCapture": {
+      "test_ids": [
+        "process"
+      ],
+      "status": "Fully functional",
+      "scope": "Real harmless PTY process with captured output.",
+      "execution_evidence": [
+        {
+          "test": "process",
+          "status": "pass",
+          "source_run": "sdk-validation-first",
+          "results_file": "/root/dev/rea-sdk/validation-logs/installed-functional/after-policy-results.json",
+          "evidence_archive": "/root/dev/rea-sdk/validation-logs/installed-functional/first-installed-evidence.tar.gz",
+          "archive_member": "sdk-validation-first/results.json",
+          "runtime_variant": "Development installed Workshop; final artifact acceptance pending",
+          "semantic_result": "Owned PTY process capture recorded actual echo output"
+        }
+      ],
+      "pending_tests": []
+    },
+    "runtimeCorrelation": {
+      "test_ids": [
+        "runtime"
+      ],
+      "status": "Partially functional",
+      "scope": "JavaScript static/runtime reconciliation; general comparison hypotheses/call paths remain untested.",
+      "execution_evidence": [
+        {
+          "test": "runtime",
+          "status": "pass",
+          "source_run": "sdk-validation-first",
+          "results_file": "/root/dev/rea-sdk/validation-logs/installed-functional/after-policy-results.json",
+          "evidence_archive": "/root/dev/rea-sdk/validation-logs/installed-functional/first-installed-evidence.tar.gz",
+          "archive_member": "sdk-validation-first/results.json",
+          "runtime_variant": "Development installed Workshop; final artifact acceptance pending",
+          "semantic_result": "Real local Node Inspector observation and correlation with static application Evidence"
+        }
+      ],
+      "maximum_status": "Partially functional",
+      "pending_tests": []
+    },
+    "unknownLifecycle": {
+      "test_ids": [
+        "unknown-lifecycle"
+      ],
+      "status": "Fully functional",
+      "scope": "Create/list/update residual Unknown and inspect immutable history.",
+      "execution_evidence": [
+        {
+          "test": "unknown-lifecycle",
+          "status": "pass",
+          "source_run": "sdk-validation-first",
+          "results_file": "/root/dev/rea-sdk/validation-logs/installed-functional/after-policy-results.json",
+          "evidence_archive": "/root/dev/rea-sdk/validation-logs/installed-functional/first-installed-evidence.tar.gz",
+          "archive_member": "sdk-validation-first/results.json",
+          "runtime_variant": "Development installed Workshop; final artifact acceptance pending",
+          "semantic_result": {
+            "unknown_id": "unk_d4f9e7a97e1e00679ba48379cef9b1b3d55ecfcfcfd6558ad838e31ad07c406f",
+            "revision": 2,
+            "mutation_evidence": 2
+          }
+        }
+      ],
+      "pending_tests": []
+    },
+    "environmentExport": {
+      "test_ids": [
+        "environment-export"
+      ],
+      "status": "Fully functional",
+      "scope": "HAR-derived replay bundle generation and actual unchanged CLI loopback HTTP MCP serving: initialize, tools/list, fixture invocation with exact response/provenance, default state, and process/socket shutdown. Docker/AgentEnv desktop execution is separate.",
+      "execution_evidence": [
+        {
+          "test": "environment-export",
+          "status": "pass",
+          "source_run": "sdk-validation-first",
+          "results_file": "/root/dev/rea-sdk/validation-logs/installed-functional/after-policy-results.json",
+          "evidence_archive": "/root/dev/rea-sdk/validation-logs/installed-functional/first-installed-evidence.tar.gz",
+          "archive_member": "sdk-validation-first/results.json",
+          "runtime_variant": "Development installed Workshop; final artifact acceptance pending",
+          "semantic_result": {
+            "capture_records": 1,
+            "tools": 1,
+            "bundle_directory": "/var/lib/hermes-rea/work/sdk-validation-first/fixtures/exported-environment",
+            "local_http_environment": {
+              "transport": "Real loopback HTTP MCP initialized and invoked exported fixture tool",
+              "tools": 1,
+              "called_tool": "get_items",
+              "response_body": {
+                "items": [
+                  {
+                    "id": "hermes-fixture",
+                    "value": 37
+                  }
+                ]
+              },
+              "served_state": {
+                "served": true,
+                "evidence_id": "ev_8d3422ea6c98f26f15dfb29c1d915f865b34e5feb061f4455674aae31bf180b1"
+              },
+              "shutdown_exit": 143,
+              "listener_closed": true,
+              "evidence_directory": "/var/lib/hermes-rea/work/sdk-validation-first/fixtures/exported-environment-http-proof"
+            },
+            "external_service_or_model_used": false
+          }
+        }
+      ],
+      "pending_tests": []
+    },
+    "workshopPersistence": {
+      "test_ids": [],
+      "status": "Partially functional",
+      "scope": "Actual Workshop refresh change 56 preserved four file hashes and ownership; imported Evidence matched and two explicit-document Ghidra queries replayed with upstream snapshot provenance. Fresh final-artifact installation/reinstall remains pending.",
+      "execution_evidence": [
+        {
+          "archive": "/root/dev/rea-sdk/validation-logs/installed-functional/session-ssh-evidence.tar.gz",
+          "sha256": "195b0ebf5987465ac0f4d656e60aece92317be6d4ecfd6ad3e83f1b289d5f083",
+          "artifact_sha256": "77fc26d1660fe359511d41a3cc06c76d6224be8dda9b80367261bed61cad5af3",
+          "detail_document": "mcp-session-validation.md",
+          "semantic_result": "prepare and verify passed; ephemeral refresh witness removed; cached pseudocode and assembly replayed"
+        }
+      ],
+      "pending_tests": []
+    },
+    "restrictedSsh": {
+      "test_ids": [
+        "forced-command-version",
+        "forced-command-mcp",
+        "forced-command-rejections",
+        "forced-command-artifact"
+      ],
+      "status": "Fully functional",
+      "scope": "Six local boundary checks and six authenticated network SSH checks passed: exact 259-tool equality, binary_session, checksum-verified ELF upload, real disassembly, explicit Ghidra, shell exit 64 and forwarding exit 255 refusal. Read-only public allowlist/root ownership verified. Final corrected-artifact acceptance remains separate.",
+      "execution_evidence": [
+        {
+          "archive": "/root/dev/rea-sdk/validation-logs/installed-functional/session-ssh-evidence.tar.gz",
+          "sha256": "195b0ebf5987465ac0f4d656e60aece92317be6d4ecfd6ad3e83f1b289d5f083",
+          "artifact_sha256": "77fc26d1660fe359511d41a3cc06c76d6224be8dda9b80367261bed61cad5af3",
+          "detail_document": "mcp-session-validation.md",
+          "semantic_result": "SSH boundary 6/6 and network 6/6 passed; clean MCP stdin-EOF shutdown"
+        }
+      ],
+      "limitation": "Representative forced-command dispatch and artifact protocol tests; live SSH authentication/network transport is not exercised.",
+      "maximum_status": "Partially functional",
+      "pending_tests": [
+        "forced-command-version",
+        "forced-command-mcp",
+        "forced-command-rejections",
+        "forced-command-artifact"
+      ]
+    },
+    "snapshots": {
+      "test_ids": [
+        "ghidra"
+      ],
+      "status": "Fully functional",
+      "scope": "Explicit-document Ghidra pseudocode/assembly queries saved as two replay bindings, restored after actual Workshop refresh and returned unchanged semantics with exact upstream replay provenance; other providers and cancellation/recovery variants remain separate.",
+      "execution_evidence": [
+        {
+          "test": "ghidra",
+          "status": "pass",
+          "source_run": "sdk-validation-retry2",
+          "results_file": "/root/dev/rea-sdk/validation-logs/installed-functional/after-policy-results.json",
+          "evidence_archive": "/root/dev/rea-sdk/validation-logs/installed-functional/first-installed-evidence.tar.gz",
+          "archive_member": "sdk-validation-retry2/results.json",
+          "runtime_variant": "Development installed Workshop; final artifact acceptance pending",
+          "semantic_result": "Ghidra decompiled sdk_add, read assembly, saved/reopened target-bound snapshot"
+        }
+      ],
+      "pending_tests": []
+    },
+    "desktopRuntimePackaging": {
+      "test_ids": [
+        "desktop-runtime-pack"
+      ],
+      "status": "Fully functional",
+      "scope": "Upstream pack-build-computer-runtime producer creates a self-contained production archive with matching package/lock/runtime entries; remote build computer execution is separate.",
+      "execution_evidence": [
+        {
+          "test": "desktop-runtime-pack",
+          "status": "pass",
+          "source_run": "sdk-validation-first",
+          "results_file": "/root/dev/rea-sdk/validation-logs/installed-functional/after-policy-results.json",
+          "evidence_archive": "/root/dev/rea-sdk/validation-logs/installed-functional/first-installed-evidence.tar.gz",
+          "archive_member": "sdk-validation-first/results.json",
+          "runtime_variant": "Development installed Workshop; final artifact acceptance pending",
+          "semantic_result": {
+            "archive": "/var/lib/hermes-rea/work/sdk-validation-first/fixtures/desktop-build-runtime.tar.xz",
+            "sha256": "205cbf1a8f68597c2fbd0047a16572ba195f78a21e5f36d85123127f3a8b01ea",
+            "bytes": 19019656,
+            "required_entries": [
+              "scripts/rea.mjs",
+              "dist/main.js",
+              "dist/mcp-catalog.json",
+              "package.json",
+              "package-lock.json",
+              "node_modules/playwright-core/package.json"
+            ],
+            "scope": "Unchanged upstream runtime archive producer; no remote desktop execution"
+          }
+        }
+      ],
+      "pending_tests": []
+    },
+    "fullSource": {
+      "test_ids": [
+        "full-source"
+      ],
+      "status": "Fully functional",
+      "scope": "Complete pinned tracked source tree and five submodules: all manifest file hashes/modes, derived links, original source CLI version, real JavaScript graph operation. Git history is not required for runtime and is omitted.",
+      "execution_evidence": [
+        {
+          "test": "full-source",
+          "status": "pass",
+          "source_run": "sdk-validation-first",
+          "results_file": "/root/dev/rea-sdk/validation-logs/installed-functional/after-policy-results.json",
+          "evidence_archive": "/root/dev/rea-sdk/validation-logs/installed-functional/first-installed-evidence.tar.gz",
+          "archive_member": "sdk-validation-first/results.json",
+          "runtime_variant": "Development installed Workshop; final artifact acceptance pending",
+          "semantic_result": {
+            "source_commit": "51459cf203ae1eb6b586a95b21899eaa0f631823",
+            "repositories": 6,
+            "verified_files": 14149,
+            "verified_bytes": 135520255,
+            "runtime_links": 3,
+            "original_source_cli_version": "6.9.0",
+            "original_cli_javascript_operation": true
+          }
+        }
+      ],
+      "pending_tests": []
+    },
+    "ilspyReconstruction": {
+      "test_ids": [
+        "ilspy-reconstruction"
+      ],
+      "scope": "Real optional ILSpy 11.2.0.10050 decompilation imported with managed method/source Evidence binding; independent from built-in managed parsing.",
+      "status": "Fully functional",
+      "pending_tests": [],
+      "execution_evidence": [
+        {
+          "test": "ilspy-reconstruction",
+          "status": "pass",
+          "source_run": "sdk-validation-first",
+          "results_file": "/root/dev/rea-sdk/validation-logs/installed-functional/after-policy-results.json",
+          "evidence_archive": "/root/dev/rea-sdk/validation-logs/installed-functional/first-installed-evidence.tar.gz",
+          "archive_member": "sdk-validation-first/results.json",
+          "runtime_variant": "Development installed Workshop; final artifact acceptance pending",
+          "semantic_result": {
+            "evidence_id": "ev_f901f1eb1051df0d67488a2b6bb9f6064ba3d67a2ca089fda523f19eb2ba852e",
+            "source_evidence_id": "ev_3228df0676e3795aeda3230a12b2a910e3c0370ea3b7722f61d9cea94d25dee2",
+            "version": "ilspycmd: 11.2.0.10050\nICSharpCode.Decompiler: 11.2.0.10050",
+            "method": "0x06000002",
+            "decompiled_csharp_sha256": "524d170bf0744a6e343b18424a7f3a697a6407e174f5905dad138f6c9e65d154",
+            "canonical_observation": false,
+            "confidence_floor": "inference"
+          }
+        }
+      ]
+    },
+    "binaryWorkflows": {
+      "test_ids": [
+        "ghidra",
+        "rizin",
+        "objdump",
+        "kuna",
+        "cutter"
+      ],
+      "scope": "Representative actual procedures/decompilation/assembly/symbol operations on explicitly selected providers; all mutation, xref and function workflow variants are not exercised.",
+      "maximum_status": "Partially functional",
+      "status": "Partially functional",
+      "pending_tests": [],
+      "execution_evidence": [
+        {
+          "test": "ghidra",
+          "status": "pass",
+          "source_run": "sdk-validation-retry2",
+          "results_file": "/root/dev/rea-sdk/validation-logs/installed-functional/after-policy-results.json",
+          "evidence_archive": "/root/dev/rea-sdk/validation-logs/installed-functional/first-installed-evidence.tar.gz",
+          "archive_member": "sdk-validation-retry2/results.json",
+          "runtime_variant": "Development installed Workshop; final artifact acceptance pending",
+          "semantic_result": "Ghidra decompiled sdk_add, read assembly, saved/reopened target-bound snapshot"
+        },
+        {
+          "test": "rizin",
+          "status": "pass",
+          "source_run": "sdk-validation-retry1",
+          "results_file": "/root/dev/rea-sdk/validation-logs/installed-functional/after-policy-results.json",
+          "evidence_archive": "/root/dev/rea-sdk/validation-logs/installed-functional/first-installed-evidence.tar.gz",
+          "archive_member": "sdk-validation-retry1/results.json",
+          "runtime_variant": "Development installed Workshop; final artifact acceptance pending",
+          "semantic_result": "Real Rizin symbol inventory includes sdk_add"
+        },
+        {
+          "test": "objdump",
+          "status": "pass",
+          "source_run": "sdk-validation-retry1",
+          "results_file": "/root/dev/rea-sdk/validation-logs/installed-functional/after-policy-results.json",
+          "evidence_archive": "/root/dev/rea-sdk/validation-logs/installed-functional/first-installed-evidence.tar.gz",
+          "archive_member": "sdk-validation-retry1/results.json",
+          "runtime_variant": "Development installed Workshop; final artifact acceptance pending",
+          "semantic_result": "GNU objdump disassembled the synthetic sdk_add function"
+        },
+        {
+          "test": "kuna",
+          "status": "pass",
+          "source_run": "sdk-validation-retry1",
+          "results_file": "/root/dev/rea-sdk/validation-logs/installed-functional/after-policy-results.json",
+          "evidence_archive": "/root/dev/rea-sdk/validation-logs/installed-functional/first-installed-evidence.tar.gz",
+          "archive_member": "sdk-validation-retry1/results.json",
+          "runtime_variant": "Development installed Workshop; final artifact acceptance pending",
+          "semantic_result": "Selected Kuna explicitly and decompiled the synthetic addition function"
+        },
+        {
+          "test": "cutter",
+          "status": "pass",
+          "source_run": "sdk-validation-retry1",
+          "results_file": "/root/dev/rea-sdk/validation-logs/installed-functional/after-policy-results.json",
+          "evidence_archive": "/root/dev/rea-sdk/validation-logs/installed-functional/first-installed-evidence.tar.gz",
+          "archive_member": "sdk-validation-retry1/results.json",
+          "runtime_variant": "Development installed Workshop; final artifact acceptance pending",
+          "semantic_result": {
+            "cutter_version": "2.5.0-HEAD-a6f6ad7",
+            "bridge_source": "packaged",
+            "document_generation": 1,
+            "fixture_sha256_before_and_after": "5e71e451dd22c3917e9d673aac829362c8d9deab49790259697e015aab6c0aab",
+            "assertions": [
+              "private authenticated local bridge",
+              "ELF x86-64 metadata",
+              "exact sdk_cutter_add symbol",
+              "actual add/ret disassembly",
+              "terminated owned GUI session"
+            ],
+            "identity_scope": "Upstream Cutter identity remains partial; input hash verified locally by fixture"
+          }
+        }
+      ]
+    },
+    "reconstructionVerification": {
+      "test_ids": [
+        "reconstruction-verification"
+      ],
+      "scope": "Representative finite structural-artifact claims over retained ZIP inventory comparisons: accepted, rejected, mixed, same-source unknown and shared-source residual Unknown propagation, exact Evidence closure and canonical claim-order digest. Behavioral/function claims and general unknown-resolution workflows remain outside this fixture.",
+      "status": "Fully functional",
+      "pending_tests": [],
+      "execution_evidence": [
+        {
+          "archive": "/root/dev/rea-sdk/validation-logs/installed-functional/reconstruction-evidence.tar.gz",
+          "sha256": "c062208c2578ce08f6426370085e4536cd728b9e29e0d73c83399ab6526ea58f",
+          "source_run": "reconstruction-installed2",
+          "status": "pass",
+          "detail_document": "reconstruction-validation.md",
+          "artifact_sha256": "77fc26d1660fe359511d41a3cc06c76d6224be8dda9b80367261bed61cad5af3"
+        }
+      ]
+    },
+    "nativeAotExtension": {
+      "test_ids": [],
+      "scope": "All eight unchanged upstream installed-extension proof modes passed on artifact 77fc26d1660fe359511d41a3cc06c76d6224be8dda9b80367261bed61cad5af3. Both symbol and stripped positive fixtures recovered complete RTR 9.1 metadata (1364 method tables, 618 annotated frozen objects), independent class/interface/virtual-slot oracle and exact arithmetic pseudocode; negative/default modes checked upstream refusal and provider behavior. Final corrected-artifact acceptance remains separate.",
+      "status": "Fully functional",
+      "pending_tests": [],
+      "execution_evidence": [
+        {
+          "archive": "/root/dev/rea-sdk/validation-logs/installed-functional/nativeaot-evidence.tar.gz",
+          "sha256": "aa51b16ab9530e828f0d77de1293d68b912ea78478b1de2a500a8e095d9829a6",
+          "summary": "/root/dev/rea-sdk/validation-logs/installed-functional/nativeaot-summary.json",
+          "modes": [
+            "symbols",
+            "stripped",
+            "ordinary",
+            "unsupported",
+            "malformed",
+            "ambiguous",
+            "loader-failure",
+            "default-native"
+          ],
+          "all_exit_codes": 0,
+          "verifier_source_unchanged": true,
+          "detail_document": "nativeaot-validation.md"
+        }
+      ]
+    },
+    "windowsNativeControls": {
+      "test_ids": [],
+      "scope": "Windows x64 native filesystem/Job Object controls require win32/x64 in src/windows/WindowsNativeLoader.ts; static PE, LNK and recorded NTFS parsers remain portable.",
+      "limitation_cause": "incompatible-platform",
+      "status": "Unsupported on target platform",
+      "pending_tests": [],
+      "execution_evidence": []
+    },
+    "desktopStateDatabase": {
+      "test_ids": [
+        "desktop-dconf"
+      ],
+      "scope": "Offline owned dconf database compiled and decoded with exact string/integer values; no user settings or D-Bus service modified.",
+      "status": "Fully functional",
+      "pending_tests": [],
+      "execution_evidence": [
+        {
+          "test": "desktop-dconf",
+          "status": "pass",
+          "source_run": "sdk-validation-first",
+          "results_file": "/root/dev/rea-sdk/validation-logs/installed-functional/after-policy-results.json",
+          "evidence_archive": "/root/dev/rea-sdk/validation-logs/installed-functional/first-installed-evidence.tar.gz",
+          "archive_member": "sdk-validation-first/results.json",
+          "runtime_variant": "Development installed Workshop; final artifact acceptance pending",
+          "semantic_result": {
+            "assertion": "Real dconf compile database decoded by unchanged installed REA DconfDatabaseReader with exact string/integer values",
+            "database_sha256": "e0d878754319e36143fbce5554276ea87a7a7ea17ea095286c93525aae8d311f",
+            "scope": "Offline owned database, no user settings or D-Bus service"
+          }
+        }
+      ]
+    },
+    "tsharkConfinement": {
+      "scope": "Enforced TShark provider IPC and work-directory capture policy",
+      "prerequisites": "Ubuntu AppArmor profile plus packaged local fragment",
+      "test_ids": [
+        "tshark-policy"
+      ],
+      "status": "Fully functional",
+      "execution_evidence": [
+        {
+          "test": "tshark-policy",
+          "status": "pass",
+          "source_run": "tshark-policy-integrated",
+          "evidence_archive": "/root/dev/rea-sdk/validation-logs/installed-functional/policy-regression-evidence.tar.gz",
+          "archive_member": "tshark-policy-integrated/results.json",
+          "runtime_variant": "Live source policy correction on historical artifact; final package pending",
+          "semantic_result": "Actual enforced label, valid one-frame capture roundtrip and inherited Unix socket passed; outside-work write denied at exit9 despite same-user exact-path DAC controls"
+        },
+        {
+          "test": "tshark-policy",
+          "status": "pass",
+          "source_run": "sdk-validation-final-remaining",
+          "results_file": "/home/rea-sdk-dev/.local/share/workshop/id/782b8b9c/validation-final/mount/hermes-rea/state/work/sdk-validation-final-remaining/results.json",
+          "results_sha256": "c3287534a3572ec9d38e4ddd30a65cfe78d3a93383ffa4b0e160e0fa64c66b1d",
+          "runtime_variant": "Fresh installed policy/HOME-corrected SDK c7373502e97f32c34be99ba7fd92e7ea5832caf31121aa79a747badd27cf22c5; retains original Frida 17.23.2; overall acceptance failed on subsequent subprocess sequence",
+          "semantic_result": {
+            "status": "pass",
+            "pcap": "/var/lib/hermes-rea/work/sdk-validation-final-remaining/fixtures/sdk-policy-network.pcap",
+            "input_sha256": "ead56edaf9a07e2949826f6a9e55ed929804a921ef6589df178e7fc969ebb136",
+            "uid": 999,
+            "tshark": "/usr/bin/tshark",
+            "confinement": "tshark (enforce)",
+            "stdin_decode": {
+              "exit": 0,
+              "frames": 1
+            },
+            "inherited_unix_socket": {
+              "exit": 0,
+              "bytes": 1378
+            },
+            "allowed_capture_roundtrip": {
+              "write_exit": 0,
+              "read_exit": 0,
+              "frames": 1,
+              "bytes": 188
+            },
+            "outside_write": {
+              "exit": 9,
+              "stderr": "tshark: You don't have permission to create or write to the file \"/var/lib/hermes-rea/.tshark-policy-denial-i0nh5glq/denied.pcapng\".\n",
+              "stdout": "",
+              "path": "/var/lib/hermes-rea/.tshark-policy-denial-i0nh5glq/denied.pcapng",
+              "exists": false,
+              "dac_exact_path_control": true,
+              "dac_control_after_refusal": true
+            },
+            "owned_outputs_removed": true,
+            "scope": "Actual enforced profile, valid owned capture round-trip, inherited Unix socket, and outside-work write denial; no root or policy mutation"
+          }
+        }
+      ],
+      "limitation_cause": null,
+      "limitation": "Enforced AppArmor allows the owned workspace capture roundtrip and denies a same-user DAC-writable outside-work output path, including on fresh c7373502. Corrected-Frida artifact and independent reinstall acceptance remain pending.",
+      "pending_tests": []
+    }
+  },
+  "evidence_review": {
+    "reviewed_at": "2026-11-17",
+    "sdk_source_checkpoint": "af31bf3722ea535609c11893c0ef5d2ef18fb453",
+    "environment": "Installed development Workshop; aggregate across first run and retries, then live scoped packet policy fix",
+    "selected_cases": 93,
+    "passing_cases": 93,
+    "deferred_cases": [],
+    "final_artifact_acceptance": "Pending corrected Frida17.25.1 SDK build, full single-session suite, clean installation and independent reinstall. Policy/HOME-corrected c7373502 SDK built and installed successfully, but its Frida17.23.2 sequence failed. Model-free desktop lifecycle now passes; external model operations remain unconfigured.",
+    "results_file": "/root/dev/rea-sdk/validation-logs/installed-functional/after-policy-results.json",
+    "results_sha256": "efe26a7b7a50d5504e19657a78e70390f51ba88f144972369f6843dfa0e003c9",
+    "summary_file": "/root/dev/rea-sdk/validation-logs/installed-functional/after-policy-summary.json",
+    "first_evidence_archive": "/root/dev/rea-sdk/validation-logs/installed-functional/first-installed-evidence.tar.gz",
+    "first_evidence_sha256": "ccfa96e601ff0c2a573412659e7b93703bb0de42e3baff198a97c2e6eedd3883",
+    "policy_evidence_archive": "/root/dev/rea-sdk/validation-logs/installed-functional/tshark-policy-evidence.tar.gz",
+    "policy_evidence_sha256": "9f61ff31d3a653e6bafe6cc200842ec289164880b990ff65e3ff4d128bfa7c2a",
+    "digest_note": "Evidence archive digests identify logs/fixtures, not SDK package bytes.",
+    "official_sdkcraft_test": {
+      "successful_tasks": 0,
+      "aborted_tasks": 91,
+      "cause": "Missing /dev/kvm during VM allocation; no Spread task executed."
+    },
+    "capability_status_counts": {
+      "Partially functional": 3,
+      "Fully functional": 71,
+      "Not yet tested": 3,
+      "Unsupported on target platform": 1
+    },
+    "historical_aggregate_note": "The selected_cases/passing_cases/results_file fields identify the original 93-case aggregate only; newer artifact-specific results below supersede its pending desktop and live-policy-only descriptions.",
+    "fresh_policy_artifact": {
+      "sha256": "c7373502e97f32c34be99ba7fd92e7ea5832caf31121aa79a747badd27cf22c5",
+      "initial_run": {
+        "passed": 17,
+        "observed_failure": "SQLite subprocess timeout after Frida lifecycle",
+        "aborted": 81,
+        "classification_file": "/root/dev/rea-sdk/validation-logs/final-initial-run-classification.json"
+      },
+      "remaining_run": {
+        "passed": 81,
+        "failed": 1,
+        "failure": "Desktop fixture discarded outer action computer_id; corrected fixture subsequently passed",
+        "results_file": "/home/rea-sdk-dev/.local/share/workshop/id/782b8b9c/validation-final/mount/hermes-rea/state/work/sdk-validation-final-remaining/results.json"
+      },
+      "desktop_retry": {
+        "passed": 1,
+        "results_file": "/home/rea-sdk-dev/.local/share/workshop/id/782b8b9c/validation-final/mount/hermes-rea/state/work/desktop-final2/results.json"
+      },
+      "conclusion": "All 99 individual selected cases have passes across runs; this is not a successful single-session suite because the original Frida sequence remains defective."
+    }
+  },
+  "artifact_format_inventory": {
+    "source": "src/domain/artifactGraph.ts#ARTIFACT_FORMAT_IDS",
+    "count": 48,
+    "ids": [
+      "dotnet-bundle",
+      "bun-standalone",
+      "deno-standalone",
+      "dmg",
+      "zip",
+      "pkg",
+      "asar",
+      "ines",
+      "godot-pck",
+      "unityfs",
+      "wxapkg",
+      "uimage",
+      "android-boot-image",
+      "android-ota-payload",
+      "javascript-bundle",
+      "source-map",
+      "mach-o-universal",
+      "mach-o",
+      "elf",
+      "pe",
+      "dos-mz",
+      "dos-com",
+      "raw-binary",
+      "gamecube-dol",
+      "hopper",
+      "analysis-database",
+      "ipa",
+      "apk",
+      "msix",
+      "appx",
+      "hap",
+      "hsp",
+      "app-pack",
+      "plist",
+      "entitlements",
+      "directory",
+      "file",
+      "pyinstaller",
+      "node-sea",
+      "intel-hex",
+      "srec",
+      "esp-image",
+      "uf2",
+      "dfuse",
+      "esp-flash-image",
+      "fit",
+      "ntfs-mft",
+      "unknown"
+    ],
+    "scope": "Exhaustive source identifiers, not execution results. Format-specific reader coverage and platform boundaries are separately stated in capability-matrix.md."
+  }
+}

@@ -1,0 +1,165 @@
+{
+  "schema_version": 1,
+  "retrieved_on": "2026-11-17",
+  "source_files": [
+    {
+      "component": "wakaru",
+      "release_tag": "v1.14.0",
+      "source_commit": "8219bf5016a063d7fb215101a8c45d5959ec733f",
+      "source_url": "https://raw.githubusercontent.com/pionxzh/wakaru/8219bf5016a063d7fb215101a8c45d5959ec733f/LICENSE",
+      "sha256": "c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4",
+      "sdk_path": "licenses/wakaru/LICENSE"
+    },
+    {
+      "component": "wabt",
+      "release_tag": "1.0.42",
+      "source_commit": "ff0ef7e0009402740c805a9744c09b05be063e48",
+      "source_url": "https://raw.githubusercontent.com/WebAssembly/wabt/ff0ef7e0009402740c805a9744c09b05be063e48/LICENSE",
+      "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+      "sdk_path": "licenses/wabt/LICENSE"
+    },
+    {
+      "component": "rizin",
+      "release_tag": "v0.9.1",
+      "source_commit": "c3a90e9226d977f58f4e9c75f78fa6b07afe13c7",
+      "source_url": "https://raw.githubusercontent.com/rizinorg/rizin/c3a90e9226d977f58f4e9c75f78fa6b07afe13c7/COPYING",
+      "sha256": "8ceb4b9ee5adedde47b31e975c1d90c73ad27b6b165a1dcd80c7c545eb65b903",
+      "sdk_path": "licenses/rizin/COPYING"
+    },
+    {
+      "component": "rizin",
+      "release_tag": "v0.9.1",
+      "source_commit": "c3a90e9226d977f58f4e9c75f78fa6b07afe13c7",
+      "source_url": "https://raw.githubusercontent.com/rizinorg/rizin/c3a90e9226d977f58f4e9c75f78fa6b07afe13c7/COPYING.LESSER",
+      "sha256": "da7eabb7bafdf7d3ae5e9f223aa5bdc1eece45ac569dc21b3b037520b4464768",
+      "sdk_path": "licenses/rizin/COPYING.LESSER"
+    },
+    {
+      "component": "kuna",
+      "release_tag": "v1.990",
+      "source_commit": "9b758091aee1fe850ca931298a097c79a2800bc1",
+      "source_url": "https://raw.githubusercontent.com/Noelo-Lab/kuna/9b758091aee1fe850ca931298a097c79a2800bc1/LICENSE",
+      "sha256": "c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4",
+      "sdk_path": "licenses/kuna/LICENSE"
+    },
+    {
+      "component": "kuna",
+      "release_tag": "v1.990",
+      "source_commit": "9b758091aee1fe850ca931298a097c79a2800bc1",
+      "source_url": "https://raw.githubusercontent.com/Noelo-Lab/kuna/9b758091aee1fe850ca931298a097c79a2800bc1/NOTICE",
+      "sha256": "19c1091563a3d968453cf4b3276da9fed3cad583af6a9b53ba38d9545656fb87",
+      "sdk_path": "licenses/kuna/NOTICE"
+    },
+    {
+      "component": "mitmproxy",
+      "release_tag": "v12.2.3",
+      "source_commit": "6c09d56e4c29a92f5ad01b03199977584b8ea14f",
+      "source_url": "https://raw.githubusercontent.com/mitmproxy/mitmproxy/6c09d56e4c29a92f5ad01b03199977584b8ea14f/LICENSE",
+      "sha256": "cc4ab04ed7180af6c0ede7147f9ec2aa05212c088d7b3c8e38bbffe91c9c8f82",
+      "sdk_path": "licenses/mitmproxy/LICENSE"
+    },
+    {
+      "component": "jadx-headless-mcp",
+      "release_tag": "v0.7.1",
+      "source_commit": "7dc6b5e3fe371b5ab6cd6e4b24c7eb47c0f35636",
+      "source_url": "https://raw.githubusercontent.com/1013503897/jadx-headless-mcp/7dc6b5e3fe371b5ab6cd6e4b24c7eb47c0f35636/LICENSE",
+      "sha256": "612097054771e7268f449b9d479bd47e7ef0901961d1515804e03f1d84e1920d",
+      "sdk_path": "licenses/jadx-headless-mcp/LICENSE"
+    },
+    {
+      "component": "apktool",
+      "release_tag": "v3.0.3",
+      "source_commit": "18b5e99cb56ff9451e8aa55b065dcf5bbd616975",
+      "source_url": "https://raw.githubusercontent.com/iBotPeaches/Apktool/18b5e99cb56ff9451e8aa55b065dcf5bbd616975/LICENSE.md",
+      "sha256": "c49c53fdc79e1143a1892eb7333b595eecdbe40623e72be325267db28cb72114",
+      "sdk_path": "licenses/apktool/LICENSE.md"
+    },
+    {
+      "component": "ilspy",
+      "release_tag": "11.2.0.10050 (NuGet source repository commit)",
+      "source_commit": "c86190ef4e24f3137c13a9275316042842d2fada",
+      "source_url": "https://raw.githubusercontent.com/icsharpcode/ILSpy/c86190ef4e24f3137c13a9275316042842d2fada/ICSharpCode.Decompiler/Humanizer/LICENSE",
+      "sha256": "017ba1711d7afcc91ad461dc7fdc4f3eb830f7fa5738ce96cebb9ead9fe5c81d",
+      "sdk_path": "licenses/ilspy/ICSharpCode.Decompiler/Humanizer/LICENSE"
+    },
+    {
+      "component": "ilspy",
+      "release_tag": "11.2.0.10050 (NuGet source repository commit)",
+      "source_commit": "c86190ef4e24f3137c13a9275316042842d2fada",
+      "source_url": "https://raw.githubusercontent.com/icsharpcode/ILSpy/c86190ef4e24f3137c13a9275316042842d2fada/LICENSE",
+      "sha256": "5527fe802347740da8ec2b510cffa4d22939c7f0773ae342a85a2e2b64e4a34b",
+      "sdk_path": "licenses/ilspy/LICENSE"
+    },
+    {
+      "component": "ilspy",
+      "release_tag": "11.2.0.10050 (NuGet source repository commit)",
+      "source_commit": "c86190ef4e24f3137c13a9275316042842d2fada",
+      "source_url": "https://raw.githubusercontent.com/icsharpcode/ILSpy/c86190ef4e24f3137c13a9275316042842d2fada/doc/copyright.txt",
+      "sha256": "659b96fc5004d020b5f93cd7be551dc352f8a88377a274b8e19c73f476320b16",
+      "sdk_path": "licenses/ilspy/doc/copyright.txt"
+    },
+    {
+      "component": "ilspy",
+      "release_tag": "11.2.0.10050 (NuGet source repository commit)",
+      "source_commit": "c86190ef4e24f3137c13a9275316042842d2fada",
+      "source_url": "https://raw.githubusercontent.com/icsharpcode/ILSpy/c86190ef4e24f3137c13a9275316042842d2fada/doc/third-party-notices.txt",
+      "sha256": "b6cfd95304ec030f1ae85d2edc579bc8301d5a2f86b5fba72fac24e56ede49f3",
+      "sdk_path": "licenses/ilspy/doc/third-party-notices.txt"
+    },
+    {
+      "component": "cutter",
+      "release_tag": "v2.5.0",
+      "source_commit": "a6f6ad7bed987c56735ab763970bb405df0a4cfc",
+      "source_url": "https://raw.githubusercontent.com/rizinorg/cutter/a6f6ad7bed987c56735ab763970bb405df0a4cfc/COPYING",
+      "sha256": "0ae0485a5bd37a63e63603596417e4eb0e653334fa6c7f932ca3a0e85d4af227",
+      "sdk_path": "licenses/cutter/COPYING"
+    }
+  ],
+  "archive_files": [
+    {
+      "component": "chrome-for-testing",
+      "version": "156.0.8078.4",
+      "source_url": "https://cdn.playwright.dev/builds/cft/156.0.8078.4/linux64/chrome-linux64.zip",
+      "archive_sha256": "43fd31766c7533a02dda2ded5ad50c2f861cd5400be7509c0abad71129f79d79",
+      "archive_member": "chrome-linux64/ABOUT",
+      "sha256": "34d078ce3003087a8374e7c6156fda374769b8047d6ddaf419d66414aa48edfb",
+      "sdk_path": "licenses/chrome-for-testing/ABOUT"
+    },
+    {
+      "component": "unicorn",
+      "version": "2.1.2",
+      "source_url": "https://files.pythonhosted.org/packages/90/12/a10f01a3e1dafcd21e2eb0c0d99bb51d5bda1d3fee20047cb2a4b2de6285/unicorn-2.1.2.tar.gz",
+      "archive_sha256": "e4a9d671bdea71806f29a396734cfb83317f82943b52d0001d3bca1dcbaee893",
+      "archive_member": "unicorn-2.1.2/src/AUTHORS.TXT",
+      "sha256": "6dff517f42f12f2c64d0864cc06a7d2a1cc10c7435a1167a49c625e60813f51c",
+      "sdk_path": "licenses/unicorn/src/AUTHORS.TXT"
+    },
+    {
+      "component": "unicorn",
+      "version": "2.1.2",
+      "source_url": "https://files.pythonhosted.org/packages/90/12/a10f01a3e1dafcd21e2eb0c0d99bb51d5bda1d3fee20047cb2a4b2de6285/unicorn-2.1.2.tar.gz",
+      "archive_sha256": "e4a9d671bdea71806f29a396734cfb83317f82943b52d0001d3bca1dcbaee893",
+      "archive_member": "unicorn-2.1.2/src/qemu/COPYING",
+      "sha256": "6f04ae8364d0079a192b14635f4b1da294ce18724c034c39a6a41d1b09df6100",
+      "sdk_path": "licenses/unicorn/src/qemu/COPYING"
+    },
+    {
+      "component": "unicorn",
+      "version": "2.1.2",
+      "source_url": "https://files.pythonhosted.org/packages/90/12/a10f01a3e1dafcd21e2eb0c0d99bb51d5bda1d3fee20047cb2a4b2de6285/unicorn-2.1.2.tar.gz",
+      "archive_sha256": "e4a9d671bdea71806f29a396734cfb83317f82943b52d0001d3bca1dcbaee893",
+      "archive_member": "unicorn-2.1.2/src/qemu/COPYING.LIB",
+      "sha256": "dc626520dcd53a22f727af3ee42c770e56c97a64fe3adb063799d8ab032fe551",
+      "sdk_path": "licenses/unicorn/src/qemu/COPYING.LIB"
+    },
+    {
+      "component": "unicorn",
+      "version": "2.1.2",
+      "source_url": "https://files.pythonhosted.org/packages/90/12/a10f01a3e1dafcd21e2eb0c0d99bb51d5bda1d3fee20047cb2a4b2de6285/unicorn-2.1.2.tar.gz",
+      "archive_sha256": "e4a9d671bdea71806f29a396734cfb83317f82943b52d0001d3bca1dcbaee893",
+      "archive_member": "unicorn-2.1.2/src/qemu/LICENSE",
+      "sha256": "139c64b7a9ae62858ff969aae622ecfcf4f1519655bd92d2e70a1a2fb615690e",
+      "sdk_path": "licenses/unicorn/src/qemu/LICENSE"
+    }
+  ]
+}

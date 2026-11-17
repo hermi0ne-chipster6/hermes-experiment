@@ -1,0 +1,3 @@
+# Minimal in-project SDK, copied into .workshop only after preparation.
+# Adding it requires an applied refresh; it has no hooks or fixture mutations.
+name: persistence-refresh

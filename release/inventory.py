@@ -78,7 +78,8 @@ def validate_coverage(root=ROOT):
         raise ValueError('missing observed Ubuntu package baseline')
     sources = json.loads((root/'sources.json').read_text())
     expected = {'NousResearch/hermes-agent':sources['hermes_commit'],
-                'opensandbox-group/OpenSandbox':sources['opensandbox']['commit']}
+                'opensandbox-group/OpenSandbox':sources['opensandbox']['commit'],
+                'morluto/rea':sources['rea']['commit']}
     for entry in upstream:
         path = root/entry['file']
         if not path.resolve().is_relative_to(root.resolve()):
@@ -96,6 +97,57 @@ def validate_coverage(root=ROOT):
                            ('hermes-execution', sources['opensandbox']['commit'])]:
         if expected not in (root/f'sdks/{role}/sdkcraft.yaml').read_text():
             raise ValueError(f'pin mismatch: {role} source revision')
+    rea = yaml.safe_load((root/'sdks/hermes-rea/sdkcraft.yaml').read_text())['parts']
+    baseline = json.loads((root/'sdks/hermes-rea/SOURCE.json').read_text())
+    if (baseline['commit'] != sources['rea']['commit'] or
+            baseline['packageVersion'] != sources['rea']['version'] or
+            baseline['sourceSha256'] != sources['rea']['sha256'] or
+            rea['rea']['source'] != sources['rea']['source'] or
+            rea['rea']['source'] != 'https://codeload.github.com/morluto/rea/tar.gz/'+baseline['commit'] or
+            rea['rea']['source-checksum'] != 'sha256/'+baseline['sourceSha256']):
+        raise ValueError('pin mismatch: hermes-rea source baseline')
+    captured_manifest = json.loads((root/'release/upstream-locks/rea/package.json').read_text())
+    if captured_manifest['version'] != baseline['packageVersion']:
+        raise ValueError('pin mismatch: hermes-rea upstream package version')
+    if (rea['upstream-source']['source'] != baseline['upstream']+'.git' or
+            rea['upstream-source']['source-commit'] != baseline['commit']):
+        raise ValueError('pin mismatch: hermes-rea complete source checkout')
+    for component in policy['components']:
+        for part, pins in component.get('sdk_sources', {}).items():
+            observed = {key:rea[part][key] for key in ('source', 'source-checksum', 'source-commit')
+                        if key in rea[part]}
+            if observed != pins:
+                raise ValueError(f'pin mismatch: hermes-rea/{part} maintenance metadata')
+        if component['name'] == 'nativeaot-extension':
+            if ('origin '+component['current']) not in rea['nativeaot']['override-build']:
+                raise ValueError('pin mismatch: hermes-rea NativeAOT extension')
+            source_pin = next(entry['commit'] for entry in baseline['completeSource']['submodules']
+                              if entry['path'] == 'third_party/ghidra-nativeaot')
+            if source_pin != component['current']:
+                raise ValueError('pin mismatch: hermes-rea NativeAOT source submodule')
+    assets = json.loads((root/'sdks/hermes-rea/dependencies/assets.json').read_text())
+    if assets['rea_source_revision'] != baseline['commit']:
+        raise ValueError('pin mismatch: hermes-rea provider asset baseline')
+    for asset in assets['assets']:
+        if asset.get('dependency_lock'):
+            filename = asset['dependency_lock']
+            if Path(filename).name != filename:
+                raise ValueError('invalid provider dependency lock path')
+            lock = (root/'sdks/hermes-rea/dependencies'/filename).read_text().replace('\\\n', ' ')
+            pinned = [line for line in lock.splitlines()
+                      if (match := re.match(r'^([\w.-]+)(?:\[[^]]+\])?==([^\s;\\]+)', line))
+                      and canonicalize_name(match[1]) == canonicalize_name(asset['name'])
+                      and match[2] == asset['version']]
+            if len(pinned) != 1 or '--hash=sha256:'+asset['sha256'] not in pinned[0].split():
+                raise ValueError('pin mismatch: hermes-rea locked provider asset '+asset['name'])
+            continue
+        matches = [part for part in rea.values() if part.get('source') == asset['url']]
+        if not matches or any(part.get('source-checksum') != 'sha256/'+asset['sha256'] for part in matches):
+            raise ValueError('pin mismatch: hermes-rea provider asset '+asset['name'])
+    if (rea['node-runtime']['source'] != sources['rea_node']['source'] or
+            rea['node-runtime']['source-checksum'] != 'sha256/'+sources['rea_node']['sha256'] or
+            '/'+sources['rea_node']['version']+'/' not in rea['node-runtime']['source']):
+        raise ValueError('pin mismatch: hermes-rea Node runtime')
     for path in root.glob('sdks/*/*requirements.in'):
         lock = path.with_suffix('.txt')
         pinned = {}

@@ -1,0 +1,169 @@
+{
+  "schema_version": 1,
+  "platform": "ubuntu@26.04:amd64",
+  "rea_source_revision": "51459cf203ae1eb6b586a95b21899eaa0f631823",
+  "assets": [
+    {
+      "name": "kuna",
+      "version": "1.990",
+      "url": "https://github.com/Noelo-Lab/kuna/releases/download/v1.990/kuna-v1.990-linux-x86_64.tar.gz",
+      "sha256": "4860603084da39dcdebeb9155116a886f8294003af54cecdb6a687529f0b5f54",
+      "retained_notice_paths": [
+        "licenses/kuna/LICENSE",
+        "licenses/kuna/NOTICE"
+      ]
+    },
+    {
+      "name": "mitmproxy",
+      "version": "12.2.3",
+      "url": "https://downloads.mitmproxy.org/12.2.3/mitmproxy-12.2.3-linux-x86_64.tar.gz",
+      "sha256": "2e95286b618fa6fd33e5e62a78c2e5112571d85f42ec2bac29b97ee242bdb5c5",
+      "retained_notice_paths": [
+        "licenses/mitmproxy/LICENSE"
+      ]
+    },
+    {
+      "name": "jadx-headless-mcp",
+      "version": "0.7.1",
+      "url": "https://github.com/1013503897/jadx-headless-mcp/releases/download/v0.7.1/jadx-headless-mcp-0.7.1-all.jar",
+      "sha256": "6e5eacf500b64292bfb73c49797c1958f6ee44646e43e868039ae7feb573ff75",
+      "retained_notice_paths": [
+        "licenses/jadx-headless-mcp/LICENSE"
+      ]
+    },
+    {
+      "name": "wabt",
+      "version": "1.0.42",
+      "url": "https://github.com/WebAssembly/wabt/releases/download/1.0.42/wabt-1.0.42-linux-x64.tar.gz",
+      "sha256": "84895407a6bbb80e918f33b16b2fb2206021c150b6bc9ff6f761263a745ab131",
+      "retained_notice_paths": [
+        "licenses/wabt/LICENSE"
+      ]
+    },
+    {
+      "name": "wakaru",
+      "version": "1.14.0",
+      "url": "https://github.com/pionxzh/wakaru/releases/download/v1.14.0/wakaru-linux-x64.tar.gz",
+      "sha256": "db0e620034723195ab426e94d00d55dbd8fd0106a928ada2563f1103196d09fa",
+      "executable_sha256": "664fa06782a61eda7ed15885134b52525fd565dd77607e642062ceb6cd927c38",
+      "retained_notice_paths": [
+        "licenses/wakaru/LICENSE"
+      ]
+    },
+    {
+      "name": "rizin",
+      "version": "0.9.1",
+      "url": "https://github.com/rizinorg/rizin/releases/download/v0.9.1/rizin-v0.9.1-static-x86_64.tar.xz",
+      "sha256": "9102249a9f0b6319c5334a2e5cf8d9cc3f2035e1d3def027c41f6a90f647e8cf",
+      "retained_notice_paths": [
+        "licenses/rizin/COPYING",
+        "licenses/rizin/COPYING.LESSER"
+      ]
+    },
+    {
+      "name": "apktool",
+      "version": "3.0.3",
+      "url": "https://github.com/iBotPeaches/Apktool/releases/download/v3.0.3/apktool_3.0.3.jar",
+      "sha256": "dbf930b076c6b9be08d57c449cacefc3bdd6b71ebd59b3066fc0e1f5b14f9423",
+      "verification": "GitHub release metadata digest; integration build verifies downloaded bytes",
+      "retained_notice_paths": [
+        "licenses/apktool/LICENSE.md"
+      ]
+    },
+    {
+      "name": "binwalk-source",
+      "version": "3.1.0",
+      "url": "https://codeload.github.com/ReFirmLabs/binwalk/tar.gz/4fdab3d464d97b68e0af9088df3f9e2e1545b21c",
+      "sha256": "81d9dbfbe4716446fe5167ed7046ebc3a6c33a18cc91f412a5392374c3622e20"
+    },
+    {
+      "name": "sasquatch",
+      "version": "4.5.1-6",
+      "url": "https://github.com/onekey-sec/sasquatch/releases/download/sasquatch-v4.5.1-6/sasquatch_1.0_amd64.deb",
+      "sha256": "efbc92bd27594e01211e1b582f105a463a0017360a0746a93de3f283906ade95"
+    },
+    {
+      "name": "chrome-for-testing",
+      "version": "156.0.8078.4",
+      "url": "https://cdn.playwright.dev/builds/cft/156.0.8078.4/linux64/chrome-linux64.zip",
+      "sha256": "43fd31766c7533a02dda2ded5ad50c2f861cd5400be7509c0abad71129f79d79",
+      "playwright_core": "1.64.1",
+      "playwright_revision": "1248",
+      "retained_notice_paths": [
+        "licenses/chrome-for-testing/ABOUT"
+      ]
+    },
+    {
+      "name": "ilspy",
+      "version": "11.2.0.10050",
+      "url": "https://api.nuget.org/v3-flatcontainer/ilspycmd.linux-x64/11.2.0.10050/ilspycmd.linux-x64.11.2.0.10050.nupkg",
+      "sha256": "5be3af86839e93075d103e5b4fec73a637b8d70e49c97eaf043ebe55b7c7800d",
+      "retained_notice_paths": [
+        "licenses/ilspy/ICSharpCode.Decompiler/Humanizer/LICENSE",
+        "licenses/ilspy/LICENSE",
+        "licenses/ilspy/doc/copyright.txt",
+        "licenses/ilspy/doc/third-party-notices.txt"
+      ]
+    },
+    {
+      "name": "cutter",
+      "version": "2.5.0",
+      "url": "https://github.com/rizinorg/cutter/releases/download/v2.5.0/Cutter-v2.5.0-Linux-Qt5-x86_64.AppImage",
+      "sha256": "c796077954b419bd6ac36fafd0a0df36f21c8c90219dbfcfb486b34e0ad4bbc0",
+      "verification": "Official GitHub release asset digest, independently checked downloaded AppImage bytes",
+      "retained_notice_paths": [
+        "licenses/cutter/COPYING",
+        "providers/cutter/usr/share/doc",
+        "providers/cutter/usr/lib/python3.11/LICENSE.txt"
+      ]
+    },
+    {
+      "name": "docker-client",
+      "version": "29.1.3-0ubuntu4.1",
+      "url": "https://archive.ubuntu.com/ubuntu/pool/universe/d/docker.io-app/docker.io_29.1.3-0ubuntu4.1_amd64.deb",
+      "sha256": "7a77548bd669f232ec8852092623303be32c55538401ff047b4d1e0bb5ea721d",
+      "retained_notice_paths": [
+        "providers/licenses/docker-client"
+      ],
+      "packaged_content": "usr/bin/docker only plus package documentation; daemon and services excluded"
+    },
+    {
+      "name": "docker-buildx",
+      "version": "0.30.1-0ubuntu1",
+      "url": "https://archive.ubuntu.com/ubuntu/pool/universe/d/docker-buildx/docker-buildx_0.30.1-0ubuntu1_amd64.deb",
+      "sha256": "96f1bf0fb16cefcd9063c2034b949383e46b1b47c26a376e3a569e42ffdf281e",
+      "retained_notice_paths": [
+        "providers/licenses/docker-buildx"
+      ]
+    },
+    {
+      "name": "docker-compose",
+      "version": "2.40.3+ds1-0ubuntu1",
+      "url": "https://archive.ubuntu.com/ubuntu/pool/universe/d/docker-compose-v2/docker-compose-v2_2.40.3+ds1-0ubuntu1_amd64.deb",
+      "sha256": "fb8bbea5614c65cbdf426a7fd13bfeaf0f777a8f4d62758fbbfa4f051be330da",
+      "retained_notice_paths": [
+        "providers/licenses/docker-compose"
+      ]
+    },
+    {
+      "name": "agentenv-framework",
+      "version": "0.9.1485",
+      "url": "https://files.pythonhosted.org/packages/bf/fb/d683a32fc638d785332421ad175acb7e29feebcf9697021669f197d63bc5/agentenv_framework-0.9.1485-py3-none-any.whl",
+      "sha256": "14768f69fa9c48c3e4aec2224161747d3643e77a711848e9079dfd62aa5fcca9",
+      "dependency_lock": "agentenv-requirements.txt",
+      "retained_notice_paths": [
+        "providers/agentenv-venv/lib/python3.14/site-packages/agentenv_framework-0.9.1485.dist-info/licenses",
+        "providers/licenses/agentenv/requirements.txt"
+      ]
+    },
+    {
+      "name": "frida-runtime",
+      "version": "17.25.1",
+      "url": "https://registry.npmjs.org/frida/-/frida-17.25.1.tgz",
+      "sha256": "81c475d3425a3748007efdc80ebd2c747a44694627e2aab11999675536f9ec04",
+      "compatibility_manifest": "frida-compatibility.json",
+      "reason": "Official matched module for native SIGCHLD fix; original REA source/lock retained"
+    }
+  ],
+  "notice_provenance": "../assets/licenses/PROVENANCE.json"
+}

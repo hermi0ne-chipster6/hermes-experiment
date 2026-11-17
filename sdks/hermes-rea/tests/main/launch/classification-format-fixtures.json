@@ -1,0 +1,93 @@
+{
+  "schema_version": 1,
+  "upstream_baseline": "51459cf203ae1eb6b586a95b21899eaa0f631823",
+  "provenance": "Inert locally authored structural fixtures following pinned REA admission contracts; no target is executed. ELF/PE/Mach-O headers are inventory-only. Legacy/raw/DOL programs are used only for static Ghidra load verification and one instruction.",
+  "fixtures": {
+    "minimal.elf": {
+      "bytes": 64,
+      "sha256": "be79ffb15701bfd8095f8a8bba26a9746d8f2748622f3a86035be4c410e2a5d9",
+      "base64": "f0VMRgIBAQAAAAAAAAAAAAIAPgABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAA==",
+      "inventory_format": "elf",
+      "scope": "Fixed-header inventory only; no executable analysis claimed"
+    },
+    "minimal.macho": {
+      "bytes": 32,
+      "sha256": "79e4214b770ec982f202b553b1f70eaa9f1888135d7d4a341d378153fe193e6d",
+      "base64": "z/rt/gwAAAEAAAAAAgAAAAAAAAAAAAAAAAAAAAAAAAA=",
+      "inventory_format": "mach-o",
+      "scope": "Thin arm64 fixed-header inventory only; no macOS execution"
+    },
+    "minimal.exe": {
+      "bytes": 512,
+      "sha256": "4b55bdd7764edb953b363451fbd34dcffb64c6417a8be0585fc994a302250695",
+      "base64": "TVoAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAAAAFBFAABkhgAAAAAAAAAAAAAAAAAA8AACAAsCAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=",
+      "inventory_format": "pe",
+      "scope": "PE32+ fixed-header inventory only; no Windows execution"
+    },
+    "legacy.exe": {
+      "bytes": 160,
+      "sha256": "f58e6acdd7e884698fdb8fbc6ae8e3c6ca6c3b651866901aa9e1e65161b376c8",
+      "base64": "TVqgAAEAAAACAAAA//8AAAAAAAAAAAAAHAAAAAAAAAC4AEzNIQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAmLrc/gAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+      "inventory_format": "dos-mz",
+      "selection": {},
+      "expected_instruction": "MOV",
+      "expected_instruction_hex": "b8004c"
+    },
+    "legacy.com": {
+      "bytes": 4,
+      "sha256": "4656b3628c349c3221ac198044862b8cca3b06db6998e2296185ec89237824b9",
+      "base64": "uDcAww==",
+      "inventory_format": "file",
+      "selection": {
+        "format": "dos-com"
+      },
+      "expected_instruction": "MOV",
+      "expected_instruction_hex": "b83700"
+    },
+    "raw.bin": {
+      "bytes": 3,
+      "sha256": "251447ee91a9067dcd6ab96703133f617565974cd6c4819021760c4688c91abf",
+      "base64": "McDD",
+      "inventory_format": "file",
+      "selection": {
+        "format": "raw-binary",
+        "architecture": "x86_64",
+        "entry_point": "0x400000"
+      },
+      "expected_instruction": "XOR",
+      "expected_instruction_hex": "31c0"
+    },
+    "fixture.dol": {
+      "bytes": 320,
+      "sha256": "c098316e791d05109247a660e43f392405ee866a9ae3498dd608c2997209cac1",
+      "base64": "AAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAASAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgAAxAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgABQAAAAACCAADEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAE6AACBOgAAgToAAIE6AACBOgAAgToAAIE6AACBOgAAgaGVybWVzLWRvbC1zdGF0aWMtZGF0YQAAAAAAAAAAAAA=",
+      "inventory_format": "file",
+      "selection": {
+        "format": "gamecube-dol"
+      },
+      "expected_instruction": "BLR",
+      "expected_instruction_hex": "4e800020"
+    },
+    "malformed.elf": {
+      "bytes": 5,
+      "sha256": "cbb24a434399ae70351cd1492fdd22eaea0760682b4458ec6eb7fe6be15df3bb",
+      "base64": "f0VMRgI=",
+      "inventory_format": "unknown",
+      "scope": "Truncated ELF remains unknown, not accepted executable"
+    },
+    "plain.dat": {
+      "bytes": 27,
+      "sha256": "e34686e740ab107de324bc1299e62add6913d0998d8a8536deb0417fd5eccb7d",
+      "base64": "aGVybWVzLW93bmVkLXBsYWluLWNvbnRlbnQK",
+      "inventory_format": "file",
+      "scope": "Ordinary root/member bytes only"
+    },
+    "fake.hop": {
+      "bytes": 29,
+      "sha256": "bd22b2b92c6077c7a5b59c2ecdb6bac86940d875bb14a3ed0af84cfd7d8f8848",
+      "base64": "aGVybWVzLW5vdC1hLWhvcHBlci1kYXRhYmFzZQo=",
+      "inventory_format": "file",
+      "scope": "Member suffix does not prove an actual Hopper database"
+    }
+  }
+}

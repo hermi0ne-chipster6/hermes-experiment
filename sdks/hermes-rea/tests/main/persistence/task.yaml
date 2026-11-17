@@ -1,0 +1,38 @@
+summary: Preserve real Evidence and replay Ghidra analysis snapshots across Workshop refresh
+prepare: |
+  cp ../launch/functional.py .
+  envsubst '${BASE}' <workshop.yaml.in >workshop.yaml
+  workshop launch
+  workshop changes
+  workshop tasks
+  workshop info
+  # Fixture compiler/linker inputs are test prerequisites, not SDK runtime dependencies.
+  workshop exec -I </dev/null -- sudo apt-get update
+  workshop exec -I </dev/null -- sudo eatmydata apt-get install gcc libc6-dev
+restore: |
+  workshop remove || true
+  workshop changes
+  workshop tasks
+  # info returns exit1 after successful removal; list proves the final Off state.
+  workshop info || true
+  workshop list --no-headers | MATCH '[[:space:]]Off[[:space:]]'
+  rm -f functional.py .workshop/persistence-refresh/sdk.yaml
+  rmdir .workshop/persistence-refresh .workshop 2>/dev/null || true
+execute: |
+  workshop exec -I </dev/null -- sudo -Hu rea bash -c 'cd /var/lib/hermes-rea/work && exec "$@"' -- python3 /project/persistence.py prepare --state /var/lib/hermes-rea/work/sdk-persistence
+  # An unchanged refresh may be a no-op. Adding this inert test SDK requires
+  # the applied refresh lifecycle while leaving the tested SDK bytes unchanged.
+  mkdir -p .workshop/persistence-refresh
+  cp refresh-sdk.yaml .workshop/persistence-refresh/sdk.yaml
+  printf '  - name: project-persistence-refresh\n' >>workshop.yaml
+  workshop refresh
+  workshop changes
+  workshop tasks
+  workshop info | MATCH 'status:\s+ready'
+  workshop info | MATCH 'persistence-refresh'
+  workshop exec -I </dev/null -- sudo -Hu rea bash -c 'cd /var/lib/hermes-rea/work && exec "$@"' -- python3 /project/persistence.py verify --state /var/lib/hermes-rea/work/sdk-persistence
+debug: |
+  workshop info || true
+  workshop tasks || true
+  workshop exec -I </dev/null -- sudo cat /var/lib/hermes-rea/work/sdk-persistence/prepare/results.json || true
+  workshop exec -I </dev/null -- sudo cat /var/lib/hermes-rea/work/sdk-persistence/verify/results.json || true

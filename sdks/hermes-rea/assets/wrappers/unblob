@@ -1,0 +1,5 @@
+#!/bin/bash
+set -euo pipefail
+sdk_dir=$(dirname "$(dirname "$(readlink -f "$0")")")
+export PYTHONPATH="$sdk_dir/providers/unblob"
+exec /usr/bin/python3 -P -m unblob.cli "$@"

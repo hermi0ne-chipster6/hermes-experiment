@@ -1,0 +1,7 @@
+#!/bin/bash
+set -euo pipefail
+sdk_dir=$(dirname "$(dirname "$(readlink -f "$0")")")
+# Shared with the fixed SSH launcher; preserve caller-selected provider settings.
+# shellcheck source=/dev/null
+source "$sdk_dir/wrappers/rea-environment"
+exec "$sdk_dir/node/bin/node" "$sdk_dir/rea/node_modules/rea-agents/scripts/rea.mjs" "$@"

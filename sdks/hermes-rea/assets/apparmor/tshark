@@ -1,0 +1,8 @@
+# REA receives TShark output through inherited, unnamed Node.js Unix sockets.
+# No network listeners or named Unix socket connections are authorized here.
+unix (send, receive) type=stream addr=none peer=(addr=none, label=unconfined),
+# Owned worker captures, snapshots selected there, and diagnostic output.
+owner /var/lib/hermes-rea/work/{,**} rw,
+owner /var/lib/hermes-rea/inbox/{,**} r,
+# The declared Workshop project can supply capture inputs; no write grant.
+/project/{,**} r,

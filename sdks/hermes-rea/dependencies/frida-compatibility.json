@@ -1,0 +1,115 @@
+{
+  "schema_version": 1,
+  "status": "documented_provider_override",
+  "reviewed_at": "2026-11-17",
+  "scope": "Explicit SDK Frida provider override for Linux x64; no REA engine source or original lockfile change",
+  "engine": {
+    "version": "6.9.0",
+    "commit": "51459cf203ae1eb6b586a95b21899eaa0f631823",
+    "optional_dependency": {
+      "frida": "17.23.2"
+    },
+    "allow_scripts_entry": {
+      "frida@17.23.2": true
+    },
+    "original_package_json_and_lock_preserved": true
+  },
+  "baseline": {
+    "version": "17.23.2",
+    "registry_metadata_url": "https://registry.npmjs.org/frida/17.23.2",
+    "npm_tarball_url": "https://registry.npmjs.org/frida/-/frida-17.23.2.tgz",
+    "bytes": 1059441,
+    "sha256": "a28736d6d34d7984583951ad4310d9bacd6bd21ebcda86eb2a977e6a95cbbd55",
+    "integrity": "sha512-gRCmmTUFdEILyHRN1b66erRoXafwsfWTqXyoBBqkSCFX0Ue7Jhvs/KhA3JO0XrgITNlPd91QAGsFvWzh0mhVgg==",
+    "checksum_verification": "SHA256 and SHA512 computed from downloaded tarball; SHA512 matches registry integrity and original REA lockfile"
+  },
+  "candidate": {
+    "version": "17.25.1",
+    "registry_metadata_url": "https://registry.npmjs.org/frida/17.25.1",
+    "npm_tarball_url": "https://registry.npmjs.org/frida/-/frida-17.25.1.tgz",
+    "bytes": 1232593,
+    "sha256": "81c475d3425a3748007efdc80ebd2c747a44694627e2aab11999675536f9ec04",
+    "integrity": "sha512-Lh0+ymWrhBa9/6g8rJmmEtmmWij13wi1wdHzi4nTkx7fRyZFKYylLY8gXIVae+SFZsMuSaoK5K/Vm3gfVKpTCg==",
+    "checksum_verification": "SHA256 and SHA512 computed from downloaded tarball; SHA512 matches registry integrity",
+    "native_asset": {
+      "name": "frida-v17.25.1-napi-v8-linux-x64.tar.gz",
+      "url": "https://github.com/frida/frida/releases/download/17.25.1/frida-v17.25.1-napi-v8-linux-x64.tar.gz",
+      "bytes": 52530484,
+      "sha256": "28f6bf3a8926288ffe79f415777256a37213c2d217cdab4ee81b225b096854bb",
+      "digest_source": "https://api.github.com/repos/frida/frida/releases/tags/17.25.1",
+      "checksum_verification": "Downloaded native payload SHA256 verified locally against official release asset digest"
+    }
+  },
+  "package_comparison": {
+    "package_json_changed_keys": [
+      "version"
+    ],
+    "dependencies_equal": true,
+    "dependencies": {
+      "bindings": "^1.5.0",
+      "minimatch": "^10.0.1",
+      "prebuild-install": "^7.1.3"
+    },
+    "original_lock_resolved_direct_dependencies": {
+      "bindings": "1.5.0",
+      "minimatch": "10.2.5",
+      "prebuild-install": "7.1.3"
+    },
+    "dev_dependencies_equal": true,
+    "dev_dependencies": {
+      "@types/bindings": "^1.5.5",
+      "@types/chai": "^5.2.1",
+      "@types/mocha": "^10.0.10",
+      "@types/node": "^22.13.16",
+      "chai": "^5.2.0",
+      "mocha": "^11.1.0",
+      "ts-node": "^10.9.2",
+      "typescript": "^5.8.2"
+    },
+    "optional_dependencies": {},
+    "peer_dependencies": {},
+    "engines": {
+      "node": ">=16"
+    },
+    "type": "module",
+    "main": "build/src/frida.js",
+    "exports": {
+      ".": "./build/src/frida.js"
+    },
+    "install_script": "node scripts/install.js",
+    "binary": {
+      "host": "https://github.com",
+      "remote_path": "frida/frida/releases/download/{version}",
+      "module_path": "build",
+      "napi_versions": [
+        8
+      ]
+    },
+    "config": {
+      "runtime": "napi",
+      "target": "8"
+    },
+    "license": "LGPL-2.0 WITH WxWindows-exception-3.1",
+    "runtime_js_and_type_files_byte_identical": {
+      "build/src/frida.js": "408959cd8daa899370884ea4c7d763916b1ea2960ef4ce8118956870a600bda9",
+      "build/src/frida_binding.d.ts": "16db79ce74b7b99b2a659977b50985b6b1446692abd771c7c5d5d7c80a6e9938",
+      "build/src/frida.d.ts": "5de5a1ae83d1b0fa47c8580c73c6790e4cea2b6ff497c0277de927e790899405"
+    },
+    "runtime_js_and_type_files_added": [],
+    "runtime_js_and_type_files_removed": [],
+    "compatibility_conclusion": "Published JavaScript/type surface and dependency requirements are unchanged. Direct installed-runtime probe reproduces15 failures with17.23.2 and passes all37 checks with17.25.1; same-session engine validation and final package acceptance are recorded separately."
+  },
+  "official_sources": {
+    "sigchld_issue": "https://github.com/frida/frida-node/issues/121",
+    "fix_release": "https://frida.re/news/2026/10/30/frida-17-25-0-released/",
+    "followup_release": "https://frida.re/news/2026/11/01/frida-17-25-1-released/",
+    "candidate_release": "https://github.com/frida/frida/releases/tag/17.25.1"
+  },
+  "required_gates": [
+    "Retain failing 17.23.2 reproduction and matching successful 17.25.1 owned-child SIGCHLD/exit-event probe under the same Node/runtime conditions",
+    "Pass actual REA Frida spawn/attach/script/message/unload/resume/close workflows and subsequent child-process operations in the same MCP process",
+    "Verify downloaded native archive SHA256 and package tarball SHA256/SRI before candidate installation",
+    "Install the complete matched 17.25.1 npm package and native asset, record an explicit SDK provider override, preserve original engine source/package.json/package-lock.json",
+    "Rebuild and freshly reinstall the final SDK artifact, verify runtime resolution/version and rerun required integration tests"
+  ]
+}

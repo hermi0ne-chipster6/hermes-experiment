@@ -1,0 +1,11 @@
+# Register the locally built SDK with `sdkcraft try /path/to/artifact.sdk`
+# as the ordinary user who will launch this Workshop. Save this file as
+# workshop.yaml in that user's project directory. No release is published.
+name: rea
+base: ubuntu@26.04
+sdks:
+  # Own Docker daemon inside this Workshop; no host socket connection.
+  # Order matters: the upstream Docker SDK checks for an existing CLI.
+  - name: docker-ce
+    channel: latest/stable
+  - name: try-hermes-rea

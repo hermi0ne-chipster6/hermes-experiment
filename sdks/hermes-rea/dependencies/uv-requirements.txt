@@ -1,0 +1,2 @@
+# Build-only tool for pwndbg's upstream frozen lock, Linux amd64.
+uv==0.12.0 --hash=sha256:cbff74f884846d794713670faf8abe10db3bd70c43b01e63223f74eb7d958689
