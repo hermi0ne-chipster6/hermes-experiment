@@ -10,11 +10,19 @@
 
 Stable releases use the official Nous Research GitHub release ID, tag,
 publication timestamp and resolved commit. Discovery follows all release pages.
-It excludes drafts, prereleases, canaries and legacy calendar tags. Upgrades
-queue in version order. The workflow opens one PR per release and qualifies
-the oldest outstanding candidate first. It retains merged identities in
-`release/hermes-stable-history.json` and keeps pending identities on their PRs.
-Missing metadata, changed release IDs and moved tags stop preparation.
+It excludes drafts, prereleases, canaries and legacy calendar tags. Newly
+observed versions above the installed pin queue in version order. Before
+generating candidates, the workflow records every observed identity on the
+`release/hermes-state` branch by fast-forward push. The state branch holds
+metadata only. This preserves the first resolved commit even when candidate
+generation or PR creation fails. Preserve that branch's history and block
+force pushes and deletion where branch protection is available.
+
+The workflow opens one PR per queued release and qualifies the oldest candidate
+first. It also retains merged identities in `release/hermes-stable-history.json`.
+Ledger divergence, missing metadata, changed release IDs and moved tags stop
+preparation. A competing update to the state branch can reject a push. The
+next run reloads the branch before proceeding.
 
 The generator updates Workshop A pins, its dependency locks and upstream
 provenance. It leaves Workshop B, Workshop C and independently managed plugins
@@ -53,8 +61,9 @@ Strict branch protection stops GitHub from merging after the target moves.
    passwordless build privileges and enough capacity. Spread's VM tests need
    working KVM. Restrict the runner to trusted jobs and use synthetic state.
 
-Repository writes stop at the PR. The exact tested SDK artifact, its checksum
-and the last-known-good artifact are needed for separately authorized Store
+Repository automation updates the observation branch and release PRs and uses
+GitHub auto-merge for qualified candidates. The exact tested SDK artifact,
+its checksum and the last-known-good artifact are needed for separately authorized Store
 publication and Workshop refresh. See [publishing](../publishing.md).
 
 ## Exact artifact and rollback

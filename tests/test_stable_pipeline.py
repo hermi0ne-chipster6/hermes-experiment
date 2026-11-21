@@ -1,3 +1,6 @@
+from pathlib import Path
+import subprocess
+import tempfile
 import unittest
 from unittest.mock import Mock, patch
 
@@ -76,6 +79,8 @@ class StablePipelineTests(unittest.TestCase):
                             gh=lambda *_args, **_kwargs: records, resolve_tag=revisions.__getitem__,
                             assert_candidate=lambda *_args: None),
               patch.object(pipeline, 'history', return_value=(current, observed, observed, {})),
+              patch.object(pipeline, 'load_observations', return_value=('', {})),
+              patch.object(pipeline, 'record_observations'),
               patch.object(pipeline, 'generate', return_value='e' * 40) as generate,
               patch.object(pipeline, 'publish', side_effect=lambda _, item, *args: (item['tag'], args)) as publish):
             first = pipeline.prepare('fixture')
@@ -167,3 +172,75 @@ class StablePipelineTests(unittest.TestCase):
         self.assertEqual(git.call_args.args[-4:], ('push', f'--force-with-lease={full_ref}:{old}',
                                                  'origin', f'{head}:{full_ref}'))
         api.assert_called_once_with('repos/fixture/pulls/9')
+
+    def test_observation_is_recorded_before_a_failed_candidate_and_flags_future_tag_drift(self):
+        base = 'a' * 40
+        current, pending = 'v0.23.3', 'v0.23.4'
+        observed = {current: {'revision': 'a' * 40}}
+        records = [release(current, 2), release(pending, 3)]
+        revisions = {current: 'a' * 40, pending: 'b' * 40}
+        stored = {}
+        calls = Mock()
+
+        def record(_, old, new):
+            self.assertEqual(old, stored)
+            stored.update(new)
+            calls.observation()
+
+        calls.generate.side_effect = ValueError('simulated generator failure')
+        with (patch.multiple(pipeline, main_tip=lambda _repo: base, run=lambda *_args: base,
+                            gh=lambda *_args, **_kwargs: records, resolve_tag=revisions.__getitem__),
+              patch.object(pipeline, 'history', return_value=(current, observed, observed, {})),
+              patch.object(pipeline, 'load_observations', side_effect=lambda _repo: ('', stored.copy())),
+              patch.object(pipeline, 'record_observations', side_effect=record),
+              patch.object(pipeline, 'generate', calls.generate)):
+            with self.assertRaisesRegex(ValueError, 'could not be prepared'):
+                pipeline.prepare('fixture')
+            self.assertEqual([call[0] for call in calls.mock_calls], ['observation', 'generate'])
+            self.assertEqual(stored[pending]['revision'], revisions[pending])
+
+            revisions[pending] = 'c' * 40
+            with self.assertRaisesRegex(ValueError, 'Previously observed tag.*moved'):
+                pipeline.prepare('fixture')
+            self.assertEqual(calls.generate.call_count, 1)
+
+    def test_observed_release_identity_cannot_be_replaced_by_pr_or_pin(self):
+        original = {'v0.23.4': {'id': 3, 'revision': 'a' * 40,
+                                'published_at': '2026-11-20T00:00:00Z'}}
+        self.assertEqual(pipeline.combine_observations(original, {'v0.23.4': {'id': 3}}), original)
+        with self.assertRaisesRegex(ValueError, 'Conflicting persisted'):
+            pipeline.combine_observations(original, {'v0.23.4': {'id': 4}})
+
+    def test_observation_ref_rejects_divergent_git_pushes(self):
+        with tempfile.TemporaryDirectory() as scratch:
+            repo = Path(scratch) / 'checkout'
+            repo.mkdir()
+            def git(*command, stdin=None):
+                result = subprocess.run(command, cwd=repo, input=stdin, text=True,
+                                        capture_output=True, check=True, timeout=15)
+                return result.stdout.strip()
+
+            git('git', 'init', '--bare', str(Path(scratch) / 'remote.git'))
+            git('git', 'init')
+            git('git', 'remote', 'add', 'origin', str(Path(scratch) / 'remote.git'))
+            full_ref = 'refs/heads/' + pipeline.OBSERVATION_BRANCH
+
+            def remote_head():
+                row = git('git', 'ls-remote', 'origin', full_ref)
+                return row.split()[0] if row else ''
+
+            first = {'v0.23.3': {'id': 2, 'revision': 'a' * 40,
+                                 'published_at': '2026-11-20T00:00:00Z'}}
+            second = {**first, 'v0.23.4': {'id': 3, 'revision': 'b' * 40,
+                                        'published_at': '2026-11-21T00:00:00Z'}}
+            divergent = {**first, 'v0.24.0': {'id': 4, 'revision': 'c' * 40,
+                                             'published_at': '2026-11-21T00:00:00Z'}}
+            with (patch.object(pipeline, 'run', side_effect=git),
+                  patch.object(pipeline, 'branch_head', side_effect=lambda *_args: remote_head())):
+                pipeline.record_observations('', {}, first)
+                head, observed = pipeline.load_observations('fixture')
+                self.assertEqual(observed, first)
+                pipeline.record_observations(head, observed, second)
+                with self.assertRaises(subprocess.CalledProcessError):
+                    pipeline.record_observations(head, observed, divergent)
+                self.assertEqual(pipeline.load_observations('fixture')[1], second)

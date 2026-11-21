@@ -17,6 +17,9 @@ BOT_LOGIN = 'github-actions[bot]'
 ACTIONS_APP_ID = 15368
 STATUS_CONTEXT = 'Hermes stable release qualification'
 HISTORY = 'release/hermes-stable-history.json'
+OBSERVATION_BRANCH = 'release/hermes-state'
+OBSERVATION_FILE = 'observations.json'
+OBSERVATION_KEYS = ('id', 'revision', 'published_at')
 SDK = 'sdks/hermes-experiment/'
 SCOPE = {'sources.json', HISTORY, 'release/upstream-locks/provenance.json', 'release/upstream-locks/hermes/pm/lock.json',
          *(SDK + name for name in ('VERSION', 'sdkcraft.yaml', 'core-requirements.txt',
@@ -263,11 +266,64 @@ def branch_head(repo, ref):
     return next((row['object']['sha'] for row in rows if row['ref'] == 'refs/heads/' + ref), '')
 
 
+def git_remote(*args):
+    return run('git', '-c', 'credential.helper=', '-c', 'credential.helper=!gh auth git-credential', *args)
+
+
 def fetch_commit(sha):
     if not REVISION.fullmatch(sha):
-        raise ValueError('Invalid candidate or target commit')
-    run('git', '-c', 'credential.helper=', '-c', 'credential.helper=!gh auth git-credential',
-        'fetch', '--no-tags', 'origin', sha)
+        raise ValueError('Invalid remote commit')
+    git_remote('fetch', '--no-tags', 'origin', sha)
+
+
+def combine_observations(observed, additional):
+    result = dict(observed)
+    for tag, pin in additional.items():
+        previous = result.get(tag, {})
+        if any(previous[key] != pin[key] for key in previous.keys() & pin.keys()):
+            raise ValueError(f'Conflicting persisted release identity for {tag}')
+        result[tag] = previous | pin
+    return result
+
+
+def load_observations(repo):
+    head = branch_head(repo, OBSERVATION_BRANCH)
+    if not head:
+        return '', {}
+    fetch_commit(head)
+    observed, expected_parents = {}, []
+    for row in run('git', 'rev-list', '--parents', '--reverse', head).splitlines():
+        commit, *parents = row.split()
+        tree = run('git', 'ls-tree', commit)
+        if (parents != expected_parents or
+                not re.fullmatch(r'100644 blob [0-9a-f]{40}\t' + re.escape(OBSERVATION_FILE), tree)):
+            raise ValueError('Unexpected structure in the observation ledger')
+        snapshot = json.loads(run('git', 'show', f'{commit}:{OBSERVATION_FILE}'))
+        if not isinstance(snapshot, dict) or any(
+            not isinstance(pin, dict) or pin.keys() != set(OBSERVATION_KEYS)
+            for pin in snapshot.values()
+        ):
+            raise ValueError('Invalid release identity in the observation ledger')
+        if any(snapshot.get(tag) != pin for tag, pin in observed.items()):
+            raise ValueError('Release observation history is not append-only')
+        observed, expected_parents = snapshot, [commit]
+    return head, observed
+
+
+def record_observations(head, old, new):
+    if old == new:
+        return
+    if any(new.get(tag) != pin for tag, pin in old.items()):
+        raise ValueError('Refusing to change an existing release observation')
+    blob = run('git', 'hash-object', '-w', '--stdin', stdin=json.dumps(new, indent=2, sort_keys=True)+'\n')
+    tree = run('git', 'mktree', stdin=f'100644 blob {blob}\t{OBSERVATION_FILE}\n')
+    parents = ('-p', head) if head else ()
+    pending = run('git', '-c', f'user.name={BOT_LOGIN}',
+                  '-c', f'user.email={BOT_ID}+{BOT_LOGIN}@users.noreply.github.com',
+                  '-c', 'commit.gpgsign=false', 'commit-tree', tree, *parents,
+                  '-m', 'Record observed Hermes stable release identities')
+    # A non-fast-forward rejection stops this run before it creates any PRs.
+    git_remote('push', 'origin', f'{pending}:refs/heads/{OBSERVATION_BRANCH}')
 
 
 def publish(repo, release, base, head, existing):
@@ -293,8 +349,7 @@ def publish(repo, release, base, head, existing):
         raise ValueError('Target changed during preparation. The next run will regenerate candidates.')
     if old != head:
         full_ref = 'refs/heads/' + ref
-        run('git', '-c', 'credential.helper=', '-c', 'credential.helper=!gh auth git-credential',
-            'push', f'--force-with-lease={full_ref}:{old}', 'origin', f'{head}:{full_ref}')
+        git_remote('push', f'--force-with-lease={full_ref}:{old}', 'origin', f'{head}:{full_ref}')
     if existing is None:
         existing = gh(f'repos/{repo}/pulls', method='POST', payload={
             'head': ref, 'base': 'main', 'title': f"Update Hermes core to {release['tag']}",
@@ -311,20 +366,24 @@ def prepare(repo):
     if run('git', 'rev-parse', 'HEAD') != base:
         raise ValueError('Trusted main checkout is stale. Run release discovery on the current main tip.')
     current, installed_history, ledger, existing = history(repo)
+    state_head, previous = load_observations(repo)
+    ledger = combine_observations(previous, ledger)
     releases = gh(f'repos/{UPSTREAM}/releases?per_page=100', pages=True)
     queue = discover(releases, current, ledger, resolve_tag)
-    print('Stable releases awaiting qualification:', ', '.join(item['tag'] for item in queue) or 'none',
-          flush=True)
-    if not queue:
-        return None
-
-    # The generated PR preserves its own identity even if qualification fails.
-    # Keep the commit on the same base identical when new releases arrive later.
     published_current = next(item for item in releases if item['tag_name'] == current
                              and not item['prerelease'] and not item['draft'])
     installed_history[current] = {'id': published_current['id'],
                                   'published_at': published_current['published_at'],
                                   'revision': ledger[current]['revision']}
+    new_observations = combine_observations(ledger, {current: installed_history[current]})
+    new_observations.update({item['tag']: {key: item[key] for key in OBSERVATION_KEYS} for item in queue})
+    record_observations(state_head, previous, new_observations)
+    print('Stable releases awaiting qualification:', ', '.join(item['tag'] for item in queue) or 'none',
+          flush=True)
+    if not queue:
+        return None
+
+    # Keep a candidate commit unchanged on the same base if new releases arrive.
     oldest = None
     for index, item in enumerate(queue):
         prior = existing.get(item['tag'])
