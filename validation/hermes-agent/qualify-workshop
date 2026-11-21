@@ -97,7 +97,8 @@ else
         ln -s /etc/hermes-experiment/original-charter.md /project/.hermes.md'
 fi
 check_candidate
-inside /var/lib/workshop/sdk/hermes-experiment/bin/python /project/probe.py exercise
+exercise_result=0
+inside /var/lib/workshop/sdk/hermes-experiment/bin/python /project/probe.py exercise || exercise_result=$?
 wk stop
 wk start
 check_candidate
@@ -123,4 +124,6 @@ try_sdk "$previous"
 wk refresh
 test "$(version | grep -F 'Hermes Agent v')" = "$previous_version"
 inside /var/lib/workshop/sdk/hermes-experiment/bin/python /project/probe.py rollback-continuity
-echo 'Passed exact-artifact Workshop acceptance, restart, refresh and rollback.'
+echo 'Passed persisted state checks after restart, refresh and rollback.'
+test "$exercise_result" -eq 0
+echo 'Passed exact-artifact Workshop acceptance.'

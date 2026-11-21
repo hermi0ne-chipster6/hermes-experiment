@@ -4,6 +4,8 @@ set -euo pipefail
 sdk_dir=$(dirname "$(dirname "$(readlink -f "$0")")")
 export HERMES_PYTHON_SRC_ROOT="$sdk_dir/hermes-src"
 export HERMES_INSTALL_ROOT="$sdk_dir/hermes-src"
+# The packaged dashboard serves its built assets from the immutable SDK.
+export HERMES_WEB_DIST="${HERMES_WEB_DIST:-$sdk_dir/hermes-src/hermes_cli/web_dist}"
 export HERMES_DIARY_PYTHON_PATH="$sdk_dir/diary"
 export PYTHONDONTWRITEBYTECODE=1
 export PYTHONPATH="$sdk_dir/hermes-src:$HERMES_DIARY_PYTHON_PATH"

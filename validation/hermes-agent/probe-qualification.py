@@ -11,6 +11,7 @@ import sys
 import tempfile
 from threading import Thread
 import time
+import traceback
 from urllib.parse import parse_qs, urlsplit
 from urllib.request import urlopen
 
@@ -32,7 +33,8 @@ DEPENDENCY = 'boltons==25.0.0'
 def run(*argv, expected=0, timeout=100, **kwargs):
     result = subprocess.run(argv, capture_output=True, text=True, timeout=timeout, **kwargs)
     if result.returncode != expected:
-        raise RuntimeError(f'{argv[:3]} exited {result.returncode}: {result.stderr[-1200:]}')
+        output = (result.stdout + '\n' + result.stderr).strip()
+        raise RuntimeError(f'{argv[:3]} exited {result.returncode}: {output[-1600:]}')
     return result.stdout
 
 
@@ -95,7 +97,10 @@ def probe_native_tools():
     os.environ['HERMES_INSTALL_ROOT'] = str(SDK / 'hermes-src')
     os.environ['HERMES_PYTHON_SRC_ROOT'] = str(SDK / 'hermes-src')
     os.environ['PATH'] = f'{SDK}/bin:{SDK}/node/bin:' + os.environ['PATH']
-    sys.path.insert(0, str(SDK / 'hermes-src'))
+    # Match assets/bootstrap/hermes when calling the tool implementations directly.
+    paths = [str(SDK / 'hermes-src'), str(SDK / 'diary')]
+    os.environ['PYTHONPATH'] = os.pathsep.join(paths)
+    sys.path[:0] = paths
     import hermes_bootstrap
     from hermes_cli.config import load_config
     from hermes_cli.tools_config import _get_platform_tools
@@ -118,6 +123,7 @@ def probe_native_tools():
         assert MARKER in json.loads(read_file_tool(path)).get('content', '')
     code = json.loads(execute_code('print(6 * 7)', task_id='sdk-qualification'))
     assert code.get('output', code.get('stdout', '')).strip() == '42', code
+    print('Native terminal, file and Python code probes passed.', flush=True)
     class FixturePage(BaseHTTPRequestHandler):
         def do_GET(self):
             content = b'<html><title>qualification-browser</title></html>'
@@ -146,7 +152,7 @@ def probe_native_tools():
     if isinstance(browser, str):
         browser = json.loads(browser)
     assert 'qualification-browser' in browser.get('output', ''), browser
-    print('Native terminal, file, code and local browser probes passed.', flush=True)
+    print('Native local browser navigation passed.', flush=True)
 
 
 def probe_failed_opensandbox():
@@ -215,20 +221,27 @@ def probe_catalog_plugins():
     # Verify the two independently managed plugins using the tested core's own
     # immutable catalog records. These installs stay disabled and run no jobs.
     import yaml
+    errors = []
     for plugin in ('mandate', 'promise-keeper'):
         print(f'Checking optional catalog plugin {plugin}', flush=True)
-        catalog = SDK / 'hermes-src' / 'plugin-catalog' / f'{plugin}.yaml'
-        entry = yaml.safe_load(catalog.read_text())
-        hermes('plugins', 'install', entry['repo'], '--ref', entry['sha'],
-               '--no-enable', '--yes-deps', timeout=180)
-        candidates = [path for path in (PROFILE / 'plugins').iterdir()
-                      if path.is_dir() and (path / '.git').exists()]
-        matched = [path for path in candidates
-                   if run('git', '-C', str(path), 'rev-parse', 'HEAD').strip() == entry['sha']]
-        assert len(matched) == 1, f'Exact installed catalog revision missing for {plugin}'
-        hermes('plugins', 'doctor', str(matched[0]), '--ci')
-        hermes('plugins', 'remove', matched[0].name)
-        print(f'{plugin} pinned install and native doctor passed.', flush=True)
+        try:
+            catalog = SDK / 'hermes-src' / 'plugin-catalog' / f'{plugin}.yaml'
+            entry = yaml.safe_load(catalog.read_text())
+            hermes('plugins', 'install', entry['repo'], '--ref', entry['sha'],
+                   '--no-enable', '--yes-deps', timeout=180)
+            candidates = [path for path in (PROFILE / 'plugins').iterdir()
+                          if path.is_dir() and (path / '.git').exists()]
+            matched = [path for path in candidates
+                       if run('git', '-C', str(path), 'rev-parse', 'HEAD').strip() == entry['sha']]
+            assert len(matched) == 1, f'Exact installed catalog revision missing for {plugin}'
+            hermes('plugins', 'doctor', str(matched[0]), '--ci')
+            hermes('plugins', 'remove', matched[0].name)
+            print(f'{plugin} pinned install and native doctor passed.', flush=True)
+        except Exception as error:
+            errors.append(error)
+            traceback.print_exc()
+    if errors:
+        raise ExceptionGroup('Catalog plugin compatibility failures', errors)
 
 
 def probe_web_and_tui():
@@ -295,18 +308,28 @@ def exercise():
     for path in STATE:
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_text(MARKER)
-    probe_plugins()
-    probe_native_tools()
-    probe_web_and_tui()
-    probe_integrations()
-    probe_catalog_plugins()
+    errors = []
+    for probe in (probe_plugins, probe_native_tools, probe_web_and_tui,
+                  probe_integrations, probe_catalog_plugins):
+        try:
+            probe()
+        except Exception as error:
+            errors.append(error)
+            traceback.print_exc()
     with (PROFILE / 'config.yaml').open('a') as config:
         config.write('\n# qualification-operator-edit\n')
     continuity()
+    if errors:
+        raise ExceptionGroup('Workshop acceptance failures', errors)
 
 
 if __name__ == '__main__':
-    if sys.argv[1] == 'exercise':
+    mode = sys.argv[1]
+    if mode == 'exercise':
         exercise()
+    elif mode == 'native-tools':
+        probe_native_tools()
+    elif mode in {'continuity', 'rollback-continuity'}:
+        continuity(rollback=mode == 'rollback-continuity')
     else:
-        continuity(rollback=sys.argv[1] == 'rollback-continuity')
+        raise SystemExit(f'Unknown qualification probe: {mode}')
