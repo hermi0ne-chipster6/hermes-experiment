@@ -39,12 +39,15 @@ Strict branch protection stops GitHub from merging after the target moves.
    merges. The release workflow uses the repository's temporary
    `GITHUB_TOKEN` with job-scoped permissions.
 2. On an eligible GitHub plan, activate a ruleset for `main` with no bypass
-   actors. Require pull requests and the exact status
+   actors. Block force pushes, require pull requests and require the exact status
    `Hermes stable release qualification` from the GitHub Actions App, with the
    requirement that branches be up to date before merging. The ruleset also
    applies to human PRs, which need the same qualification status from a
    trusted operator workflow. PR-event checks for Actions-created PRs require
    approval, so avoid requiring those contexts for unattended candidates.
+   GitHub omits the bypass list from the workflow token's ruleset response.
+   Keep that list empty in the repository settings. The finalizer uses GitHub's
+   ordinary auto-merge operation and checks the effective strict status rule.
 3. Register a dedicated disposable Ubuntu 26.04 AMD64 runner with
    `self-hosted, linux, x64, hermes-sdk-build`. It needs Workshop, SDKcraft, LXD,
    passwordless build privileges and enough capacity. Spread's VM tests need

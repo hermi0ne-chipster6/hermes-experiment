@@ -1,6 +1,5 @@
 from pathlib import Path
 import json
-import os
 import subprocess
 import tempfile
 import unittest
@@ -15,6 +14,13 @@ class HeartbeatEntryTests(unittest.TestCase):
             command = root / 'workshop'
             command.write_text('#!/usr/bin/python3\nimport json,sys\nprint(json.dumps(sys.argv[1:]))\n')
             command.chmod(0o755)
+            runuser = root / 'runuser'
+            runuser.write_text(
+                '#!/bin/bash\n'
+                '[[ $1 == -u && $2 == admin && $3 == -- ]] || exit 64\n'
+                'shift 3\nexec "$@"\n'
+            )
+            runuser.chmod(0o755)
             environment = {'PATH': f'{root}:/usr/bin:/bin',
                            'HERMES_HEARTBEAT_RUN_ID': 'a' * 32,
                            'HERMES_DIARY_REQUEST_ID': 'heartbeat:' + 'a' * 32}

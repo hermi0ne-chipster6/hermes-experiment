@@ -45,12 +45,15 @@ class StablePipelineTests(unittest.TestCase):
 
     def test_protection_demands_strict_checks_and_disallows_bypass(self):
         rules = [{'type': 'pull_request', 'ruleset_id': 8},
+                 {'type': 'non_fast_forward', 'ruleset_id': 8},
                  {'type': 'required_status_checks', 'ruleset_id': 8, 'parameters': {
                      'strict_required_status_checks_policy': True,
                      'required_status_checks': [{'context': pipeline.STATUS_CONTEXT,
                                                  'integration_id': pipeline.ACTIONS_APP_ID}]}}]
         settings = {8: {'enforcement': 'active', 'bypass_actors': []}}
         self.assertTrue(pipeline.protection_ready(rules, settings))
+        self.assertTrue(pipeline.protection_ready(rules, {8: {'enforcement': 'active'}}))
+        self.assertFalse(pipeline.protection_ready([rules[0], rules[-1]], settings))
         self.assertFalse(pipeline.protection_ready(rules, {8: {'enforcement': 'active', 'bypass_actors': [{}]}}))
         rules[-1]['parameters']['strict_required_status_checks_policy'] = False
         self.assertFalse(pipeline.protection_ready(rules, settings))

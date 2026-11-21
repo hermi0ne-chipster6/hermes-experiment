@@ -19,6 +19,7 @@ class BootstrapTests(unittest.TestCase):
             (root/'bin/hermes').chmod(0o755)
             package=root/'hermes-src/hermes_cli'
             package.mkdir(parents=True)
+            (package.parent/'hermes_bootstrap.py').write_text('# Native bootstrap fixture.\n')
             (package/'__init__.py').write_text('')
             (package/'main.py').write_text('import json\ndef main():\n    return 0\n')
             cwd=root/'untrusted'
@@ -37,6 +38,7 @@ class BootstrapTests(unittest.TestCase):
             (root/'bin/hermes').chmod(0o755)
             package=root/'hermes-src/hermes_cli'
             package.mkdir(parents=True)
+            (package.parent/'hermes_bootstrap.py').write_text('# Native bootstrap fixture.\n')
             (package/'__init__.py').write_text('')
             (package/'main.py').write_text('def main():\n    return 7\n')
             result=subprocess.run([str(root/'bin/hermes'),'--version'],env={'PATH':'/usr/bin:/bin'},capture_output=True,text=True)

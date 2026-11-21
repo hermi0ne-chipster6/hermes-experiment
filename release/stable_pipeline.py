@@ -130,12 +130,16 @@ def recognized(pr, release, repo, *, open_only=True):
 
 def protection_ready(rules, settings):
     pr_rulesets = {rule['ruleset_id'] for rule in rules if rule['type'] == 'pull_request'}
+    if not any(rule['type'] == 'non_fast_forward' for rule in rules):
+        return False
     for rule in rules:
         if rule['type'] != 'required_status_checks' or rule['ruleset_id'] not in pr_rulesets:
             continue
         config = settings[rule['ruleset_id']]
         params = rule['parameters']
-        if (config.get('enforcement') == 'active' and config.get('bypass_actors') == []
+        # GitHub hides this field from tokens without ruleset write access.
+        # Native auto-merge uses its ordinary required-check path.
+        if (config.get('enforcement') == 'active' and config.get('bypass_actors', []) == []
                 and params.get('strict_required_status_checks_policy') is True
                 and any(check['context'] == STATUS_CONTEXT and check.get('integration_id') == ACTIONS_APP_ID
                         for check in params['required_status_checks'])):
@@ -364,7 +368,7 @@ def require_protection(repo):
     configs = {rule_id: gh(f'repos/{repo}/rulesets/{rule_id}') for rule_id in
                {rule['ruleset_id'] for rule in rules if rule['type'] == 'required_status_checks'}}
     if not protection_ready(rules, configs):
-        raise ValueError('No active strict no-bypass main ruleset requires the qualification status')
+        raise ValueError('Main requires an active strict qualification ruleset and a force-push block')
 
 
 def finalize(repo, candidate, result):
