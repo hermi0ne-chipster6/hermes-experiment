@@ -1,4 +1,5 @@
 """Exercise the installed Hermes package with disposable state and local fixtures."""
+from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 import importlib.util
 import json
 import os
@@ -7,6 +8,7 @@ import socket
 import subprocess
 import sys
 import tempfile
+from threading import Thread
 import time
 from urllib.request import urlopen
 
@@ -107,11 +109,31 @@ def probe_native_tools():
         assert MARKER in json.loads(read_file_tool(path)).get('content', '')
     code = json.loads(execute_code('print(6 * 7)', task_id='sdk-qualification'))
     assert code.get('output', code.get('stdout', '')).strip() == '42', code
-    browser = browser_exec(
-        'new_tab("data:text/html,<title>qualification-browser</title>")\n'
-        'wait_for_load()\nprint(js("document.title"))',
-        session='sdk-qualification', timeout_s=90, local=True,
-    )
+    class FixturePage(BaseHTTPRequestHandler):
+        def do_GET(self):
+            content = b'<html><title>qualification-browser</title></html>'
+            self.send_response(200)
+            self.send_header('Content-Type', 'text/html')
+            self.send_header('Content-Length', str(len(content)))
+            self.end_headers()
+            self.wfile.write(content)
+
+        def log_message(self, *_args):
+            pass
+
+    with ThreadingHTTPServer(('127.0.0.1', 0), FixturePage) as server:
+        worker = Thread(target=server.serve_forever, daemon=True)
+        worker.start()
+        try:
+            # The literal loopback URL routes the native tool to its local sidecar.
+            browser = browser_exec(
+                f'new_tab("http://127.0.0.1:{server.server_port}/")\n'
+                'wait_for_load()\nprint(js("document.title"))',
+                session='sdk-qualification', timeout_s=120,
+            )
+        finally:
+            server.shutdown()
+            worker.join(timeout=5)
     if isinstance(browser, str):
         browser = json.loads(browser)
     assert 'qualification-browser' in browser.get('output', ''), browser
