@@ -40,7 +40,9 @@ class ReleaseTests(unittest.TestCase):
         value = candidate('v1.2.0', 'a'*40, release('v1.2.1'), 'b'*40)
         self.assertEqual(value['promotion'], 'requires-review')
         self.assertEqual(value['source_revision'], 'b'*40)
-        self.assertEqual(value['required_checks'], ['unit', 'sdk-a', 'sdk-b', 'sdk-c', 'bridge', 'routing', 'memory', 'heartbeat', 'native-gateways'])
+        self.assertEqual(value['required_checks'], [
+            'source-checks', 'sdk-a-packaging-and-startup', 'sdk-a-spread',
+            'native-tools-and-plugins', 'persistence-and-rollback', 'workshop-integration-boundaries'])
 
     def test_malformed_version_or_revision_cannot_be_promoted(self):
         for tag, sha in [('v01.2.1','b'*40), ('main','b'*40), ('v1.2.1','main'), ('v1.2.1','b'*39)]:

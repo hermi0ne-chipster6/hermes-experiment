@@ -11,6 +11,9 @@ API = 'https://api.github.com/repos/NousResearch/hermes-agent'
 # Match upstream's release-identity rule: calendar-year majors are legacy tags.
 VERSION = re.compile(r'v(0|[1-9][0-9]{0,2})\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\Z')
 REVISION = re.compile(r'[0-9a-f]{40}\Z')
+REQUIRED_CHECKS = ['source-checks', 'sdk-a-packaging-and-startup', 'sdk-a-spread',
+                   'native-tools-and-plugins', 'persistence-and-rollback',
+                   'workshop-integration-boundaries']
 
 
 def version(tag):
@@ -41,8 +44,7 @@ def candidate(current_tag, current_revision, release, revision):
     if new <= old:
         return None
     return {'tag':release['tag_name'], 'source_revision':revision, 'previous_tag':current_tag,
-            'promotion':'requires-review', 'required_checks':[
-                'unit', 'sdk-a', 'sdk-b', 'sdk-c', 'bridge', 'routing', 'memory', 'heartbeat', 'native-gateways']}
+            'promotion':'requires-review', 'required_checks': REQUIRED_CHECKS.copy()}
 
 
 def fetch(path):
