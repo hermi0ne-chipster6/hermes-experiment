@@ -35,14 +35,25 @@ def run(*command, cwd=ROOT, env=None, stdin=None):
 def gh(endpoint, *, pages=False, method='GET', payload=None):
     args = ['gh', 'api', '--method', method]
     if pages:
-        args.extend(('--paginate', '--slurp'))
+        args.append('--paginate')
     if payload is not None:
         args.extend(('--input', '-'))
     result = run(*args, endpoint, stdin=None if payload is None else json.dumps(payload))
     if not result:
         return None
-    data = json.loads(result)
-    return [item for page in data for item in page] if pages else data
+    return decode_pages(result) if pages else json.loads(result)
+
+
+def decode_pages(raw):
+    decoder = json.JSONDecoder()
+    items = []
+    while raw:
+        page, end = decoder.raw_decode(raw)
+        if not isinstance(page, list):
+            raise ValueError('GitHub pagination returned an invalid page')
+        items.extend(page)
+        raw = raw[end:].lstrip()
+    return items
 
 
 def resolve_tag(tag):

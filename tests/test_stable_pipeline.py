@@ -135,3 +135,8 @@ class StablePipelineTests(unittest.TestCase):
                      pipeline.SDK + 'assets/wrappers/hermes'):
             with self.subTest(path=path), self.assertRaises(ValueError):
                 pipeline.changed_paths([*required, path])
+
+    def test_paginated_github_cli_responses(self):
+        self.assertEqual(pipeline.decode_pages('[{"id":1}]\n[]\n[{"id":2}]'), [{'id': 1}, {'id': 2}])
+        with self.assertRaises(ValueError):
+            pipeline.decode_pages('[{"id":1}]{"message":"invalid page"}')
