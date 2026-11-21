@@ -39,3 +39,41 @@ class RuntimeIdentityTests(unittest.TestCase):
 
             stamp.write_text(json.dumps({**identity, 'commit': 'f' * 40}))
             self.assertNotEqual(subprocess.run(command, capture_output=True).returncode, 0)
+
+
+class RuntimeDependencyRefreshTests(unittest.TestCase):
+    def test_native_currency_probe_only_syncs_existing_stale_generation(self):
+        import runpy
+        from types import ModuleType
+        from unittest.mock import Mock, patch
+
+        path = CHECKER.with_name('sync-plugin-dependencies.py')
+        sync = runpy.run_path(str(path))['sync']
+        pm = ModuleType('pm')
+        pm.sync_venv = Mock()
+        environments = ModuleType('pm.environments')
+        install = ModuleType('pm.install')
+        root = Path('/synthetic/sdk/hermes-src')
+        environments.committed_venv = Mock(return_value=None)
+        install.venv_is_current = Mock()
+        with patch.dict(sys.modules, {'pm': pm, 'pm.environments': environments,
+                                     'pm.install': install}):
+            sync(root)
+            install.venv_is_current.assert_not_called()
+            pm.sync_venv.assert_not_called()
+            environments.committed_venv.return_value = Path('/synthetic/profile/installs/venv')
+            install.venv_is_current.return_value = True
+            sync(root)
+            install.venv_is_current.assert_called_once_with(project_root=root)
+            pm.sync_venv.assert_not_called()
+
+            install.venv_is_current.side_effect = [False, True]
+            sync(root)
+            pm.sync_venv.assert_called_once_with(explicit=True)
+            self.assertEqual(install.venv_is_current.call_count, 3)
+
+            install.venv_is_current.side_effect = None
+            install.venv_is_current.return_value = False
+            pm.sync_venv.side_effect = RuntimeError('synthetic resolution failure')
+            with self.assertRaisesRegex(RuntimeError, 'synthetic resolution failure'):
+                sync(root)
