@@ -47,10 +47,8 @@ plugs:
     interface: secret
 parts:
   hermes-agent:
-    plugin: uv
+    plugin: dump
     source: build-source
-    build-snaps:
-    - astral-uv
     build-environment:
     - UV_NO_EDITABLE: '1'
     - UV_PYTHON_DOWNLOADS: manual
@@ -59,79 +57,20 @@ parts:
     - curl
     - ca-certificates
     - git
+    - python3
     - gcc
     - g++
     - make
     - libffi-dev
     - libolm-dev
-    override-pull: 'VERSION=$(cat "$CRAFT_PROJECT_DIR/VERSION")
-
-      craftctl set version="$VERSION"
-
+    override-pull: |
+      set -eu
+      version=$(cat "$CRAFT_PROJECT_DIR/VERSION")
+      craftctl set version="$version"
       rm -rf "$CRAFT_PART_SRC/upstream"
-
-      git clone --depth 1 --branch "v${VERSION}" https://github.com/NousResearch/hermes-agent.git "$CRAFT_PART_SRC/upstream"
-
-      cd "$CRAFT_PART_SRC/upstream"
-
-      test "$(git rev-parse HEAD)" = "bf0203a794a07aac3ff764972ab9087baa4e4f4e"
-
-      '
-    override-build: 'export UV_PYTHON_INSTALL_DIR="$CRAFT_PART_INSTALL/python-runtime"
-
-      uv python install 3.14.7
-
-      PYTHON=$(uv python find 3.14.7)
-
-      uv venv --seed --allow-existing --relocatable --python "$PYTHON" "$CRAFT_PART_INSTALL"
-
-      PYTHON_REL=$(realpath --relative-to="$CRAFT_PART_INSTALL/bin" "$PYTHON")
-
-      ln -snf "$PYTHON_REL" "$CRAFT_PART_INSTALL/bin/python"
-
-      ln -snf python "$CRAFT_PART_INSTALL/bin/python3"
-
-      ln -snf python "$CRAFT_PART_INSTALL/bin/python3.14"
-
-      export PATH="$CRAFT_STAGE/node/bin:$PATH"
-
-      cd "$CRAFT_PART_SRC/upstream"
-
-      npm ci --ignore-scripts --workspace web --workspace ui-tui
-
-      npm run build --workspace web
-
-      npm run build --workspace ui-tui
-
-      VIRTUAL_ENV="$CRAFT_PART_INSTALL" uv sync --frozen --no-dev --no-editable --no-install-project --no-install-package
-      browser-harness --extra web
-
-      uv pip install --exclude-newer 2026-10-28T00:00:00Z --python "$CRAFT_PART_INSTALL/bin/python" --require-hashes
-      -r "$CRAFT_PROJECT_DIR/plugin-requirements.txt"
-
-      uv pip check --python "$CRAFT_PART_INSTALL/bin/python"
-
-      mkdir -p "$CRAFT_PART_INSTALL/hermes-src"
-
-      git archive HEAD | tar -x -C "$CRAFT_PART_INSTALL/hermes-src"
-
-      cp -r hermes_cli/web_dist "$CRAFT_PART_INSTALL/hermes-src/hermes_cli/"
-
-      install -D ui-tui/dist/entry.js "$CRAFT_PART_INSTALL/hermes-src/hermes_cli/tui_dist/entry.js"
-
-      # Use upstream''s canonical stamp builder; no project wheel, Nix guard override,
-
-      # editable finder, mutable source checkout, or runtime application installer.
-
-      "$CRAFT_PART_INSTALL/bin/python" -c ''import runpy,sys; runpy.run_path("scripts/write_install_stamp.py")["write_stamp"](sys.argv[1],
-      update_mechanism="external", commit="bf0203a794a07aac3ff764972ab9087baa4e4f4e", base_version="0.22.5", distance=0,
-      dirty=False, source="ci", distribution="sdkcraft")'' "$CRAFT_PART_INSTALL/hermes-src/install-stamp.json"
-
-      install -D SOUL.md "$CRAFT_PART_INSTALL/share/hermes/SOUL.md"
-
-      uv pip freeze --python "$CRAFT_PART_INSTALL/bin/python" > "$CRAFT_PART_INSTALL/share/hermes/dependencies.txt"
-
-      '
+      timeout 180 git clone --depth 1 --branch "v${version}" https://github.com/NousResearch/hermes-agent.git "$CRAFT_PART_SRC/upstream"
+      test "$(git -C "$CRAFT_PART_SRC/upstream" rev-parse HEAD)" = "caafe5389ae585ef77387a962aee05b1bcf17029"
+    override-build: bash "$CRAFT_PROJECT_DIR/build-source/build-hermes"
     after:
     - node-runtime
     source-type: local
@@ -267,11 +206,11 @@ parts:
   hindsight-runtime:
     plugin: dump
     source: build-source
-    build-snaps:
-    - astral-uv
     after:
     - hermes-agent
-    override-build: 'uv venv --seed --relocatable --python "$CRAFT_STAGE/bin/python" "$CRAFT_PART_INSTALL/hindsight"
+    override-build: 'export PATH="$CRAFT_STAGE/bin:$PATH"
+
+      uv venv --seed --relocatable --python "$CRAFT_STAGE/bin/python" "$CRAFT_PART_INSTALL/hindsight"
 
       ln -snf ../../python-runtime/cpython-3.14.7-linux-x86_64-gnu/bin/python3.14 "$CRAFT_PART_INSTALL/hindsight/bin/python"
 

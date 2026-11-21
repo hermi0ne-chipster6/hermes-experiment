@@ -1,12 +1,15 @@
 {
   "retrieved_at": "2026-10-31",
-  "hermes_commit": "bf0203a794a07aac3ff764972ab9087baa4e4f4e",
+  "hermes_commit": "caafe5389ae585ef77387a962aee05b1bcf17029",
   "reference_sdk_commit": "1585a19881231c919700d8ae7f44d793debe07c9",
   "hermes": {
-    "tag": "v0.22.5",
-    "source": "https://api.github.com/repos/NousResearch/hermes-agent/releases/latest",
-    "published_at": "2026-10-23T05:28:45Z",
-    "assets": []
+    "tag": "v0.23.3",
+    "source": "https://api.github.com/repos/NousResearch/hermes-agent/releases/tags/v0.23.3",
+    "published_at": "2026-11-20T00:34:38Z",
+    "assets": [],
+    "release_id": 451960128,
+    "package_manager": "12.15.0",
+    "plugin_dependency_cutoff": "2026-11-20T00:34:38Z"
   },
   "opensandbox": {
     "tag": "release-1.2.0",
@@ -392,9 +395,6 @@
     "upload_artifact_v4": "ea165f8d65b6e75b540449e92b4886f43607fa02"
   },
   "integration_dependency_cutoff": "2026-10-28T00:00:00Z",
-  "hermes_role_a_dependency_exclusions": {
-    "browser-harness": "Local browser backend is disabled in A under the separate-worker design. Its metadata requires Pillow 12.3.0 while the official frozen Hermes lock selects Pillow 13.0.0; keep the upstream Pillow pin and omit the unused local backend, without patching metadata."
-  },
   "governing_charter": {
     "source": "documentation-review-v0.2/docs/sources/charter-original-hermes.md",
     "sha256": "fab40f6dc5d2416db23e43d83de97c3b59db52c3d2e7bf01c051a7d9bbefd897",

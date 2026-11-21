@@ -17,11 +17,29 @@ This local reference consumes `sdkcraft try`. The published Store SDK is `hermes
 
 ### Prerequisites, project layout
 
-Use an operator-owned read-only configuration directory and an external diary writer. Follow the [activation checklist](../../deployment/activation-checklist.md) before enabling gateways or cron. Independent B/C workers are required for execution and analysis.
+Keep the operator charter and deployment inputs in the read-only configuration mount. The active Hermes profile, installed plugins, and package-manager state live on the persistent Hermes mount. Follow the [activation checklist](../../deployment/activation-checklist.md) before enabling gateways or cron. Native tools run in A. Connect B or C when a task explicitly needs external OpenSandbox execution or REA analysis.
 
 ### Inspect the packaged runtime
 
-Inside A, run `hermes --version`. Runtime self-updates are refused; use a reviewed SDK revision and Workshop refresh. State mounts survive Workshop updates. The gateway starts only after explicit configuration and activation.
+Run `hermes --version` inside A to see the pinned release and source revision.
+Apply core upgrades with a reviewed SDK revision and Workshop refresh. Manage
+operator plugins with upstream `hermes plugins` commands. State mounts survive
+Workshop updates. The gateway starts after explicit configuration and activation.
+
+### Build inputs
+
+The SDK checks the release tag against the commit declared in `sdkcraft.yaml`.
+The Web and TUI build uses the upstream Node, pnpm and frozen workspace lock.
+The Python environment uses the upstream uv lock and enables the Web and MCP
+extras, with a hash-locked overlay for bundled integrations. Native
+`browser-harness` uses upstream's recorded Pillow compatibility override, the
+packaged Chromium system libraries and upstream-managed Chromium.
+
+The bundled integration lock is resolved against the candidate's frozen core
+export, with the release publication timestamp as its cutoff. For v0.23.3 the
+frozen MCP dependencies require OpenTelemetry 1.45.2, published after the
+previous 2026-10-28 integration cutoff. The isolated Hindsight runtime retains
+its original cutoff and lock. Operator-installed plugins keep their own state.
 
 ## Plugs (resources this SDK consumes)
 
@@ -50,7 +68,8 @@ Use the official [Hermes repository](https://github.com/NousResearch/hermes-agen
 
 ## Contributions
 
-Validate source pins, tests and the real SDK try loop before proposing changes. No publication workflow is active here.
+Validate source pins, tests and the real SDK try loop before accepting a core
+change. SDK Store publication and live Workshop refresh are operator actions.
 
 ## License and copyright
 

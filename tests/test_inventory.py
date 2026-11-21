@@ -41,6 +41,27 @@ class InventoryTests(unittest.TestCase):
         self.assertTrue(any(r['kind']=='npm' and 'upstream-locks/hermes/' in ' '.join(r['inputs']) for r in records))
         self.assertTrue(any(r['kind']=='upstream-lock' and 'opensandbox' in r['name'] for r in records))
 
+    def test_hermes_pnpm_integrity_and_browser_lock_are_inventoried(self):
+        records = {record['name']: record for record in inventory(ROOT)}
+        sources = json.loads((ROOT/'sources.json').read_text())
+        self.assertEqual(records['npm:pnpm']['current'], sources['hermes']['package_manager'])
+        self.assertIn('release/upstream-locks/hermes/pm/lock.json', records['npm:pnpm']['inputs'])
+        self.assertIn('release/upstream-locks/hermes/pnpm-lock.yaml', records['npm:@nous-research/ui']['inputs'])
+        self.assertIn('sdks/hermes-experiment/core-requirements.txt', records['pypi:browser-harness']['inputs'])
+
+    def test_pnpm_manifest_changes_require_a_matching_lock(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            for name in ('release', 'sdks', 'ci'):
+                shutil.copytree(ROOT/name, root/name, ignore=shutil.ignore_patterns('*.sdk', '__pycache__'))
+            shutil.copy(ROOT/'sources.json', root/'sources.json')
+            path = root/'release/upstream-locks/hermes/web/package.json'
+            manifest = json.loads(path.read_text())
+            manifest['dependencies']['@nous-research/ui'] = '99.0.0'
+            path.write_text(json.dumps(manifest))
+            with self.assertRaisesRegex(ValueError, 'pnpm manifest disagrees'):
+                inventory(root)
+
     def test_npm_aliases_monitor_the_real_package_name(self):
         with tempfile.TemporaryDirectory() as temp:
             root = Path(temp)
