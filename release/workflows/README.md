@@ -59,7 +59,8 @@ Strict branch protection stops GitHub from merging after the target moves.
 3. Register a dedicated disposable Ubuntu 26.04 AMD64 runner with
    `self-hosted, linux, x64, hermes-sdk-build`. It needs Workshop, SDKcraft, LXD,
    passwordless build privileges and enough capacity. Spread's VM tests need
-   working KVM. Restrict the runner to trusted jobs and use synthetic state.
+   working KVM. Run Workshop as the dedicated non-root runner user. Restrict
+   the runner to trusted jobs and use synthetic state.
 
 Repository automation updates the observation branch and release PRs and uses
 GitHub auto-merge for qualified candidates. The exact tested SDK artifact,

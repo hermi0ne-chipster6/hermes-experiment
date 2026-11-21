@@ -25,7 +25,8 @@ trap cleanup EXIT
 wk() { timeout 25m workshop -p "$project" "$@"; }
 inside() { wk exec -I --timeout 20m -- "$@"; }
 version() { inside /usr/local/bin/hermes --version; }
-try_sdk() { sudo -n sdkcraft try "$1"; }
+# Prebuilt archives register in the same user try area that Workshop uses.
+try_sdk() { sdkcraft try "$1"; }
 check_candidate() {
     local installed
     installed=$(version)
