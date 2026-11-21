@@ -3,10 +3,18 @@ on:
   push:
   pull_request:
   workflow_dispatch:
+  workflow_call:
+    inputs:
+      candidate_sha:
+        required: true
+        type: string
+      base_sha:
+        required: true
+        type: string
 permissions:
   contents: read
 concurrency:
-  group: source-checks-${{ github.ref }}
+  group: source-checks-${{ inputs.candidate_sha || github.ref }}
   cancel-in-progress: true
 jobs:
   checks:
@@ -17,6 +25,15 @@ jobs:
         with:
           persist-credentials: false
           fetch-depth: 0
+          ref: ${{ inputs.candidate_sha }}
+      - name: Verify candidate and base
+        if: inputs.candidate_sha != ''
+        env:
+          CANDIDATE_SHA: ${{ inputs.candidate_sha }}
+          BASE_SHA: ${{ inputs.base_sha }}
+        run: |
+          test "$(git rev-list --parents -n 1 HEAD)" = "$CANDIDATE_SHA $BASE_SHA"
+          test "$(git rev-parse origin/main)" = "$BASE_SHA"
       - name: Install locked CI dependencies
         run: |
           python3 -m venv "$RUNNER_TEMP/ci-venv"

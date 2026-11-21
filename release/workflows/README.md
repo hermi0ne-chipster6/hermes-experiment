@@ -53,3 +53,21 @@ Strict branch protection stops GitHub from merging after the target moves.
 Repository writes stop at the PR. The exact tested SDK artifact, its checksum
 and the last-known-good artifact are needed for separately authorized Store
 publication and Workshop refresh. See [publishing](../publishing.md).
+
+## Exact artifact and rollback
+
+Keep the current working A package in the runner's
+`/var/lib/hermes-sdk-qualification/last-known-good/` directory as
+`hermes-experiment_amd64_ubuntu@26.04.sdk` with its relative-path entry in
+`SHA256SUMS`. Use a reviewed offline copy of that directory for recovery. The
+runner checks the checksum before using the package and runs the upgrade,
+restart, refresh and downgrade against a disposable Workshop. Retain the
+workflow evidence and exact candidate package independently of GitHub's artifact
+retention before moving the last-known-good pointer.
+
+If rolling back to the original 0.22.5 package, preserve the writable
+`.hermes/config.yaml` under a separate name in the same state mount and restore
+the prior symlink to the read-only operator seed before swapping the SDK. Keep
+the original seed and charter mounts. Restore the saved writable profile when
+returning to the newer package. Keep the Hermes, Hindsight, Sui and Link mounts
+connected to their existing sources throughout.

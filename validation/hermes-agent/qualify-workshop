@@ -1,0 +1,121 @@
+#!/bin/bash
+# Check one local artifact with synthetic state in a unique Workshop project.
+set -euo pipefail
+root=$(cd "$(dirname "$0")/../.." && pwd)
+artifact=$(realpath "${1:?path to candidate SDK is required}")
+lkg=${HERMES_QUALIFICATION_LKG:-/var/lib/hermes-sdk-qualification/last-known-good}
+project=$(mktemp -d "$(dirname "$artifact")/../hermes-workshop.XXXXXX")
+launched=false
+cleanup() {
+    local result=$?
+    if "$launched"; then
+        if (( result != 0 )); then
+            workshop -p "$project" info || true
+            workshop -p "$project" tasks || true
+        fi
+        if ! wk remove; then
+            echo "Could not remove disposable Workshop at $project." >&2
+            exit 1
+        fi
+    fi
+    rm -rf -- "$project"
+    exit "$result"
+}
+trap cleanup EXIT
+wk() { timeout 15m workshop -p "$project" "$@"; }
+inside() { wk exec -I --timeout 5m -- "$@"; }
+version() { inside /usr/local/bin/hermes --version; }
+try_sdk() { sudo -n sdkcraft try "$1"; }
+check_candidate() {
+    local installed
+    installed=$(version)
+    printf '%s\n' "$installed"
+    [[ "$installed" == *"Hermes Agent v$expected_version "* ]]
+    inside /var/lib/workshop/sdk/hermes-experiment/bin/python -I -c '
+import json, sys
+from pathlib import Path
+sdk = Path("/var/lib/workshop/sdk/hermes-experiment")
+for path in ("hermes-src/install-stamp.json", "share/hermes/core-pin.json"):
+    identity = json.loads((sdk / path).read_text())
+    assert (identity["baseVersion"], identity["commit"]) == tuple(sys.argv[1:]), path
+' "$expected_version" "$expected_commit"
+}
+
+cp "$root/deployment/a/original-charter.md.example" "$project/original-charter.md"
+cp "$root/deployment/a/config.yaml.example" "$project/config.yaml"
+cp "$root/validation/hermes-agent/probe-qualification.py" "$project/probe.py"
+cat > "$project/workshop.yaml" <<'YAML'
+name: hermes-qualification
+base: ubuntu@26.04
+sdks:
+- name: try-hermes-experiment
+YAML
+expected_version=$(cat "$root/sdks/hermes-experiment/VERSION")
+expected_commit=$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1]))["hermes_commit"])' "$root/sources.json")
+
+rollback=false
+previous="$lkg/hermes-experiment_amd64_ubuntu@26.04.sdk"
+if [[ -r "$previous" && -r "$lkg/SHA256SUMS" ]]; then
+    (cd "$lkg" && sha256sum --strict --check SHA256SUMS)
+    grep -Eq '^[a-f0-9]{64} [ *]hermes-experiment_amd64_ubuntu@26\.04\.sdk$' "$lkg/SHA256SUMS"
+    try_sdk "$previous"
+    rollback=true
+else
+    try_sdk "$artifact"
+fi
+wk launch
+launched=true
+
+mkdir "$project/operator"
+cp "$project/original-charter.md" "$project/operator/"
+if "$rollback"; then
+    previous_version=$(version | grep -F 'Hermes Agent v')
+    # Keep the deployed configuration layout for rollback to the 0.22.5 SDK.
+    git -C "$root" show df4d649:deployment/a/config.yaml.example > "$project/operator/config.yaml"
+else
+    cp "$project/config.yaml" "$project/operator/config.yaml"
+fi
+wk stop
+wk remount hermes-qualification/hermes-experiment:configuration "$project/operator"
+wk start
+
+if "$rollback"; then
+    inside bash -ec 'if [[ ! -e ~/.hermes/config.yaml ]]; then ln -s /etc/hermes-experiment/config.yaml ~/.hermes/config.yaml; fi'
+    try_sdk "$artifact"
+    wk refresh
+    inside bash -ec 'test -f ~/.hermes/config.yaml.pre-sdk-migration
+        cmp ~/.hermes/config.yaml.pre-sdk-migration /etc/hermes-experiment/config.yaml'
+else
+    # The seed became available after launch. Apply the packaged setup helper.
+    inside bash -ec 'sdk=/var/lib/workshop/sdk/hermes-experiment
+        "$sdk/bin/python" -I "$sdk/wrappers/check-configuration.py" --setup "$HOME/.hermes" /etc/hermes-experiment/config.yaml "$sdk"
+        ln -s /etc/hermes-experiment/original-charter.md /project/.hermes.md'
+fi
+check_candidate
+inside /var/lib/workshop/sdk/hermes-experiment/bin/python /project/probe.py exercise
+wk stop
+wk start
+check_candidate
+inside /var/lib/workshop/sdk/hermes-experiment/bin/python /project/probe.py continuity
+
+if ! "$rollback"; then
+    echo 'BLOCKED: a checksum-verified last-known-good SDK is required for migration and rollback.'
+    exit 1
+fi
+
+wk refresh
+check_candidate
+inside /var/lib/workshop/sdk/hermes-experiment/bin/python /project/probe.py continuity
+
+# The historical SDK expects the old read-only mount and requires an absent or
+# legacy-linked profile. Keep the migrated profile intact in the same state mount.
+if [[ "$previous_version" == *'Hermes Agent v0.22.5 '* ]]; then
+    inside bash -ec 'mv -n ~/.hermes/config.yaml ~/.hermes/config.yaml.qualification-rollback
+        test ! -e ~/.hermes/config.yaml
+        ln -s /etc/hermes-experiment/config.yaml ~/.hermes/config.yaml'
+fi
+try_sdk "$previous"
+wk refresh
+test "$(version | grep -F 'Hermes Agent v')" = "$previous_version"
+inside /var/lib/workshop/sdk/hermes-experiment/bin/python /project/probe.py rollback-continuity
+echo 'Passed exact-artifact Workshop acceptance, restart, refresh and rollback.'

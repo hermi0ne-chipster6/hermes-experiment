@@ -1,0 +1,52 @@
+#!/bin/bash
+# Execute only on a dedicated, disposable Ubuntu 26.04 AMD64 build host.
+set -euo pipefail
+
+root=$(cd "$(dirname "$0")/.." && pwd)
+mkdir -p "${1:?usage: ci/qualify-sdk EVIDENCE_DIR}"
+evidence=$(realpath "$1")
+sdk="$root/sdks/hermes-experiment"
+. /etc/os-release
+test "$ID" = ubuntu
+test "$VERSION_ID" = 26.04
+test "$(uname -m)" = x86_64
+{
+    workshop --version
+    sdkcraft --version
+    snap list workshop sdkcraft lxd
+    sudo -n lxc query /1.0 | python3 -c 'import json,sys; print(json.load(sys.stdin)["environment"]["server_version"])'
+    df -h "$sdk" /var/snap/lxd
+} | tee "$evidence/host.txt"
+git -C "$root" rev-parse HEAD > "$evidence/commit.txt"
+cp "$root/sources.json" "$root/release/upstream-locks/provenance.json" "$evidence/"
+(cd "$root" && python3 -m release.inventory) > "$evidence/dependency-inventory.json"
+
+cd "$sdk"
+sudo -n sdkcraft clean
+# A missing KVM device must not prevent the container packaging run.
+sudo -n sdkcraft try --build-for amd64 --output "$evidence" 2>&1 | tee "$evidence/try.log"
+artifact="$evidence/hermes-experiment_amd64_ubuntu@26.04.sdk"
+(
+    cd "$evidence"
+    sha256sum "${artifact##*/}" > artifact-checksums.txt
+)
+sudo -n sdkcraft test --list | tee "$evidence/spread-jobs.txt"
+for task in launch missing-secret persistence; do
+    grep -Fq "main/$task:" "$evidence/spread-jobs.txt"
+done
+
+# Check the exact artifact retained above, independently of the Spread rebuild.
+workshop_result=0
+bash "$root/validation/hermes-agent/qualify-workshop" "$artifact" 2>&1 |
+    tee "$evidence/workshop.log" || workshop_result=$?
+
+spread_result=0
+if test -r /dev/kvm && test -w /dev/kvm; then
+    sudo -n sdkcraft test 2>&1 | tee "$evidence/spread.log" || spread_result=$?
+else
+    echo 'BLOCKED: /dev/kvm is unavailable for the VM-based Spread suite.' | tee "$evidence/spread.log"
+    spread_result=1
+fi
+printf 'Workshop result: %s\nSpread result: %s\n' "$workshop_result" "$spread_result" | tee "$evidence/result.txt"
+test "$workshop_result" -eq 0
+test "$spread_result" -eq 0
