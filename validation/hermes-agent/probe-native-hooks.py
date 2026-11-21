@@ -1,10 +1,9 @@
 """Real Hermes CLI/observer probe against a local synthetic API, never a paid provider.
 
-This deliberately uses an isolated built-in-memory profile. It proves native
-plugin/CLI integration, not Hindsight retention or a real model's behavior.
+This uses a built-in-memory profile and an explicit CLI tool selection to
+exercise the diary integration and Hermes honoring the fixture's preferences.
 """
 from pathlib import Path
-import hashlib
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 import json
 import os
@@ -78,8 +77,6 @@ with tempfile.TemporaryDirectory(prefix='hermes-native-hooks-') as name:
         (plugins/plugin).symlink_to(SDK/'plugins'/plugin)
     config={'_config_version':12,'plugins':{'enabled':['hermes_diary','hermes_notifications','hermes_artifacts']},'memory':{'provider':'builtin'},
             'platform_toolsets':{'cli':['hermes_diary','hermes_notifications','hermes_artifacts']},
-            'agent':{'disabled_toolsets':['terminal','file','browser','code_execution','computer_use',
-                    'delegation','skills','connections','kanban','catalog','project','desktop_ui']},
             'mcp_servers':{},'terminal':{'cwd':str(work)},
             'model':{'default':'sdk-fixture','provider':'custom'}}
     (home/'config.yaml').write_text(json.dumps(config))
@@ -120,13 +117,15 @@ with tempfile.TemporaryDirectory(prefix='hermes-native-hooks-') as name:
             assert 'sdk_local_fallback_test' not in denied and 'ubuntu' not in denied,denied
         else:
             assert {'diary_read','diary_search','diary_commitments','diary_append'} <= names,names
-        forbidden={'terminal','execute_code','read_file','write_file','delegate_task','browser_navigate'}
-        assert not names & forbidden,names
+        unselected={'terminal','execute_code','read_file','write_file','delegate_task','browser_navigate'}
+        assert not names & unselected,names  # This synthetic profile explicitly selects only integration toolsets.
         messages=json.dumps(agent_requests[0]['body'].get('messages',[]))
         assert RUN in messages and 'choose your own objectives' in messages
         charter_marker=next(line for line in (work/'.hermes.md').read_text().splitlines() if line.startswith('#'))
         assert charter_marker in messages,'Native original-charter context missing'
-        print(json.dumps({'native_hermes':'0.22.5','api':'local synthetic chat completions',
+        pin = json.loads((SDK/'share/hermes/core-pin.json').read_text())
+        print(json.dumps({'native_hermes':pin['baseVersion'],'upstream':pin['commit'],
+                          'api':'local synthetic chat completions',
                           'memory':'builtin fixture only','durable_receipt':True,
                           'tool_names':sorted(names),'requests':len(requests)}))
     finally:

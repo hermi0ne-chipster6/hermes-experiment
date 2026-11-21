@@ -10,8 +10,8 @@ def run(argv,expected=0):
     assert result.returncode==expected,(argv[0:2],result.returncode,result.stderr[:600])
     return result.stdout+result.stderr
 
-version=run(['/usr/local/bin/hermes','--version'])
-assert 'v0.22.5 ' in version and 'upstream bf0203a7' in version
+run([SDK/'bin/python', '-I', SDK/'wrappers/check-core.py', SDK, '/usr/local/bin/hermes'])
+pin = json.loads((SDK/'share/hermes/core-pin.json').read_text())
 assert '1.82.3' in run(['/usr/local/bin/sui','--version'])
 assert 'Usage' in run(['/usr/local/bin/buzz','--help'])
 assert 'Usage' in run(['/usr/local/bin/link-cli','--help'])
@@ -27,7 +27,7 @@ assert Path('/home/workshop/.hermes/SOUL.md').read_bytes()==(SDK/'share/hermes/S
 for platform in ('buzz','email'):
     assert (SDK/'hermes-src/plugins/platforms'/platform).is_dir()
 assert Path('/var/lib/systemd/linger/workshop').exists()
-print(json.dumps({'hermes':'0.22.5','upstream':'bf0203a7','sui':'1.82.3','link_cli':'1.0.1',
+print(json.dumps({'hermes':pin['baseVersion'],'upstream':pin['commit'],'sui':'1.82.3','link_cli':'1.0.1',
                   'opensandbox':importlib.metadata.version('opensandbox'),
                   'buzz_help':True,'native_buzz_email_assets':True,'unchanged_default_soul':True,
                   'runtime_update_rejected':True,'unconfigured_chat_rejected':True,
