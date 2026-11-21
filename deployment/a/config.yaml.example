@@ -1,4 +1,4 @@
-# Operator-owned read-only configuration. Empty MCP allowlists prevent activation before compatibility/policy tests.
+# Persistent operator profile. Empty MCP allowlists remain pending integration testing.
 _config_version: 12
 plugins:
   enabled:
@@ -11,32 +11,10 @@ plugins:
 memory:
   provider: hindsight
 agent:
-  disabled_toolsets:
-  - terminal
-  - file
-  - browser
-  - code_execution
-  - computer_use
-  - delegation
-  - skills
-  - connections
-  - kanban
-  - catalog
-  - project
-  - desktop_ui
+  disabled_toolsets: []
 platform_toolsets:
   cli:
-  - memory
-  - todo
-  - session_search
-  - cronjob
-  - clarify
-  - hermes_diary
-  - hermes_notifications
-  - hermes_artifacts
-  - mcp-opensandbox
-  - mcp-rea
-  - mcp-link
+  - all
   buzz:
   - memory
   - todo
