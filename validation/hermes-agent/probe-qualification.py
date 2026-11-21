@@ -1,4 +1,5 @@
 """Exercise the installed Hermes package with disposable state and local fixtures."""
+from datetime import timedelta
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 import importlib.util
 import json
@@ -10,6 +11,7 @@ import sys
 import tempfile
 from threading import Thread
 import time
+from urllib.parse import parse_qs, urlsplit
 from urllib.request import urlopen
 
 SDK = Path('/var/lib/workshop/sdk/hermes-experiment')
@@ -95,11 +97,18 @@ def probe_native_tools():
     os.environ['PATH'] = f'{SDK}/bin:{SDK}/node/bin:' + os.environ['PATH']
     sys.path.insert(0, str(SDK / 'hermes-src'))
     import hermes_bootstrap
+    from hermes_cli.config import load_config
+    from hermes_cli.tools_config import _get_platform_tools
     from tools.browser_use_cli import browser_exec
     from tools.code_execution_tool import execute_code
     from tools.file_tools import read_file_tool, write_file_tool
     from tools.terminal_tool import terminal_tool
 
+    config = load_config()
+    native = {'terminal', 'file', 'browser', 'code_execution', 'skills'}
+    assert native <= _get_platform_tools(config, 'cli')
+    for platform in ('buzz', 'email', 'cron'):
+        assert not native & _get_platform_tools(config, platform), platform
     terminal = json.loads(terminal_tool('printf qualification-terminal', timeout=10))
     assert 'qualification-terminal' in terminal.get('output', ''), terminal
     with tempfile.TemporaryDirectory(prefix='hermes-tools-') as temp:
@@ -125,7 +134,7 @@ def probe_native_tools():
         worker = Thread(target=server.serve_forever, daemon=True)
         worker.start()
         try:
-            # The literal loopback URL routes the native tool to its local sidecar.
+            # This synthetic profile has no remote browser provider.
             browser = browser_exec(
                 f'new_tab("http://127.0.0.1:{server.server_port}/")\n'
                 'wait_for_load()\nprint(js("document.title"))',
@@ -140,18 +149,65 @@ def probe_native_tools():
     print('Native terminal, file, code and local browser probes passed.', flush=True)
 
 
+def probe_failed_opensandbox():
+    from opensandbox.config.connection_sync import ConnectionConfigSync
+    from opensandbox.exceptions import SandboxException
+    from opensandbox.sync import SandboxSync
+
+    requests = []
+
+    class DeniedSandbox(BaseHTTPRequestHandler):
+        def do_GET(self):
+            requests.append((urlsplit(self.path), self.headers.get('OPEN-SANDBOX-API-KEY')))
+            body = b'{"code":"UNAUTHORIZED","message":"synthetic worker refused the request"}'
+            self.send_response(401)
+            self.send_header('Content-Type', 'application/json')
+            self.send_header('Content-Length', str(len(body)))
+            self.end_headers()
+            self.wfile.write(body)
+
+        def log_message(self, *_args):
+            pass
+
+    with ThreadingHTTPServer(('127.0.0.1', 0), DeniedSandbox) as server:
+        worker = Thread(target=server.serve_forever, daemon=True)
+        worker.start()
+        try:
+            settings = ConnectionConfigSync(
+                domain=f'127.0.0.1:{server.server_port}', api_key='synthetic-only',
+                use_server_proxy=True, request_timeout=timedelta(seconds=3),
+            )
+            try:
+                box = SandboxSync.connect('qualification', connection_config=settings,
+                                          connect_timeout=timedelta(seconds=5))
+            except SandboxException:
+                pass
+            else:
+                box.close()
+                raise AssertionError('Failed remote OpenSandbox operation unexpectedly succeeded')
+        finally:
+            server.shutdown()
+            worker.join(timeout=5)
+    assert requests, 'OpenSandbox did not contact the fixture'
+    route, api_key = requests[0]
+    assert '/sandboxes/qualification/endpoints/' in route.path, route.path
+    assert parse_qs(route.query).get('use_server_proxy') == ['true'], route.query
+    assert api_key == 'synthetic-only'
+
+
 def probe_integrations():
     for plugin in ('hindsight', 'hermes_otel', 'rea', 'hermes_diary',
                    'hermes_notifications', 'hermes_artifacts'):
         assert (PROFILE / 'plugins' / plugin).resolve() == SDK / 'plugins' / plugin
     assert 'usage' in run('/usr/local/bin/opensandbox-mcp', '--help').lower()
+    probe_failed_opensandbox()
     failed = subprocess.run(
         ['/usr/local/bin/hermes-rea-remote'],
         env={**os.environ, 'HERMES_REA_HOST': '127.0.0.1'},
         capture_output=True, text=True, check=False, timeout=10,
     )
     assert failed.returncode == 78 and 'Pinned REA SSH host identity is missing' in failed.stderr
-    print('Bundled plugin links, OpenSandbox adapter entrypoint and REA missing-host-key failure passed.',
+    print('Bundled plugin links, OpenSandbox loopback rejection and REA missing-host-key failure passed.',
           flush=True)
 
 

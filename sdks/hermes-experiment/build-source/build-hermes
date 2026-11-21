@@ -97,7 +97,8 @@ PY
 # Upstream's workspace provider installs the root and requested workspaces and
 # enforces pnpm's exact lock and build-script policy.
 node scripts/build/node-deps.mjs --source "$source_dir" --workspace web --workspace ui-tui
-pnpm --filter web run build
+# Use upstream's one-thread/minimum-heap mode to bound peak build memory.
+HERMES_WEB_BUILD_LIGHT=1 pnpm --filter web run build
 node scripts/build/tui.mjs --source "$source_dir" --out "$scratch/tui"
 
 install_root="$sdk/hermes-src"

@@ -77,8 +77,11 @@ Client(os.environ['HERMES_DIARY_SOCKET']).call('append', request_id=os.environ['
         self.assertIn('timeout', result['reason'])
 
     def test_timeout_stays_incomplete_when_sigterm_handler_exits_zero(self):
-        self.agent.write_text(self.agent.read_text() + '\nimport signal,time\nsignal.signal(signal.SIGTERM, lambda *_: exit(0))\nwhile True: time.sleep(0.01)\n')
-        result = self.run_agent([sys.executable, str(self.agent)], timeout=0.5)
+        self.agent.write_text(
+            'import signal, time\nsignal.signal(signal.SIGTERM, lambda *_: exit(0))\n'
+            + self.agent.read_text() + '\nwhile True: time.sleep(0.01)\n'
+        )
+        result = self.run_agent([sys.executable, str(self.agent)], timeout=1.5)
         self.assertEqual(result['returncode'], 0)
         self.assertEqual(result['status'], 'incomplete')
         self.assertIn('timeout', result['reason'])

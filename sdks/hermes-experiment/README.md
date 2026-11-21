@@ -29,7 +29,8 @@ Workshop updates. The gateway starts after explicit configuration and activation
 ### Build inputs
 
 The SDK checks the release tag against the commit declared in `sdkcraft.yaml`.
-The Web and TUI build uses the upstream Node, pnpm and frozen workspace lock.
+The Web and TUI builds use the upstream Node, pnpm and frozen workspace lock.
+The Web build uses upstream's one-thread, minimum-heap build mode.
 The Python environment uses the upstream uv lock and enables the Web and MCP
 extras, with a hash-locked overlay for bundled integrations. Native
 `browser-harness` uses upstream's recorded Pillow compatibility override, the
