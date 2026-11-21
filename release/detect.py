@@ -51,15 +51,29 @@ def fetch(path):
         return json.load(response)
 
 
-def resolve_tag(tag):
+def fetch_releases(fetcher=fetch):
+    releases = []
+    for page in range(1, 101):
+        items = fetcher(f'/releases?per_page=100&page={page}')
+        if not isinstance(items, list):
+            raise ValueError('release metadata did not return a list')
+        releases.extend(items)
+        if len(items) < 100:
+            return releases
+    raise ValueError('release metadata pagination exceeded 100 pages')
+
+
+def resolve_tag(tag, *, fetcher=fetch):
     version(tag)  # also prevents path/query injection
-    item = fetch('/git/ref/tags/'+tag)['object']
+    item = fetcher('/git/ref/tags/'+tag)['object']
     for _ in range(5):
+        if not REVISION.fullmatch(item.get('sha', '')):
+            break
         if item['type'] == 'commit':
             return item['sha']
-        if item['type'] != 'tag' or not REVISION.fullmatch(item['sha']):
+        if item['type'] != 'tag':
             break
-        item = fetch('/git/tags/'+item['sha'])['object']
+        item = fetcher('/git/tags/'+item['sha'])['object']
     raise ValueError('release tag does not resolve to an immutable commit')
 
 
@@ -69,7 +83,7 @@ def main():
     parser.add_argument('--output', type=Path, required=True)
     args = parser.parse_args()
     sources = json.loads(args.sources.read_text())
-    stable = select_stable(fetch('/releases?per_page=100'))
+    stable = select_stable(fetch_releases())
     proposal = candidate(sources['hermes']['tag'], sources['hermes_commit'], stable, resolve_tag(stable['tag_name']))
     # Only the requested proposal is written. Source pins and SDK definitions are untouched.
     args.output.write_text(json.dumps(proposal, indent=2)+'\n')

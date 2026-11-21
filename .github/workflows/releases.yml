@@ -49,3 +49,62 @@ jobs:
           path: ${{ runner.temp }}/release-review/
           retention-days: 14
           if-no-files-found: error
+  prepare:
+    if: github.repository == 'hermi0ne-chipster6/hermes-experiment' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    permissions:
+      contents: write
+      pull-requests: write
+    outputs:
+      candidate: ${{ steps.prepare.outputs.candidate }}
+      head: ${{ steps.prepare.outputs.head }}
+      base: ${{ steps.prepare.outputs.base }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+      - name: Install locked generator dependencies
+        run: |
+          python3 -m venv "$RUNNER_TEMP/ci-venv"
+          "$RUNNER_TEMP/ci-venv/bin/pip" install --only-binary=:all: --require-hashes -r ci/requirements.txt
+          echo "$RUNNER_TEMP/ci-venv/bin" >> "$GITHUB_PATH"
+      - name: Reconcile stable release PRs
+        id: prepare
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python3 -m release.stable_pipeline prepare
+  qualify:
+    needs: prepare
+    if: needs.prepare.outputs.candidate != ''
+    permissions:
+      contents: read
+    uses: ./.github/workflows/sdk-qualification.yml
+    with:
+      candidate_sha: ${{ needs.prepare.outputs.head }}
+      base_sha: ${{ needs.prepare.outputs.base }}
+  finalize:
+    needs: [prepare, qualify]
+    if: >-
+      always() && needs.prepare.result == 'success' &&
+      needs.prepare.outputs.candidate != '' &&
+      github.repository == 'hermi0ne-chipster6/hermes-experiment' &&
+      github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      contents: write
+      pull-requests: write
+      statuses: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+      - name: Require full qualification and enable protected auto-merge
+        env:
+          GH_TOKEN: ${{ github.token }}
+          CANDIDATE: ${{ needs.prepare.outputs.candidate }}
+          QUALIFICATION_RESULT: ${{ needs.qualify.result }}
+        run: >-
+          python3 -m release.stable_pipeline finalize
+          --candidate "$CANDIDATE" --qualification-result "$QUALIFICATION_RESULT"

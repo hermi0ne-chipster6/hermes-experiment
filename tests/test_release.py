@@ -4,7 +4,7 @@ import unittest
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 try:
-    from release.detect import candidate, select_stable
+    from release.detect import candidate, fetch_releases, select_stable
 except ImportError:
     candidate = select_stable = None
 
@@ -47,3 +47,9 @@ class ReleaseTests(unittest.TestCase):
             with self.subTest(tag=tag, sha=sha):
                 with self.assertRaises(ValueError):
                     candidate('v1.2.0', 'a'*40, release(tag), sha)
+
+    def test_release_api_detection_paginates(self):
+        first = [release(f'v0.23.{i}') for i in range(100)]
+        second = [release('v0.24.0')]
+        payloads = {'/releases?per_page=100&page=1': first, '/releases?per_page=100&page=2': second}
+        self.assertEqual(fetch_releases(payloads.__getitem__), first + second)
