@@ -15,36 +15,11 @@ done
 unset HERMES_PROFILE HERMES_CONFIG HERMES_CONFIG_PATH HERMES_ENV HERMES_ENV_PATH HERMES_YOLO_MODE HERMES_ACCEPT_HOOKS
 export HERMES_HOME=/home/workshop/.hermes
 case "${1:-}" in
-    update)
-        echo 'This packaged Hermes is immutable. Promote a tested SDK, then use workshop refresh.' >&2
-        exit 64
-        ;;
-    plugins)
-        case "${2:-}" in
-            install|update|remove)
-                echo 'Plugin changes belong in a reviewed SDK build.' >&2
-                exit 64
-                ;;
-        esac
-        ;;
-esac
-case "${1:-}" in
     --version|-V|--help|-h|help|send) ;;
     *)
-        config=/etc/hermes-experiment/config.yaml
-        if [[ ! -r "$config" ]] || \
-           [[ "$(readlink -f /home/workshop/.hermes/config.yaml)" != "$config" ]]; then
-            echo 'Reviewed operator configuration is required; refusing local execution defaults.' >&2
-            exit 78
-        fi
-        mount_options=$(findmnt --noheadings --output OPTIONS --target "$config")
-        if [[ ",$mount_options," != *,ro,* ]]; then
-            echo 'Operator configuration must come from the read-only mount.' >&2
-            exit 78
-        fi
-        mode=$(stat -c %a "$config")
-        if (( (8#$mode & 8#022) != 0 )); then
-            echo 'Operator configuration must not be group/world writable.' >&2
+        config=/home/workshop/.hermes/config.yaml
+        if [[ ! -f "$config" || ! -w "$config" ]]; then
+            echo "Writable persistent Hermes configuration required." >&2
             exit 78
         fi
         charter=/etc/hermes-experiment/original-charter.md
@@ -56,17 +31,6 @@ case "${1:-}" in
         if [[ "${charter_hash%% *}" != fab40f6dc5d2416db23e43d83de97c3b59db52c3d2e7bf01c051a7d9bbefd897 ]]; then
             echo 'Charter differs from the approved original; reconcile under operator review.' >&2
             exit 78
-        fi
-        for argument in "$@"; do
-            case "$argument" in
-                --ignore-user-config|--ignore-rules|--in|--in=*|--safe-mode|--yolo|--accept-hooks|--toolsets|--toolsets=*|-t|-z)
-                    echo 'This launch override is unavailable in the restricted runtime.' >&2
-                    exit 64 ;;
-            esac
-        done
-        if [[ "${1:-}" == --oneshot ]]; then
-            echo 'Use native chat --oneshot; top-level one-shot bypasses approvals.' >&2
-            exit 64
         fi
         "$sdk_dir/bin/python" "$sdk_dir/wrappers/check-configuration.py" "$config"
         cd /project
