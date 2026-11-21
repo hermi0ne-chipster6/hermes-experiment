@@ -24,8 +24,11 @@ cp "$root/sources.json" "$root/release/upstream-locks/provenance.json" "$evidenc
 cd "$sdk"
 sudo -n sdkcraft clean
 # A missing KVM device must not prevent the container packaging run.
-sudo -n sdkcraft try --build-for amd64 --output "$evidence" 2>&1 | tee "$evidence/try.log"
+# SDKcraft resolves --output inside its managed build container. The default
+# packages into the SDK project and copies the archive back to this host.
+sudo -n sdkcraft try --build-for amd64 2>&1 | tee "$evidence/try.log"
 artifact="$evidence/hermes-experiment_amd64_ubuntu@26.04.sdk"
+mv -- "$sdk/${artifact##*/}" "$artifact"
 (
     cd "$evidence"
     sha256sum "${artifact##*/}" > artifact-checksums.txt
