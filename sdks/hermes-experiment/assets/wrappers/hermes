@@ -14,11 +14,17 @@ for argument in "$@"; do
 done
 unset HERMES_PROFILE HERMES_CONFIG HERMES_CONFIG_PATH HERMES_ENV HERMES_ENV_PATH HERMES_YOLO_MODE HERMES_ACCEPT_HOOKS
 export HERMES_HOME=/home/workshop/.hermes
+export HERMES_RUNTIME_DIR="$HERMES_HOME/tools"
+export npm_config_cache="${npm_config_cache:-$HERMES_HOME/cache/npm}"
 case "${1:-}" in
+    update)
+        echo 'This packaged Hermes is managed by SDKcraft. Use workshop refresh with a verified SDK.' >&2
+        exit 64
+        ;;
     --version|-V|--help|-h|help|send) ;;
     *)
         config=/home/workshop/.hermes/config.yaml
-        if [[ ! -f "$config" || ! -w "$config" ]]; then
+        if [[ ! -f "$config" || -L "$config" || ! -w "$config" ]]; then
             echo "Writable persistent Hermes configuration required." >&2
             exit 78
         fi
@@ -32,7 +38,7 @@ case "${1:-}" in
             echo 'Charter differs from the approved original; reconcile under operator review.' >&2
             exit 78
         fi
-        "$sdk_dir/bin/python" "$sdk_dir/wrappers/check-configuration.py" "$config"
+        "$sdk_dir/bin/python" -I "$sdk_dir/wrappers/check-configuration.py" "$config"
         cd /project
         ;;
 esac

@@ -14,29 +14,8 @@ if [[ -L "$HOME/.pg0" && "$(readlink -f "$HOME/.pg0")" != "$HOME/.hindsight/pg0"
     exit 1
 fi
 ln -sfn "$HOME/.hindsight/pg0" "$HOME/.pg0"
-for plugin in hindsight hermes_otel rea hermes_diary hermes_notifications hermes_artifacts; do
-    if [[ -e "$HOME/.hermes/plugins/$plugin" && ! -L "$HOME/.hermes/plugins/$plugin" ]]; then
-        echo "Existing plugin directory $plugin requires operator reconciliation; refusing to overwrite." >&2
-        exit 1
-    fi
-    ln -sfn "$SDK/plugins/$plugin" "$HOME/.hermes/plugins/$plugin"
-done
-if [[ -r /etc/hermes-experiment/config.yaml ]]; then
-    profile="$HOME/.hermes/config.yaml"
-    if [[ -L "$profile" ]]; then
-        if [[ "$(readlink -f "$profile")" != /etc/hermes-experiment/config.yaml ]]; then
-            echo 'Unexpected configuration link; refusing migration.' >&2
-            exit 1
-        fi
-        # Preserve the effective configuration before replacing the old link.
-        cp --dereference "$profile" "$HOME/.hermes/config.yaml.migration"
-        rm "$profile"
-        mv "$HOME/.hermes/config.yaml.migration" "$profile"
-    elif [[ ! -e "$profile" ]]; then
-        install -m 600 /etc/hermes-experiment/config.yaml "$profile"
-    fi
-    chmod 600 "$profile"
-fi
+"$SDK/bin/python" -I "$SDK/wrappers/check-configuration.py" --setup \
+    "$HOME/.hermes" /etc/hermes-experiment/config.yaml "$SDK"
 if [[ -r /etc/hermes-experiment/original-charter.md ]]; then
     if [[ -e /project/.hermes.md || -L /project/.hermes.md ]]; then
         if [[ ! -L /project/.hermes.md || "$(readlink /project/.hermes.md)" != /etc/hermes-experiment/original-charter.md ]]; then
@@ -49,12 +28,10 @@ fi
 if [[ ! -e "$HOME/.hermes/SOUL.md" ]]; then
     install -m 600 "$SDK/share/hermes/SOUL.md" "$HOME/.hermes/SOUL.md"
 fi
+# Cold native CLI startup exceeds check-health's five-second hook budget.
+"$SDK/bin/python" -I "$SDK/wrappers/check-core.py" "$SDK" /usr/local/bin/hermes
 systemctl --user daemon-reload
 systemctl --user enable hermes-gateway.service
 if [[ -f /etc/hermes-experiment/gateway.enabled ]]; then
     systemctl --user start hermes-gateway.service
 fi
-# Cold native CLI startup exceeds check-health's five-second hook budget on
-# constrained hosts. Verify the real application here before health can pass.
-version=$(timeout 120 /usr/local/bin/hermes --version)
-[[ "$version" == *"Hermes Agent"* ]] || { echo "Hermes CLI startup failed." >&2; exit 1; }

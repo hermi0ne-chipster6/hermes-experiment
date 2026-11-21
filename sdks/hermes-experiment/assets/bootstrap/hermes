@@ -1,8 +1,27 @@
 #!/bin/bash
-# Immutable official source tree with a separately bundled dependency environment.
+# Start immutable source with the SDK interpreter and Hermes' packaged PM activation.
 set -euo pipefail
 sdk_dir=$(dirname "$(dirname "$(readlink -f "$0")")")
 export HERMES_PYTHON_SRC_ROOT="$sdk_dir/hermes-src"
 export HERMES_INSTALL_ROOT="$sdk_dir/hermes-src"
-export PYTHONPATH="$sdk_dir/hermes-src:$sdk_dir/diary"
-exec "$sdk_dir/bin/python" -P -c 'import sys; from hermes_cli.main import main; sys.exit(main())' "$@"
+export HERMES_DIARY_PYTHON_PATH="$sdk_dir/diary"
+export PYTHONDONTWRITEBYTECODE=1
+export PYTHONPATH="$sdk_dir/hermes-src:$HERMES_DIARY_PYTHON_PATH"
+unset PYTHONHOME
+exec "$sdk_dir/bin/python" -P -B -c '
+import os
+import sys
+
+# Upstream bootstrap takes a lease on its selected persistent PM generation,
+# activates its site-packages before third-party imports, and sets child paths.
+import hermes_bootstrap
+
+# Keep the SDK diary integration available when PM rewrites child PYTHONPATH.
+diary = os.environ.pop("HERMES_DIARY_PYTHON_PATH")
+paths = os.environ["PYTHONPATH"].split(os.pathsep)
+if diary not in paths:
+    os.environ["PYTHONPATH"] += os.pathsep + diary
+
+from hermes_cli.main import main
+sys.exit(main())
+' "$@"

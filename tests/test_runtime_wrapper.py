@@ -1,12 +1,15 @@
 from pathlib import Path
 import os
+import shlex
 import shutil
 import subprocess
+import sys
 import tempfile
 import unittest
 
 
-WRAPPER = Path(__file__).resolve().parents[1] / 'sdks/hermes-experiment/assets/wrappers/hermes'
+ROOT = Path(__file__).resolve().parents[1]
+WRAPPER = ROOT / 'sdks/hermes-experiment/assets/wrappers/hermes'
 
 
 class RuntimeWrapperTests(unittest.TestCase):
@@ -18,8 +21,24 @@ class RuntimeWrapperTests(unittest.TestCase):
         (root/'wrappers').mkdir()
         (root/'bin').mkdir()
         self.wrapper = root/'wrappers/hermes'
-        shutil.copyfile(WRAPPER, self.wrapper)
+        self.home = root / '.hermes'
+        self.project = root / 'project'
+        mount = root / 'configuration'
+        for directory in (self.home, self.project, mount):
+            directory.mkdir()
+        charter = mount / 'original-charter.md'
+        shutil.copyfile(ROOT / 'deployment/a/original-charter.md.example', charter)
+        (self.project / '.hermes.md').symlink_to(charter)
+        wrapper = WRAPPER.read_text().replace('/home/workshop/.hermes', str(self.home))
+        wrapper = wrapper.replace('/etc/hermes-experiment/original-charter.md', str(charter))
+        wrapper = wrapper.replace('/project', str(self.project))
+        self.wrapper.write_text(wrapper)
         self.wrapper.chmod(0o755)
+        python = root / 'bin/python'
+        python.write_text(f'#!/bin/sh\nexec {shlex.quote(sys.executable)} "$@"\n')
+        python.chmod(0o755)
+        shutil.copyfile(WRAPPER.with_name('check-configuration.py'),
+                        self.wrapper.with_name('check-configuration.py'))
         fake = root/'bin/hermes'
         fake.write_text('#!/bin/bash\nprintf "real-hermes:%s:%s\\n" "$1" "${EMAIL_PASSWORD:+credential-present}"\n')
         fake.chmod(0o755)
@@ -46,6 +65,17 @@ class RuntimeWrapperTests(unittest.TestCase):
         result = self.invoke('chat', '--oneshot', '-q', 'synthetic')
         self.assertNotEqual(result.returncode, 0)
         self.assertNotIn('real-hermes', result.stdout)
+
+    def test_plugin_operations_reach_upstream_with_valid_profile(self):
+        profile = self.home / 'config.yaml'
+        # The fixture changes the shell launch directory only. The validated
+        # configuration still models Workshop's real /project.
+        profile.write_text('terminal: {cwd: /project}\n')
+        for action in ('install', 'update', 'enable', 'disable', 'remove'):
+            with self.subTest(action=action):
+                result = self.invoke('plugins', action, 'sdk-fixture')
+                self.assertEqual(result.returncode, 0, result.stderr)
+                self.assertIn('real-hermes:plugins:', result.stdout)
 
     def test_existing_credential_is_used_without_printing_it(self):
         result = self.invoke('send', '--to', 'email:operator@example.invalid', 'hello', extra={'EMAIL_PASSWORD':'synthetic-secret'})
