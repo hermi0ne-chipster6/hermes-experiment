@@ -140,3 +140,27 @@ class StablePipelineTests(unittest.TestCase):
         self.assertEqual(pipeline.decode_pages('[{"id":1}]\n[]\n[{"id":2}]'), [{'id': 1}, {'id': 2}])
         with self.assertRaises(ValueError):
             pipeline.decode_pages('[{"id":1}]{"message":"invalid page"}')
+
+    def test_retargets_one_existing_pr_on_a_new_base_with_expected_git_lease(self):
+        item = {'tag': 'v0.23.4', 'id': 3, 'revision': 'a' * 40,
+                'published_at': '2026-11-20T00:00:00Z'}
+        old_base, base, old, head = (letter * 40 for letter in 'bcde')
+        previous = {'number': 9, 'head': {'sha': old}}
+        updated = {'number': 9, 'head': {'sha': head}}
+        full_ref = 'refs/heads/' + pipeline.branch(item)
+        with (patch.object(pipeline, 'recognized', return_value=True),
+              patch.object(pipeline, 'branch_head', return_value=old),
+              patch.object(pipeline, 'main_tip', return_value=base),
+              patch.object(pipeline, 'fetch_commit'),
+              patch.object(pipeline, 'assert_candidate') as assert_candidate,
+              patch.object(pipeline, 'generate', return_value=old) as regenerate,
+              patch.object(pipeline, 'run', side_effect=[old_base, '{}', '']) as git,
+              patch.object(pipeline, 'gh', return_value=updated) as api):
+            result = pipeline.publish('fixture', item, base, head, previous)
+
+        self.assertEqual((result['pr'], result['head'], result['base']), (9, head, base))
+        assert_candidate.assert_called_once_with(old_base, old, item)
+        regenerate.assert_called_once_with(item, old_base, {})
+        self.assertEqual(git.call_args.args[-4:], ('push', f'--force-with-lease={full_ref}:{old}',
+                                                 'origin', f'{head}:{full_ref}'))
+        api.assert_called_once_with('repos/fixture/pulls/9')
