@@ -22,8 +22,8 @@ cleanup() {
     exit "$result"
 }
 trap cleanup EXIT
-wk() { timeout 15m workshop -p "$project" "$@"; }
-inside() { wk exec -I --timeout 5m -- "$@"; }
+wk() { timeout 25m workshop -p "$project" "$@"; }
+inside() { wk exec -I --timeout 20m -- "$@"; }
 version() { inside /usr/local/bin/hermes --version; }
 try_sdk() { sudo -n sdkcraft try "$1"; }
 check_candidate() {
@@ -80,7 +80,11 @@ wk remount hermes-qualification/hermes-experiment:configuration "$project/operat
 wk start
 
 if "$rollback"; then
-    inside bash -ec 'if [[ ! -e ~/.hermes/config.yaml ]]; then ln -s /etc/hermes-experiment/config.yaml ~/.hermes/config.yaml; fi'
+    # Force a legacy profile only in this disposable project. A newer LKG may
+    # already initialize a writable profile, which is preserved beside the fixture.
+    inside bash -ec 'profile=~/.hermes/config.yaml
+        if [[ -f "$profile" && ! -L "$profile" ]]; then mv "$profile" "$profile.pre-qualification"; fi
+        if [[ ! -L "$profile" ]]; then ln -s /etc/hermes-experiment/config.yaml "$profile"; fi'
     try_sdk "$artifact"
     wk refresh
     inside bash -ec 'test -f ~/.hermes/config.yaml.pre-sdk-migration

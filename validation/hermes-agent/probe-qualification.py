@@ -22,12 +22,7 @@ STATE = (
     Path.home() / '.sui' / 'qualification-marker',
     Path.home() / '.link-cli' / 'qualification-marker',
 )
-DEPENDENCY = (
-    'cowsay @ https://files.pythonhosted.org/packages/f1/13/'
-    '63c0a02c44024ee16f664e0b36eefeb22d54e93531630bd99e237986f534/'
-    'cowsay-6.1-py3-none-any.whl'
-    '#sha256=274b1e6fc1b966d53976333eb90ac94cb07a450a700b455af9fbdf882244b30a'
-)
+DEPENDENCY = 'boltons==25.0.0'
 
 
 def run(*argv, expected=0, timeout=100, **kwargs):
@@ -51,7 +46,8 @@ def plugin_source(directory, version):
         f'python_dependencies:\n- {json.dumps(DEPENDENCY)}\n'
     )
     (directory / '__init__.py').write_text(
-        'import cowsay\n\ndef register(ctx):\n    assert "qualification" in cowsay.get_output_string("cow", "qualification")\n'
+        'from boltons.iterutils import chunked\n\ndef register(ctx):\n'
+        '    assert list(chunked([1, 2, 3], 2)) == [[1, 2], [3]]\n'
     )
     run('git', '-C', str(directory), 'add', 'plugin.yaml', '__init__.py')
     run('git', '-C', str(directory), '-c', 'user.name=SDK Qualification',
@@ -60,7 +56,7 @@ def plugin_source(directory, version):
 
 
 def probe_plugins():
-    assert importlib.util.find_spec('cowsay') is None, 'Dependency fixture is already in packaged core'
+    assert importlib.util.find_spec('boltons') is None, 'Dependency fixture is already in packaged core'
     with tempfile.TemporaryDirectory(prefix='qualification-plugin-') as scratch:
         repo = Path(scratch) / FIXTURE
         repo.mkdir()
@@ -91,8 +87,12 @@ def probe_plugins():
 
 def probe_native_tools():
     os.environ['HERMES_HOME'] = str(PROFILE)
+    os.environ['HERMES_RUNTIME_DIR'] = str(PROFILE / 'tools')
+    os.environ['HERMES_INSTALL_ROOT'] = str(SDK / 'hermes-src')
+    os.environ['HERMES_PYTHON_SRC_ROOT'] = str(SDK / 'hermes-src')
     os.environ['PATH'] = f'{SDK}/bin:{SDK}/node/bin:' + os.environ['PATH']
     sys.path.insert(0, str(SDK / 'hermes-src'))
+    import hermes_bootstrap
     from tools.browser_use_cli import browser_exec
     from tools.code_execution_tool import execute_code
     from tools.file_tools import read_file_tool, write_file_tool
@@ -106,16 +106,51 @@ def probe_native_tools():
         assert 'error' not in write, write
         assert MARKER in json.loads(read_file_tool(path)).get('content', '')
     code = json.loads(execute_code('print(6 * 7)', task_id='sdk-qualification'))
-    assert '42' in code.get('output', ''), code
+    assert code.get('output', code.get('stdout', '')).strip() == '42', code
     browser = browser_exec(
         'new_tab("data:text/html,<title>qualification-browser</title>")\n'
         'wait_for_load()\nprint(js("document.title"))',
-        session='sdk-qualification', timeout_s=90,
+        session='sdk-qualification', timeout_s=90, local=True,
     )
     if isinstance(browser, str):
         browser = json.loads(browser)
     assert 'qualification-browser' in browser.get('output', ''), browser
     print('Native terminal, file, code and local browser probes passed.', flush=True)
+
+
+def probe_integrations():
+    for plugin in ('hindsight', 'hermes_otel', 'rea', 'hermes_diary',
+                   'hermes_notifications', 'hermes_artifacts'):
+        assert (PROFILE / 'plugins' / plugin).resolve() == SDK / 'plugins' / plugin
+    assert 'usage' in run('/usr/local/bin/opensandbox-mcp', '--help').lower()
+    failed = subprocess.run(
+        ['/usr/local/bin/hermes-rea-remote'],
+        env={**os.environ, 'HERMES_REA_HOST': '127.0.0.1'},
+        capture_output=True, text=True, check=False, timeout=10,
+    )
+    assert failed.returncode == 78 and 'Pinned REA SSH host identity is missing' in failed.stderr
+    print('Bundled plugin links, OpenSandbox adapter entrypoint and REA missing-host-key failure passed.',
+          flush=True)
+
+
+def probe_catalog_plugins():
+    # Verify the two independently managed plugins using the tested core's own
+    # immutable catalog records. These installs stay disabled and run no jobs.
+    import yaml
+    for plugin in ('mandate', 'promise-keeper'):
+        print(f'Checking optional catalog plugin {plugin}', flush=True)
+        catalog = SDK / 'hermes-src' / 'plugin-catalog' / f'{plugin}.yaml'
+        entry = yaml.safe_load(catalog.read_text())
+        hermes('plugins', 'install', entry['repo'], '--ref', entry['sha'],
+               '--no-enable', '--yes-deps', timeout=180)
+        candidates = [path for path in (PROFILE / 'plugins').iterdir()
+                      if path.is_dir() and (path / '.git').exists()]
+        matched = [path for path in candidates
+                   if run('git', '-C', str(path), 'rev-parse', 'HEAD').strip() == entry['sha']]
+        assert len(matched) == 1, f'Exact installed catalog revision missing for {plugin}'
+        hermes('plugins', 'doctor', str(matched[0]), '--ci')
+        hermes('plugins', 'remove', matched[0].name)
+        print(f'{plugin} pinned install and native doctor passed.', flush=True)
 
 
 def probe_web_and_tui():
@@ -185,6 +220,8 @@ def exercise():
     probe_plugins()
     probe_native_tools()
     probe_web_and_tui()
+    probe_integrations()
+    probe_catalog_plugins()
     with (PROFILE / 'config.yaml').open('a') as config:
         config.write('\n# qualification-operator-edit\n')
     continuity()
