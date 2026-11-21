@@ -120,11 +120,17 @@ def update_hermes_core(tag, commit, release_id, published_at, checkout, root, uv
                     '--no-header', '--no-annotate'], checkout)
         (scratch / 'core-requirements.txt').write_bytes(core)
         shutil.copyfile(root / SDK / 'plugin-requirements.in', scratch / 'plugin-requirements.in')
-        plugins = run([uv, 'pip', 'compile', '--no-config', 'plugin-requirements.in',
-                       '-c', 'core-requirements.txt', '--python-version', sources['hindsight_runtime']['python'],
-                       '--python-platform', 'x86_64-unknown-linux-gnu',
-                       '--exclude-newer', published_at,
-                       '--only-binary', ':all:', '--generate-hashes', '--no-header', '--no-annotate'], scratch)
+        integration_lock = scratch / 'plugin-requirements.txt'
+        shutil.copyfile(root / SDK / integration_lock.name, integration_lock)
+        # Prefer already-resolved versions that remain compatible with the new
+        # core. In particular, a Hermes-only update does not silently upgrade
+        # unrelated bundled integration dependencies.
+        run([uv, 'pip', 'compile', '--no-config', 'plugin-requirements.in',
+             '-c', 'core-requirements.txt', '--python-version', sources['hindsight_runtime']['python'],
+             '--python-platform', 'x86_64-unknown-linux-gnu', '--exclude-newer', published_at,
+             '--only-binary', ':all:', '--generate-hashes', '--no-header', '--no-annotate',
+             '--output-file', integration_lock.name], scratch)
+        plugins = integration_lock.read_bytes()
     (root / SDK / 'core-requirements.txt').write_bytes(
         b'# Frozen upstream uv export for the SDK web and mcp extras.\n' + core)
     (root / SDK / 'plugin-requirements.txt').write_bytes(

@@ -36,8 +36,9 @@ extras, with a hash-locked overlay for bundled integrations. Native
 packaged Chromium system libraries and upstream-managed Chromium.
 
 The bundled integration lock is resolved against the candidate's frozen core
-export, with the release publication timestamp as its cutoff. For v0.23.3 the
-frozen MCP dependencies require OpenTelemetry 1.45.2, published after the
+export, keeping existing compatible pins and using the release publication
+timestamp as its cutoff. For v0.23.3 the frozen MCP dependencies require
+OpenTelemetry 1.45.2, published after the
 previous 2026-10-28 integration cutoff. The isolated Hindsight runtime retains
 its original cutoff and lock. Operator-installed plugins keep their own state.
 
