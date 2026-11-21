@@ -34,7 +34,8 @@ def run(*argv, expected=0, timeout=100, **kwargs):
     result = subprocess.run(argv, capture_output=True, text=True, timeout=timeout, **kwargs)
     if result.returncode != expected:
         output = (result.stdout + '\n' + result.stderr).strip()
-        raise RuntimeError(f'{argv[:3]} exited {result.returncode}: {output[-1600:]}')
+        decision = next((line for line in output.splitlines() if line.startswith('Decision: BLOCKED')), None)
+        raise RuntimeError(f'{argv[:3]} exited {result.returncode}: {decision or output[-1600:]}')
     return result.stdout
 
 
@@ -52,8 +53,11 @@ def plugin_source(directory, version):
         f'python_dependencies:\n- {json.dumps(DEPENDENCY)}\n'
     )
     (directory / '__init__.py').write_text(
-        'from boltons.iterutils import chunked\n\ndef register(ctx):\n'
+        'from boltons.iterutils import chunked\n'
+        'from opensandbox.sync import SandboxSync\n\n'
+        'def register(ctx):\n'
         '    assert list(chunked([1, 2, 3], 2)) == [[1, 2], [3]]\n'
+        '    assert callable(SandboxSync.connect)\n'
     )
     run('git', '-C', str(directory), 'add', 'plugin.yaml', '__init__.py')
     run('git', '-C', str(directory), '-c', 'user.name=SDK Qualification',
@@ -206,7 +210,10 @@ def probe_integrations():
                    'hermes_notifications', 'hermes_artifacts'):
         assert (PROFILE / 'plugins' / plugin).resolve() == SDK / 'plugins' / plugin
     assert 'usage' in run('/usr/local/bin/opensandbox-mcp', '--help').lower()
-    probe_failed_opensandbox()
+    # Exercise the standalone OpenSandbox client independently. The controlled
+    # plugin above checks that it also imports under the actual Hermes launcher
+    # after the native plugin environment is active.
+    run(str(SDK / 'bin' / 'python'), '-I', str(Path(__file__)), 'opensandbox-fixture')
     failed = subprocess.run(
         ['/usr/local/bin/hermes-rea-remote'],
         env={**os.environ, 'HERMES_REA_HOST': '127.0.0.1'},
@@ -329,6 +336,8 @@ if __name__ == '__main__':
         exercise()
     elif mode == 'native-tools':
         probe_native_tools()
+    elif mode == 'opensandbox-fixture':
+        probe_failed_opensandbox()
     elif mode in {'continuity', 'rollback-continuity'}:
         continuity(rollback=mode == 'rollback-continuity')
     else:

@@ -18,11 +18,20 @@ import sys
 # activates its site-packages before third-party imports, and sets child paths.
 import hermes_bootstrap
 
-# Keep the SDK diary integration available when PM rewrites child PYTHONPATH.
-diary = os.environ.pop("HERMES_DIARY_PYTHON_PATH")
+# Hermes PM selects the active environment. Keep the immutable, hash-locked
+# SDK installations available for bundled integrations after that selection.
+# The selected dependency versions still win for both this process and children.
+sdk = os.path.dirname(os.environ["HERMES_PYTHON_SRC_ROOT"])
+python_version = f"python{sys.version_info.major}.{sys.version_info.minor}"
+packaged = os.path.join(sdk, "lib", python_version, "site-packages")
 paths = os.environ["PYTHONPATH"].split(os.pathsep)
-if diary not in paths:
-    os.environ["PYTHONPATH"] += os.pathsep + diary
+for path in (os.environ.pop("HERMES_DIARY_PYTHON_PATH"), packaged):
+    if os.path.isdir(path):
+        if path not in sys.path:
+            sys.path.append(path)
+        if path not in paths:
+            paths.append(path)
+os.environ["PYTHONPATH"] = os.pathsep.join(paths)
 
 from hermes_cli.main import main
 sys.exit(main())
