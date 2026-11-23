@@ -1,5 +1,5 @@
 #!/bin/bash
-# Check one local artifact with synthetic state in a unique Workshop project.
+# Qualify the Hermes A core archive by itself with synthetic state in a unique project.
 set -euo pipefail
 root=$(cd "$(dirname "$0")/../.." && pwd)
 artifact=$(realpath "${1:?path to candidate SDK is required}")

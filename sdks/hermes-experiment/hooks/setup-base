@@ -13,8 +13,6 @@ ln -sf "$SDK/wrappers/hermes" /usr/local/bin/hermes
 ln -sf "$SDK/node/bin/node" /usr/local/bin/node
 ln -sf "$SDK/wrappers/hermes-diary" /usr/local/bin/hermes-diary
 ln -sf "$SDK/buzz/bin/buzz" /usr/local/bin/buzz
-ln -sf "$SDK/sui/bin/sui" /usr/local/bin/sui
-ln -sf "$SDK/wrappers/link-cli" /usr/local/bin/link-cli
 ln -sf "$SDK/bin/opensandbox-mcp" /usr/local/bin/opensandbox-mcp
 ln -sf "$SDK/wrappers/hindsight-api" /usr/local/bin/hindsight-api
 ln -sf "$SDK/wrappers/hermes-rea-remote" /usr/local/bin/hermes-rea-remote

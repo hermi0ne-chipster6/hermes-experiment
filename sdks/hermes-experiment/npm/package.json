@@ -1,8 +1,0 @@
-{
-  "name": "hermes-agent-tools",
-  "version": "1.0.0",
-  "private": true,
-  "dependencies": {
-    "@stripe/link-cli": "1.0.1"
-  }
-}

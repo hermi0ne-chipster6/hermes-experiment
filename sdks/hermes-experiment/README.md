@@ -1,6 +1,6 @@
 # Hermes Experiment SDK for Workshop
 
-Official stable Hermes runtime for Experiment #1, with native Buzz/email gateway support, Hindsight, diary integration and the existing financial CLIs. Agent state persists across Workshop updates; credentials and activation are supplied separately.
+Official stable Hermes runtime for Experiment #1, with native Buzz/email gateway support, Hindsight and diary integration. The complete Workshop A composition installs the standalone Sui and Stripe Link SDKs alongside this core SDK. Agent state persists across Workshop updates; credentials and activation are supplied separately.
 
 ## Reference workshop
 
@@ -49,11 +49,25 @@ its original cutoff and lock. Operator-installed plugins keep their own state.
 | --- | --- | --- |
 | `state` | mount, `/home/workshop/.hermes` | automatic system mount |
 | `hindsight` | mount, `/home/workshop/.hindsight`, including linked pg0 database | automatic system mount |
-| `sui-state` | mount, `/home/workshop/.sui` | automatic system mount |
-| `link-state` | mount, `/home/workshop/.link-cli` | automatic system mount; native auth and identity state |
 | `configuration` | read-only mount, `/etc/hermes-experiment` | automatic system mount; operator populates it |
 | `diary` | tunnel, `/run/user/1000/hermes-diary.sock` | explicit example connection |
 | `model-key`, `buzz-key`, `email-password`, `sandbox-api-key`, `rea-ssh-key` | secret, dedicated runtime credentials | manually connect each same-named system slot |
+
+### Sui and Stripe Link state
+
+The [Sui SDK](../sui-cli/) owns `/home/workshop/.sui` and the
+[Stripe Link SDK](../stripe-link-cli/) owns `/home/workshop/.link-cli`.
+Each installs its own executable in `/usr/local/bin`. For disposable
+qualification, register the three exact archives and use the
+[local composition](../../validation/hermes-agent/workshop.try.yaml.example).
+
+When moving an older Workshop that bundled the CLIs, record both existing
+mount sources with `workshop info` and preserve the directories. Keep
+the gateway and financial operations inactive during the cutover. Use
+the standalone SDKs' mount paths and remount the preserved sources to the
+new plugs while the Workshop is stopped. Verify executable ownership
+and state before returning it to use. The existing financial policies
+and Link auth-file path continue to apply.
 
 ## Slots (resources this SDK provides)
 

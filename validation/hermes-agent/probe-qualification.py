@@ -24,8 +24,6 @@ STATE = (
     PROFILE / 'memories' / 'qualification-marker',
     PROFILE / 'sessions' / 'qualification-marker',
     Path.home() / '.pg0' / 'qualification-marker',
-    Path.home() / '.sui' / 'qualification-marker',
-    Path.home() / '.link-cli' / 'qualification-marker',
 )
 DEPENDENCY = 'boltons==25.0.0'
 

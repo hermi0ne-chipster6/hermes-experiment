@@ -27,6 +27,9 @@ class InventoryTests(unittest.TestCase):
                          'pypi:mcp', 'pypi:hindsight-api-slim', 'npm:@stripe/link-cli',
                          'image:opensandbox/execd', 'ci:gitleaks'} <= names)
         self.assertTrue(all(r['roles'] and r['inputs'] for r in records))
+        roles = {record['name']: record['roles'] for record in records}
+        self.assertEqual(roles['sui'], ['sui-cli'])
+        self.assertEqual(roles['npm:@stripe/link-cli'], ['stripe-link-cli'])
 
     def test_transitive_locks_are_monitored_with_all_pinned_versions(self):
         records = inventory(ROOT)

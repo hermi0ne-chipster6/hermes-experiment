@@ -3,6 +3,10 @@ base: ubuntu@26.04
 sdks:
 - name: hermes-experiment
   channel: latest/edge
+- name: sui-cli
+  channel: latest/edge
+- name: stripe-link-cli
+  channel: latest/edge
 - name: system
   slots:
     diary:

@@ -160,6 +160,14 @@ on old software. If the channel now contains a different revision, review its
 release record and required compatibility checks first. Do not invent a YAML
 `revision` field or run `hermes update` to bypass the package process.
 
+The revised A definition includes the standalone Sui and Stripe Link SDKs.
+Use their Store names only after the selected releases are available there.
+For disposable pre-publication checks, register the exact A, Sui and Link
+archives with `sdkcraft try` and use their `try-` names. If upgrading an
+existing Workshop, preserve both legacy state sources and follow the
+[CLI state migration](../sdks/hermes-experiment/README.md#sui-and-stripe-link-state)
+before enabling any gateways or financial operations.
+
 The supplied definitions already put Canonical `docker-ce` **before**
 `hermes-execution` in B. Keep each role's project, state and configuration separate.
 Public Store consumption should not require the publisher's signing credentials;
@@ -202,7 +210,6 @@ cp "$HERMES_SOURCE/validation/hermes-agent/probe-installed.py" /srv/hermes/a/
 cp "$HERMES_SOURCE/validation/hermes-agent/probe-native-hooks.py" /srv/hermes/a/
 cp "$HERMES_SOURCE/validation/hermes-agent/original-charter-fixture.md" /srv/hermes/a/
 cp "$HERMES_SOURCE/validation/hermes-agent/probe-workload.py" /srv/hermes/a/
-cp "$HERMES_SOURCE/validation/hermes-agent/probe-artifacts.py" /srv/hermes/a/
 cp "$HERMES_SOURCE/validation/hermes-execution/probe-api.py" /srv/hermes/b/
 cp "$HERMES_SOURCE/validation/hermes-execution/opensandbox-probe.toml" /srv/hermes/b/
 cp "$HERMES_SOURCE/validation/hermes-rea/mcp-smoke.py" /srv/hermes/c/

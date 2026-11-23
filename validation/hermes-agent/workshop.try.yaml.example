@@ -2,3 +2,5 @@ name: a
 base: ubuntu@26.04
 sdks:
 - name: try-hermes-experiment
+- name: try-sui-cli
+- name: try-stripe-link-cli

@@ -26,14 +26,6 @@ plugs:
     interface: secret
   email-password:
     interface: secret
-  sui-state:
-    interface: mount
-    workshop-target: /home/workshop/.sui
-    mode: 448
-  link-state:
-    interface: mount
-    workshop-target: /home/workshop/.link-cli
-    mode: 448
   sandbox-api-key:
     interface: secret
   configuration:
@@ -110,21 +102,6 @@ parts:
 
       '
     source-type: local
-  finance:
-    plugin: dump
-    source: npm
-    source-type: local
-    after:
-    - node-runtime
-    override-build: 'export PATH="$CRAFT_STAGE/node/bin:$PATH"
-
-      npm ci --omit=dev --ignore-scripts --no-audit --no-fund
-
-      mkdir -p "$CRAFT_PART_INSTALL/finance"
-
-      cp -a node_modules package.json package-lock.json "$CRAFT_PART_INSTALL/finance/"
-
-      '
   official-plugins:
     plugin: dump
     source: build-source
@@ -173,33 +150,6 @@ parts:
       cd "$CRAFT_PART_SRC"
 
       rm -rf "$CRAFT_PART_SRC/repo-rea"
-
-      '
-    source-type: local
-  sui:
-    plugin: dump
-    source: build-source
-    build-packages:
-    - curl
-    - ca-certificates
-    override-pull: 'curl -fL ''https://github.com/MystenLabs/sui/releases/download/mainnet-v1.82.3/sui-mainnet-v1.82.3-ubuntu-x86_64.tgz''
-      -o "$CRAFT_PART_SRC/sui.tgz"
-
-      echo ''d616d63d90309926cf7f544633c8dd4132f762fdbba555a35c4842cfa4129379  ''"$CRAFT_PART_SRC/sui.tgz" | sha256sum
-      -c -
-
-      mkdir -p "$CRAFT_PART_SRC/unpacked" "$CRAFT_PART_SRC/sui/bin"
-
-      tar -xzf "$CRAFT_PART_SRC/sui.tgz" -C "$CRAFT_PART_SRC/unpacked" --occurrence=1 --wildcards --no-anchored
-      sui
-
-      SUI=$(find "$CRAFT_PART_SRC/unpacked" -type f -name sui -print -quit)
-
-      test -n "$SUI"
-
-      install -m 755 "$SUI" "$CRAFT_PART_SRC/sui/bin/sui"
-
-      rm -rf "$CRAFT_PART_SRC/unpacked" "$CRAFT_PART_SRC/sui.tgz"
 
       '
     source-type: local
