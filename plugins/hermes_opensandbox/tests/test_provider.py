@@ -177,14 +177,25 @@ class ProviderTests(unittest.TestCase):
         output, returncode = self._run_stream([
             {"type": "stdout", "text": "first"},
             {"type": "stdout", "text": "\n"},
+            {"type": "stdout", "text": "\n"},
             {"type": "stdout", "text": "second"},
             {"type": "stdout", "text": "tail"},
             {"type": "execution_complete"},
         ])
-        self.assertEqual(output, "first\n\nsecond\ntail")
+        self.assertEqual(output, "first\n\n\nsecond\ntail")
         self.assertEqual(returncode, 0)
 
-    def test_terminated_frames_and_mixed_stream_order_are_unchanged(self):
+    def test_legacy_execd_stream_separates_interleaved_stdout_and_stderr(self):
+        output, returncode = self._run_stream([
+            {"type": "stdout", "text": "one"},
+            {"type": "stderr", "text": "warning"},
+            {"type": "stdout", "text": "tail"},
+            {"type": "execution_complete"},
+        ])
+        self.assertEqual(output, "one\nwarning\ntail")
+        self.assertEqual(returncode, 0)
+
+    def test_existing_frame_terminators_and_mixed_stream_order_are_preserved(self):
         output, returncode = self._run_stream([
             {"type": "stdout", "text": "first\n"},
             {"type": "stderr", "text": "warning\r"},
@@ -193,7 +204,7 @@ class ProviderTests(unittest.TestCase):
             {"type": "stderr", "text": "last"},
             {"type": "error", "error": {"ename": "CommandExecError", "evalue": "7", "exit_code": 7}},
         ])
-        self.assertEqual(output, "first\nwarning\r\npartiallast")
+        self.assertEqual(output, "first\nwarning\r\npartial\nlast")
         self.assertEqual(returncode, 7)
 
     def test_cold_create_has_separate_read_timeout_without_replaying_post(self):
