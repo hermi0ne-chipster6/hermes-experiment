@@ -27,7 +27,7 @@ class ConfigurationTests(unittest.TestCase):
         self.profile = self.home / 'config.yaml'
         self.sdk = self.root / 'sdk'
         for name in ('hindsight', 'hermes_otel', 'rea', 'hermes_diary',
-                     'hermes_notifications', 'hermes_artifacts'):
+                     'hermes_notifications'):
             (self.sdk / 'plugins' / name).mkdir(parents=True)
         shipped = self.sdk / 'share/hermes/enabled-features.json'
         shipped.parent.mkdir(parents=True)
@@ -43,7 +43,8 @@ class ConfigurationTests(unittest.TestCase):
     def legacy(self):
         config = yaml.safe_load(EXAMPLE.read_text())
         config['agent'] = {'disabled_toolsets': DISABLED.copy()}
-        config['platform_toolsets']['cli'] = LEGACY.copy()
+        for platform in ('cli', 'buzz', 'email', 'cron'):
+            config['platform_toolsets'][platform] = LEGACY.copy()
         return config
 
     def check(self, config):
@@ -97,6 +98,7 @@ class ConfigurationTests(unittest.TestCase):
         self.assertIn('# Operator comment', self.profile.read_text())
         self.assertEqual(current['agent']['disabled_toolsets'], [])
         self.assertIn('hermes-cli', current['platform_toolsets']['cli'])
+        self.assertNotIn('hermes_artifacts', current['platform_toolsets']['cli'])
         for platform in ('buzz', 'email', 'cron'):
             self.assertEqual(current['platform_toolsets'][platform], legacy['platform_toolsets'][platform])
         self.assertEqual(current['mcp_servers'], legacy['mcp_servers'])
@@ -153,12 +155,41 @@ class ConfigurationTests(unittest.TestCase):
         self.assertEqual((user / 'owner').read_text(), 'user-managed')
         self.assertEqual(dangling.readlink(), self.root / 'unrelated')
         self.assertFalse((plugins / 'hermes_otel').exists())
-        generated = plugins / 'hermes_artifacts'
-        self.assertEqual(generated.readlink(), self.sdk / 'plugins/hermes_artifacts')
+        generated = plugins / 'hindsight'
+        self.assertEqual(generated.readlink(), self.sdk / 'plugins/hindsight')
         self.assertEqual((self.home / 'enabled-features.json').resolve(),
                          self.sdk / 'share/hermes/enabled-features.json')
         generated.unlink()
-        config['plugins']['enabled'].remove('hermes_artifacts')
+        config['plugins']['enabled'].remove('hindsight')
+        config['memory']['provider'] = 'builtin'
         self.profile.write_text(yaml.safe_dump(config))
         self.assertEqual(self.setup_profile().returncode, 0)
         self.assertFalse(generated.exists())
+
+    def test_retires_only_the_obsolete_sdk_transfer_symlink(self):
+        self.seed.write_text(EXAMPLE.read_text())
+        plugins = self.home / 'plugins'
+        plugins.mkdir()
+        retired = plugins / 'hermes_artifacts'
+        retired.symlink_to(self.sdk / 'plugins' / retired.name)
+        self.assertEqual(self.setup_profile().returncode, 0)
+        self.assertFalse(retired.is_symlink())
+        retired.mkdir()
+        self.assertEqual(self.setup_profile().returncode, 0)
+        self.assertTrue(retired.is_dir())
+
+    def test_legacy_profile_preserves_independently_managed_transfer_tools(self):
+        config = self.legacy()
+        config['known_plugin_toolsets'] = {'cli': ['hermes_artifacts']}
+        self.seed.write_text(yaml.safe_dump(config))
+        self.profile.symlink_to(self.seed)
+        custom = self.home / 'plugins/hermes_artifacts'
+        custom.mkdir(parents=True)
+        marker = custom / 'owner'
+        marker.write_text('operator')
+        result = self.setup_profile()
+        self.assertEqual(result.returncode, 0, result.stderr)
+        migrated = yaml.safe_load(self.profile.read_text())
+        self.assertIn('hermes_artifacts', migrated['platform_toolsets']['cli'])
+        self.assertEqual(migrated['known_plugin_toolsets'], config['known_plugin_toolsets'])
+        self.assertEqual(marker.read_text(), 'operator')

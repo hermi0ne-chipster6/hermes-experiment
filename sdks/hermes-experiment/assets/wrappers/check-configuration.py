@@ -18,13 +18,14 @@ LEGACY_DISABLED = [
     'terminal', 'file', 'browser', 'code_execution', 'computer_use', 'delegation',
     'skills', 'connections', 'kanban', 'catalog', 'project', 'desktop_ui',
 ]
+RETIRED_TRANSFER_PLUGIN = 'hermes_artifacts'
 LEGACY_EXTENSIONS = [
-    'hermes_diary', 'hermes_notifications', 'hermes_artifacts',
+    'hermes_diary', 'hermes_notifications', RETIRED_TRANSFER_PLUGIN,
     'mcp-opensandbox', 'mcp-rea', 'mcp-link',
 ]
 LEGACY_TOOLS = ['memory', 'todo', 'session_search', 'cronjob', 'clarify', *LEGACY_EXTENSIONS]
 BUNDLED = ('hindsight', 'hermes_otel', 'rea', 'hermes_diary',
-           'hermes_notifications', 'hermes_artifacts')
+           'hermes_notifications')
 
 
 def yaml_editor():
@@ -99,7 +100,7 @@ def cron_has_toolset_overrides(home):
     return any(not isinstance(job, dict) or job.get('enabled_toolsets') is not None for job in jobs)
 
 
-def remove_legacy_policy(home, config):
+def remove_legacy_policy(home, config, keep_transfer):
     platforms = section(config, 'platform_toolsets')
     if platforms.get('cli') != LEGACY_TOOLS:
         return False
@@ -107,7 +108,8 @@ def remove_legacy_policy(home, config):
     unattended_is_legacy = all(platforms.get(name) == LEGACY_TOOLS for name in ('buzz', 'email', 'cron'))
     # Replace the CLI element (the legacy sequence can be aliased by other
     # platform rows). Keep global tool controls for edited unattended policies.
-    platforms['cli'] = ['hermes-cli', *LEGACY_EXTENSIONS]
+    platforms['cli'] = ['hermes-cli', *(name for name in LEGACY_EXTENSIONS
+                                       if keep_transfer or name != RETIRED_TRANSFER_PLUGIN)]
     if (agent.get('disabled_toolsets') == LEGACY_DISABLED and unattended_is_legacy
             and not cron_has_toolset_overrides(home)):
         agent['disabled_toolsets'] = []
@@ -150,6 +152,10 @@ def prepare_profile(home, source, sdk):
     profile = home / 'config.yaml'
     with (home / '.sdk-profile.lock').open('a') as lock:
         fcntl.flock(lock, fcntl.LOCK_EX)
+        retired = home / 'plugins' / RETIRED_TRANSFER_PLUGIN
+        sdk_transfer = sdk / 'plugins' / RETIRED_TRANSFER_PLUGIN
+        managed_transfer = retired.is_symlink() and retired.readlink() == sdk_transfer
+        keep_transfer = not managed_transfer and (retired.is_dir() or retired.is_symlink())
         legacy_link = profile.is_symlink()
         if legacy_link and profile.resolve() != source.resolve():
             raise ValueError('unexpected configuration symlink')
@@ -159,7 +165,7 @@ def prepare_profile(home, source, sdk):
             original = source.read_bytes()
             editor, config = parse_config(original)
             content = original
-            if remove_legacy_policy(home, config):
+            if remove_legacy_policy(home, config, keep_transfer):
                 preserve_original(home / 'config.yaml.pre-sdk-migration', original)
                 output = StringIO()
                 editor.dump(config, output)
@@ -185,6 +191,10 @@ def prepare_profile(home, source, sdk):
             enabled.add(provider.strip())
         plugins_dir = home / 'plugins'
         plugins_dir.mkdir(exist_ok=True)
+        # Retire only the former SDK-managed link. Keep an operator-managed
+        # plugin of the same name and leave profile configuration untouched.
+        if managed_transfer and retired.is_symlink() and retired.readlink() == sdk_transfer and not sdk_transfer.exists():
+            retired.unlink(missing_ok=True)
         for name in BUNDLED:
             if name in enabled and name not in disabled:
                 target = sdk / 'plugins' / name

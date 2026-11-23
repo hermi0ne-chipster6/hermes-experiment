@@ -1,15 +1,12 @@
 """Coordinate synthetic A/B native SDK test; private token never printed."""
 from pathlib import Path
-import json,secrets,selectors,subprocess,time,tempfile,sys
+import argparse
+import json,secrets,selectors,subprocess,time,tempfile
+
+argparse.ArgumentParser(description=__doc__).parse_args()
 root=Path(__file__).resolve().parent
 key=secrets.token_urlsafe(32)
 settings={'api_key':key,'domain':'b.hermes-execution.wp:18080'}
-if '--rea' in sys.argv:
-    fixture=Path('/tmp/hermes-rea-transport.Zw8Lt4')
-    settings['rea_key']=(fixture/'key').read_text()
-    known=(fixture/'known_hosts').read_text().split(maxsplit=1)[1]
-    settings['rea_known_hosts']='c.hermes-rea.wp,10.24.8.107 '+known
-    settings['rea_host']='c.hermes-rea.wp'
 with (root.parent/'reports/opensandbox-workload-service.log').open('w') as log:
     server=subprocess.Popen(['sudo','-n','lxc','exec','--project','workshop.codex','b-127b97b7','--env','HOME=/home/workshop','--cwd','/project','--','sudo','-u','workshop','--','python3','/project/probe-service.py'],cwd=root/'hermes-execution',stdin=subprocess.PIPE,stdout=subprocess.PIPE,stderr=log,text=True)
     try:

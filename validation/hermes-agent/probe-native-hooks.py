@@ -41,7 +41,7 @@ class API(BaseHTTPRequestHandler):
         if is_agent:agent_requests.append({'path':self.path,'body':body})
         stage=len(agent_requests) if is_agent else 3
         name='tool_search' if stage==1 else 'tool_call'
-        arguments=({'queries':['diary','notify_operator','send_agent_email','artifact_to_rea','terminal','read_file','execute_code'],'limit':20} if stage==1 else
+        arguments=({'queries':['diary','notify_operator','send_agent_email','terminal','read_file','execute_code'],'limit':20} if stage==1 else
                    {'calls':[{'name':'terminal','arguments':{'command':'printf SDK_LOCAL_FALLBACK_TEST'}},
                              {'name':'read_file','arguments':{'path':'/etc/os-release'}}]})
         calls=[{'id':'fixture-'+str(stage),'type':'function','function':{'name':name,'arguments':json.dumps(arguments)}}] if stage<3 else None
@@ -73,10 +73,10 @@ with tempfile.TemporaryDirectory(prefix='hermes-native-hooks-') as name:
     work=root/'work';work.mkdir()
     shutil.copyfile('/project/original-charter-fixture.md',work/'.hermes.md')
     plugins=home/'plugins';plugins.mkdir()
-    for plugin in ('hermes_diary','hermes_notifications','hermes_artifacts'):
+    for plugin in ('hermes_diary','hermes_notifications'):
         (plugins/plugin).symlink_to(SDK/'plugins'/plugin)
-    config={'_config_version':12,'plugins':{'enabled':['hermes_diary','hermes_notifications','hermes_artifacts']},'memory':{'provider':'builtin'},
-            'platform_toolsets':{'cli':['hermes_diary','hermes_notifications','hermes_artifacts']},
+    config={'_config_version':12,'plugins':{'enabled':['hermes_diary','hermes_notifications']},'memory':{'provider':'builtin'},
+            'platform_toolsets':{'cli':['hermes_diary','hermes_notifications']},
             'mcp_servers':{},'terminal':{'cwd':str(work)},
             'model':{'default':'sdk-fixture','provider':'custom'}}
     (home/'config.yaml').write_text(json.dumps(config))
@@ -111,7 +111,7 @@ with tempfile.TemporaryDirectory(prefix='hermes-native-hooks-') as name:
             results=[message['content'] for request in agent_requests for message in request['body'].get('messages',[]) if message.get('role')=='tool']
             (Path('/project')/'native-hook-tool-results.json').write_text(json.dumps(results,indent=2))
             assert len(agent_requests)>=3 and results,'Progressive discovery did not execute'
-            assert all(name in results[0] for name in ('diary_read','diary_search','diary_commitments','diary_append','notify_operator','send_agent_email','artifact_to_rea')),results[0]
+            assert all(name in results[0] for name in ('diary_read','diary_search','diary_commitments','diary_append','notify_operator','send_agent_email')),results[0]
             denied=results[-1].lower()
             assert ('error' in denied or 'not available' in denied or 'unknown tool' in denied),denied
             assert 'sdk_local_fallback_test' not in denied and 'ubuntu' not in denied,denied

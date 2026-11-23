@@ -6,7 +6,6 @@ if ! id rea >/dev/null 2>&1; then
     useradd --system --create-home --home-dir /var/lib/hermes-rea --shell /bin/bash rea
 fi
 install -d -o rea -g rea -m 700 /var/lib/hermes-rea/work
-install -d -o rea -g rea -m 700 /var/lib/hermes-rea/inbox
 install -d -o rea -g rea -m 700 /var/lib/hermes-rea/.cache /var/lib/hermes-rea/.config /var/lib/hermes-rea/.local /var/lib/hermes-rea/.rea /var/lib/hermes-rea/.ghidra /var/lib/hermes-rea/.java
 ln -sf "$SDK/wrappers/hermes-rea-stdio" /usr/local/bin/hermes-rea-stdio
 install -D -m 644 "$SDK/ssh/rea.conf" /etc/ssh/sshd_config.d/60-hermes-rea.conf

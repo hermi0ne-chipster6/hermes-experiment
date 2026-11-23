@@ -2,7 +2,6 @@
 set -euo pipefail
 # The mount is connected after setup-base and may replace the initial directory.
 sudo install -d -o rea -g rea -m 700 /var/lib/hermes-rea/work
-sudo install -d -o rea -g rea -m 700 /var/lib/hermes-rea/inbox
 sudo install -d -o rea -g rea -m 700 /var/lib/hermes-rea/.cache /var/lib/hermes-rea/.config /var/lib/hermes-rea/.local /var/lib/hermes-rea/.rea /var/lib/hermes-rea/.ghidra /var/lib/hermes-rea/.java
 # Bind-mounted files retain host-source ownership, so OpenSSH StrictModes may
 # reject them. Import only this fixed public allowlist into a root-owned path.

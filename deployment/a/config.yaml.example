@@ -4,7 +4,6 @@ plugins:
   enabled:
   - hermes_diary
   - hermes_notifications
-  - hermes_artifacts
   - hermes_otel
   - hindsight
   - rea
@@ -17,7 +16,6 @@ platform_toolsets:
   - hermes-cli
   - hermes_diary
   - hermes_notifications
-  - hermes_artifacts
   - mcp-opensandbox
   - mcp-rea
   - mcp-link
@@ -29,7 +27,6 @@ platform_toolsets:
   - clarify
   - hermes_diary
   - hermes_notifications
-  - hermes_artifacts
   - mcp-opensandbox
   - mcp-rea
   - mcp-link
@@ -41,7 +38,6 @@ platform_toolsets:
   - clarify
   - hermes_diary
   - hermes_notifications
-  - hermes_artifacts
   - mcp-opensandbox
   - mcp-rea
   - mcp-link
@@ -53,7 +49,6 @@ platform_toolsets:
   - clarify
   - hermes_diary
   - hermes_notifications
-  - hermes_artifacts
   - mcp-opensandbox
   - mcp-rea
   - mcp-link

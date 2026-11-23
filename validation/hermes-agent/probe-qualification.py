@@ -207,7 +207,7 @@ def probe_failed_opensandbox():
 
 def probe_integrations():
     for plugin in ('hindsight', 'hermes_otel', 'rea', 'hermes_diary',
-                   'hermes_notifications', 'hermes_artifacts'):
+                   'hermes_notifications'):
         assert (PROFILE / 'plugins' / plugin).resolve() == SDK / 'plugins' / plugin
     assert 'usage' in run('/usr/local/bin/opensandbox-mcp', '--help').lower()
     # Exercise the standalone OpenSandbox client independently. The controlled
