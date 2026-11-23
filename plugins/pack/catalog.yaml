@@ -73,7 +73,7 @@ plugins:
     manifest_blob: afc411a285d1347b11d20e844632de43a00ec2d2
     version: "0.1.0"
     distribution: native-pack
-    qualification: packaged-lifecycle-pass
+    qualification: source-reviewed-native-requalification-pending
   - name: rea
     repository: https://github.com/NousResearch/hermes-official-plugins
     ref: 1690b63a4790cb821fb6a319ba524815d4e09411
