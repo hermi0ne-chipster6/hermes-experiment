@@ -204,6 +204,15 @@ def probe_failed_opensandbox():
 
 
 def probe_integrations():
+    from hindsight_embed import __version__ as embed_version
+    from hindsight_embed.daemon_embed_manager import DaemonEmbedManager
+
+    manager = object.__new__(DaemonEmbedManager)
+    environment = {'HINDSIGHT_API_EMBEDDINGS_PROVIDER': 'tei', 'HINDSIGHT_API_RERANKER_PROVIDER': 'none'}
+    api = SDK / 'bin' / 'hindsight-api'
+    assert manager._find_api_command(embed_version, environment) == [str(api)]
+    assert api.resolve() == SDK / 'wrappers' / 'hindsight-api'
+
     for plugin in ('hindsight', 'hermes_otel', 'rea', 'hermes_diary',
                    'hermes_notifications'):
         assert (PROFILE / 'plugins' / plugin).resolve() == SDK / 'plugins' / plugin
