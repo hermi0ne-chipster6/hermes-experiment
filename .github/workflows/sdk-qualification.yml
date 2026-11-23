@@ -10,6 +10,10 @@ on:
         description: Exact main commit the candidate extends
         type: string
         required: true
+      human_candidate:
+        description: Reviewed human PR with current main as an ancestor
+        type: boolean
+        default: false
 permissions:
   contents: read
 jobs:
@@ -18,8 +22,12 @@ jobs:
     with:
       candidate_sha: ${{ inputs.candidate_sha }}
       base_sha: ${{ inputs.base_sha }}
+      human_candidate: ${{ inputs.human_candidate }}
   sdk:
-    if: github.workflow_ref == format('{0}/.github/workflows/releases.yml@refs/heads/main', github.repository)
+    if: >-
+      github.repository == 'hermi0ne-chipster6/hermes-experiment' &&
+      ((github.workflow_ref == format('{0}/.github/workflows/releases.yml@refs/heads/main', github.repository) && !inputs.human_candidate) ||
+      (github.workflow_ref == format('{0}/.github/workflows/qualify-human-pr.yml@refs/heads/main', github.repository) && inputs.human_candidate))
     needs: source
     concurrency:
       group: hermes-sdk-build
@@ -36,9 +44,15 @@ jobs:
         env:
           CANDIDATE_SHA: ${{ inputs.candidate_sha }}
           BASE_SHA: ${{ inputs.base_sha }}
+          HUMAN_CANDIDATE: ${{ inputs.human_candidate }}
         run: |
-          test "$(git rev-list --parents -n 1 HEAD)" = "$CANDIDATE_SHA $BASE_SHA"
+          test "$(git rev-parse HEAD)" = "$CANDIDATE_SHA"
           test "$(git rev-parse origin/main)" = "$BASE_SHA"
+          if test "$HUMAN_CANDIDATE" = true; then
+            git merge-base --is-ancestor "$BASE_SHA" "$CANDIDATE_SHA"
+          else
+            test "$(git rev-list --parents -n 1 HEAD)" = "$CANDIDATE_SHA $BASE_SHA"
+          fi
       - name: Install locked inventory dependencies
         run: |
           python3 -m venv "$RUNNER_TEMP/ci-venv"

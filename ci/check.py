@@ -18,13 +18,46 @@ TRUSTED_RELEASE_CALLER = (
     "github.workflow_ref == format('{0}/.github/workflows/releases.yml@refs/heads/main', "
     'github.repository)'
 )
+TRUSTED_HUMAN_CALLER = (
+    "github.workflow_ref == format('{0}/.github/workflows/qualify-human-pr.yml@refs/heads/main', "
+    'github.repository)'
+)
 RELEASE_WRITE_PERMISSIONS = {
     'prepare': {'contents': 'write', 'pull-requests': 'write'},
     'finalize': {'contents': 'write', 'pull-requests': 'write', 'statuses': 'write'},
 }
 RELEASE_REPOSITORY = "github.repository == 'hermi0ne-chipster6/hermes-experiment'"
 RELEASE_BRANCH = "github.ref == 'refs/heads/main'"
+TARGET_MAIN = f'{RELEASE_REPOSITORY} && {RELEASE_BRANCH}'
+TRUSTED_SDK_CALLER = (
+    f'{RELEASE_REPOSITORY} && (({TRUSTED_RELEASE_CALLER} && !inputs.human_candidate) || '
+    f'({TRUSTED_HUMAN_CALLER} && inputs.human_candidate))'
+)
+HUMAN_INSPECT_PERMISSIONS = {'contents': 'read', 'pull-requests': 'read'}
+HUMAN_PUBLISH_PERMISSIONS = {**HUMAN_INSPECT_PERMISSIONS, 'statuses': 'write'}
 RUNNER_LABELS = ['self-hosted', 'linux', 'x64', 'hermes-sdk-build']
+
+
+def validate_job_permissions(filename, name, job, events, permissions):
+    guard = ' '.join(job.get('if', '').split())
+    if job.get('runs-on') != 'ubuntu-24.04':
+        raise ValueError(f'unsupported permissions for job {name}')
+    if filename == 'releases.yml':
+        expected = TARGET_MAIN
+        if name == 'finalize':
+            expected = ("always() && needs.prepare.result == 'success' && "
+                        "needs.prepare.outputs.candidate != '' && " + expected)
+        if (permissions == RELEASE_WRITE_PERMISSIONS.get(name) and guard == expected
+                and set(events) == {'schedule', 'workflow_dispatch', 'push'}
+                and events.get('push', {}).get('branches') == ['main']):
+            return
+    if filename == 'qualify-human-pr.yml' and set(events) == {'workflow_dispatch'}:
+        if name == 'inspect' and permissions == HUMAN_INSPECT_PERMISSIONS and guard == TARGET_MAIN:
+            return
+        publish_guard = "always() && needs.inspect.result == 'success' && " + TARGET_MAIN
+        if name == 'publish' and permissions == HUMAN_PUBLISH_PERMISSIONS and guard == publish_guard:
+            return
+    raise ValueError(f'unsupported permissions for job {name}')
 
 
 def validate_workflow(doc, filename=None):
@@ -38,25 +71,15 @@ def validate_workflow(doc, filename=None):
     for name, job in doc.get('jobs', {}).items():
         permissions = job.get('permissions', READ_ONLY)
         if permissions != READ_ONLY:
-            guard = job.get('if', '')
-            expected = f'{RELEASE_REPOSITORY} && {RELEASE_BRANCH}'
-            if name == 'finalize':
-                expected = ("always() && needs.prepare.result == 'success' && "
-                            "needs.prepare.outputs.candidate != '' && " + expected)
-            if (filename != 'releases.yml' or permissions != RELEASE_WRITE_PERMISSIONS.get(name)
-                    or ' '.join(guard.split()) != expected
-                    or set(events) != {'schedule', 'workflow_dispatch', 'push'}
-                    or events.get('push', {}).get('branches') != ['main']
-                    or job.get('runs-on') != 'ubuntu-24.04'):
-                raise ValueError(f'unsupported permissions for job {name}')
+            validate_job_permissions(filename, name, job, events, permissions)
         labels = job.get('runs-on', [])
         if isinstance(labels, str):
             labels = [labels]
         if 'self-hosted' in labels:
             if (filename != 'sdk-qualification.yml' or name != 'sdk'
                     or set(events) != {'workflow_call'} or labels != RUNNER_LABELS
-                    or job.get('if') != TRUSTED_RELEASE_CALLER):
-                raise ValueError('self-hosted runner requires the trusted release workflow')
+                    or ' '.join(job.get('if', '').split()) != TRUSTED_SDK_CALLER):
+                raise ValueError('self-hosted runner requires the trusted release workflow or manual qualifier')
         if 'uses' in job and job['uses'] not in {
             './.github/workflows/checks.yml', './.github/workflows/sdk-qualification.yml'
         }:

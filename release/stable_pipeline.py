@@ -469,24 +469,82 @@ def finalize(repo, candidate, result):
     print(f"GitHub auto-merge enabled for PR #{candidate['pr']} at {candidate['head']}", flush=True)
 
 
+def live_human(repo, candidate):
+    pr = gh(f"repos/{repo}/pulls/{candidate['pr']}")
+    head, base = pr.get('head') or {}, pr.get('base') or {}
+    if (pr.get('number') != candidate['pr'] or pr.get('state') != 'open' or
+            (pr.get('user') or {}).get('type') != 'User' or base.get('ref') != 'main' or
+            head.get('ref', '').startswith('release/hermes/') or
+            any((side.get('repo') or {}).get('full_name', '').casefold() != repo.casefold()
+                for side in (head, base))):
+        raise ValueError('Qualification requires an open same-repository human PR targeting main')
+    if pr.get('auto_merge'):
+        raise ValueError('Disable auto-merge before qualifying a human PR for operator merge review')
+    return {'head': head.get('sha'), 'base': main_tip(repo)}
+
+
+def inspect_human(repo, candidate, actor, workflow_sha):
+    expected = {key: candidate.get(key) for key in ('head', 'base')}
+    if (type(candidate.get('pr')) is not int or candidate['pr'] <= 0 or
+            any(not isinstance(sha, str) or not REVISION.fullmatch(sha) for sha in expected.values()) or
+            expected['base'] != workflow_sha or expected['head'] == expected['base']):
+        raise ValueError('An exact reviewed PR head and trusted main revision are required')
+    if not re.fullmatch(r'[A-Za-z0-9-]+', actor):
+        raise ValueError('A repository maintainer must dispatch human qualification')
+    permission = gh(f'repos/{repo}/collaborators/{actor}/permission')
+    if permission.get('role_name') not in {'admin', 'maintain'}:
+        raise ValueError('A repository maintainer must dispatch human qualification')
+    if live_human(repo, candidate) != expected:
+        raise ValueError('Reviewed PR head or main has changed')
+    fetch_commit(expected['head'])
+    try:
+        run('git', 'merge-base', '--is-ancestor', expected['base'], expected['head'])
+    except subprocess.CalledProcessError as error:
+        if error.returncode != 1:
+            raise
+        raise ValueError('The reviewed human PR must contain the current main revision') from error
+    return candidate
+
+
+def finalize_human(repo, candidate, result):
+    expected = {key: candidate[key] for key in ('head', 'base')}
+    live = live_human(repo, candidate)
+    if live != expected:
+        raise ValueError('Reviewed PR head or main changed during qualification')
+    if not qualified(result, expected, live):
+        status(repo, candidate, 'failure', 'Full source and SDK qualification did not pass')
+        raise ValueError(f'Full source and SDK qualification did not pass: {result}')
+    status(repo, candidate, 'success', 'Full source and SDK qualification passed for the tested target')
+    print(f"Qualification recorded for operator merge review of PR #{candidate['pr']}", flush=True)
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('command', choices=('prepare', 'finalize'))
+    parser.add_argument('command', choices=('prepare', 'finalize', 'inspect-human', 'finalize-human'))
     parser.add_argument('--candidate', type=json.loads)
     parser.add_argument('--qualification-result')
+    parser.add_argument('--pr', type=int)
+    parser.add_argument('--head')
+    parser.add_argument('--base')
     args = parser.parse_args()
     repo = os.environ['GITHUB_REPOSITORY']
     if repo != 'hermi0ne-chipster6/hermes-experiment' or os.environ['GITHUB_REF'] != 'refs/heads/main':
         raise ValueError('The stable repository pipeline must run from trusted main')
-    if args.command == 'prepare':
-        candidate = prepare(repo)
+    if args.command in ('prepare', 'inspect-human'):
+        if args.command == 'prepare':
+            candidate = prepare(repo)
+        else:
+            candidate = inspect_human(repo, {'pr': args.pr, 'head': args.head, 'base': args.base},
+                                      os.environ['GITHUB_TRIGGERING_ACTOR'], os.environ['GITHUB_SHA'])
         if candidate:
             with open(os.environ['GITHUB_OUTPUT'], 'a') as output:
                 for key in ('head', 'base'):
                     print(f'{key}={candidate[key]}', file=output)
                 print('candidate=' + json.dumps(candidate, separators=(',', ':')), file=output)
-    else:
+    elif args.command == 'finalize':
         finalize(repo, args.candidate, args.qualification_result)
+    else:
+        finalize_human(repo, args.candidate, args.qualification_result)
 
 
 if __name__ == '__main__':

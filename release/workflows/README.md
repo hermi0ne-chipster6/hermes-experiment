@@ -50,8 +50,9 @@ Strict branch protection stops GitHub from merging after the target moves.
    actors. Block force pushes, require pull requests and require the exact status
    `Hermes stable release qualification` from the GitHub Actions App, with the
    requirement that branches be up to date before merging. The ruleset also
-   applies to human PRs, which need the same qualification status from a
-   trusted operator workflow. PR-event checks for Actions-created PRs require
+   applies to human PRs, which need the same qualification status from
+   `qualify-human-pr.yml`. Prove this operator route before activating the
+   required status. PR-event checks for Actions-created PRs require
    approval, so avoid requiring those contexts for unattended candidates.
    GitHub omits the bypass list from the workflow token's ruleset response.
    Keep that list empty in the repository settings. The finalizer uses GitHub's
@@ -60,7 +61,26 @@ Strict branch protection stops GitHub from merging after the target moves.
    `self-hosted, linux, x64, hermes-sdk-build`. It needs Workshop, SDKcraft, LXD,
    passwordless build privileges and enough capacity. Spread's VM tests need
    working KVM. Run Workshop as the dedicated non-root runner user. Restrict
-   the runner to trusted jobs and use synthetic state.
+   admission to the reviewed reusable workflow on `main` through the runner
+   group or equivalent enforced isolation. A label is only a scheduling
+   selector. Keep the runner and test state disposable.
+
+## Qualify a reviewed human PR
+
+After the reviewed workflow is on `main`, a repository maintainer can dispatch
+it with the exact reviewed same-repository PR head and current target. Update
+the PR with current `main` and review its resulting head before dispatch.
+
+```bash
+gh workflow run qualify-human-pr.yml --ref main \
+  -f pr=PR_NUMBER -f reviewed_head=REVIEWED_HEAD -f target_base=CURRENT_MAIN
+```
+
+The workflow checks operator permissions, ancestry, head and target before
+building. It publishes the required Actions status for the reviewed commit
+only after full qualification and another freshness check. Operator review and
+manual merge follow the result. The release workflow remains the separate path
+for bot-generated release PRs.
 
 Repository automation updates the observation branch and release PRs and uses
 GitHub auto-merge for qualified candidates. The exact tested SDK artifact,

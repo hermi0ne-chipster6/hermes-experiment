@@ -1,8 +1,11 @@
+import os
 from pathlib import Path
 import subprocess
 import tempfile
 import unittest
 from unittest.mock import Mock, patch
+
+import yaml
 
 from release import stable_pipeline as pipeline
 
@@ -68,6 +71,110 @@ class StablePipelineTests(unittest.TestCase):
         self.assertFalse(pipeline.qualified('success', pin, {**pin, 'head': 'd' * 40}))
         self.assertFalse(pipeline.qualified('success', pin, {**pin, 'base': 'd' * 40}))
         self.assertTrue(pipeline.qualified('success', pin, pin))
+
+    def test_operator_qualification_binds_the_reviewed_human_head_and_target(self):
+        repo = 'owner/hermes-experiment'
+        head, base = 'a' * 40, 'b' * 40
+        candidate = {'pr': 3, 'head': head, 'base': base}
+        pull = {'number': 3, 'state': 'open', 'draft': True, 'user': {'type': 'User'},
+                'base': {'ref': 'main', 'repo': {'full_name': repo}},
+                'head': {'ref': 'human/change', 'sha': head, 'repo': {'full_name': repo}}}
+        for edits in ({}, {'number': 4}, {'state': 'closed'}, {'user': {'type': 'Bot'}},
+                      {'auto_merge': {'enabled_by': {'id': 42}}},
+                      {'base': {**pull['base'], 'ref': 'other'}},
+                      {'head': {**pull['head'], 'ref': 'release/hermes/v0.24.0'}},
+                      {'head': {**pull['head'], 'repo': {'full_name': 'fork/repo'}}},
+                      {'head': {**pull['head'], 'sha': 'c' * 40}}):
+            with (self.subTest(edits=edits),
+                  patch.object(pipeline, 'main_tip', return_value=base),
+                  patch.object(pipeline, 'gh', side_effect=[{'role_name': 'maintain'}, {**pull, **edits}]),
+                  patch.object(pipeline, 'fetch_commit'),
+                  patch.object(pipeline, 'run') as git):
+                if edits:
+                    with self.assertRaises(ValueError):
+                        pipeline.inspect_human(repo, candidate, 'operator', base)
+                    git.assert_not_called()
+                else:
+                    self.assertEqual(pipeline.inspect_human(repo, candidate, 'operator', base), candidate)
+                    git.assert_called_once_with('git', 'merge-base', '--is-ancestor', base, head)
+
+    def test_operator_qualification_rejects_unreviewed_inputs_and_untrusted_dispatch(self):
+        candidate = {'pr': 3, 'head': 'a' * 40, 'base': 'b' * 40}
+        with patch.object(pipeline, 'gh', return_value={'role_name': 'write'}) as api:
+            with self.assertRaisesRegex(ValueError, 'maintainer'):
+                pipeline.inspect_human('fixture', candidate, 'contributor', candidate['base'])
+            api.assert_called_once_with('repos/fixture/collaborators/contributor/permission')
+            api.reset_mock()
+            for changed, workflow_sha in [({**candidate, 'head': 'unbound'}, candidate['base']),
+                                          (candidate, 'c' * 40), ({**candidate, 'pr': 0}, candidate['base'])]:
+                with self.assertRaises(ValueError):
+                    pipeline.inspect_human('fixture', changed, 'operator', workflow_sha)
+            api.assert_not_called()
+
+    def test_human_status_rechecks_freshness_and_never_enables_auto_merge(self):
+        candidate = {'pr': 3, 'head': 'a' * 40, 'base': 'b' * 40}
+        for result, live, expected_status in [
+                ('success', {'head': candidate['head'], 'base': candidate['base']}, 'success'),
+                ('failure', {'head': candidate['head'], 'base': candidate['base']}, 'failure'),
+                ('skipped', {'head': candidate['head'], 'base': candidate['base']}, 'failure'),
+                ('cancelled', {'head': candidate['head'], 'base': candidate['base']}, 'failure'),
+                ('success', {'head': 'c' * 40, 'base': candidate['base']}, None),
+                ('success', {'head': candidate['head'], 'base': 'c' * 40}, None)]:
+            with (self.subTest(result=result, live=live),
+                  patch.object(pipeline, 'live_human', return_value=live),
+                  patch.object(pipeline, 'status') as status,
+                  patch.object(pipeline, 'gh') as api):
+                if expected_status == 'success':
+                    pipeline.finalize_human('fixture', candidate, result)
+                else:
+                    with self.assertRaises(ValueError):
+                        pipeline.finalize_human('fixture', candidate, result)
+                if expected_status:
+                    self.assertEqual(status.call_args.args[:3], ('fixture', candidate, expected_status))
+                else:
+                    status.assert_not_called()
+                api.assert_not_called()
+
+    def test_source_and_sdk_jobs_enforce_their_exact_commit_shape(self):
+        workflows = pipeline.ROOT / '.github/workflows'
+        job_names = {'checks.yml': ('checks', 'Verify candidate and base'),
+                     'sdk-qualification.yml': ('sdk', 'Verify candidate against main')}
+        with tempfile.TemporaryDirectory() as name:
+            def git(*args):
+                return subprocess.run(['git', *args], cwd=name, timeout=15, check=True,
+                                      capture_output=True, text=True).stdout.strip()
+
+            def commit(message):
+                git('-c', 'user.name=Qualification', '-c', 'user.email=ci@example.invalid',
+                    'commit', '--allow-empty', '-m', message)
+                return git('rev-parse', 'HEAD')
+
+            git('init', '-b', 'main')
+            old_base = commit('old target')
+            base = commit('current target')
+            single = commit('bot update')
+            multi = commit('human change')
+            git('checkout', '--detach', old_base)
+            stale = commit('old-base change')
+            git('update-ref', 'refs/remotes/origin/main', base)
+            for filename, (job_name, step_name) in job_names.items():
+                doc = yaml.load((workflows / filename).read_text(), Loader=yaml.BaseLoader)
+                step = next(s for s in doc['jobs'][job_name]['steps'] if s.get('name') == step_name)
+                for checkout, expected_head, expected_base, human, expected in (
+                        (single, single, base, 'false', 0),
+                        (multi, multi, base, 'false', 1),
+                        (multi, multi, base, 'true', 0),
+                        (stale, stale, base, 'true', 1),
+                        (stale, stale, old_base, 'true', 1),
+                        (multi, single, base, 'true', 1)):
+                    with self.subTest(workflow=filename, head=checkout, human=human,
+                                      expected_head=expected_head, expected_base=expected_base):
+                        git('checkout', '--detach', checkout)
+                        env = {**os.environ, 'CANDIDATE_SHA': expected_head,
+                               'BASE_SHA': expected_base, 'HUMAN_CANDIDATE': human}
+                        result = subprocess.run(['bash', '-e', '-c', step['run']], env=env,
+                                                cwd=name, timeout=15, capture_output=True, text=True)
+                        self.assertEqual(result.returncode, expected, result.stderr)
 
     def test_prepare_only_qualifies_oldest_and_reuses_existing_prs(self):
         base = 'b' * 40
@@ -140,6 +247,8 @@ class StablePipelineTests(unittest.TestCase):
                     pipeline.SDK + 'sdkcraft.yaml']
         self.assertEqual(pipeline.changed_paths(required), set(required))
         for path in ('.github/workflows/releases.yml', 'sdks/hermes-execution/VERSION',
+                     'sdks/hermes-rea/VERSION', 'sdks/sui-cli/VERSION', 'sdks/stripe-link-cli/VERSION',
+                     'release/components.json', 'release/update_hermes_core.py',
                      pipeline.SDK + 'assets/wrappers/hermes'):
             with self.subTest(path=path), self.assertRaises(ValueError):
                 pipeline.changed_paths([*required, path])
