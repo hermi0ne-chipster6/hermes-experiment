@@ -46,6 +46,13 @@ class SuiSdkTests(unittest.TestCase):
             root = Path(directory)
             (root / 'bin').mkdir()
             (root / 'source').mkdir()
+            project = root / 'project'
+            license_path = Path('build-source/sui/LICENSE')
+            fixture_license = project / license_path
+            fixture_license.parent.mkdir(parents=True)
+            fixture_license.write_bytes((SDK / license_path).read_bytes())
+            fixture_license.chmod(0o600)
+            (project / 'VERSION').write_bytes((SDK / 'VERSION').read_bytes())
             archive = root / 'fixture.tgz'
             binary = b'#!/bin/sh\nprintf "%s\\n" "sui 1.82.3-fixture"\n'
             with tarfile.open(archive, 'w:gz') as tar:
@@ -56,7 +63,7 @@ class SuiSdkTests(unittest.TestCase):
                                f'cp {shlex.quote(str(archive))} "$2"\n')
             self.write_command(root / 'bin/craftctl', 'test "$1 $2" = "set version=1.82.3"\n')
             env = dict(os.environ, PATH=f'{root / "bin"}:{os.environ["PATH"]}',
-                       CRAFT_PART_SRC=str(root / 'source'), CRAFT_PROJECT_DIR=str(SDK))
+                       CRAFT_PART_SRC=str(root / 'source'), CRAFT_PROJECT_DIR=str(project))
             failed = subprocess.run(['bash', '-e', '-o', 'pipefail', '-c', pull], env=env, capture_output=True)
             self.assertNotEqual(failed.returncode, 0)
             self.assertIn(b'checksum did NOT match', failed.stderr)
@@ -68,6 +75,11 @@ class SuiSdkTests(unittest.TestCase):
                            capture_output=True)
             self.assertEqual(executable.read_bytes(), binary)
             self.assertEqual(stat.S_IMODE(executable.stat().st_mode), 0o755)
+            staged_license = root / 'source/sui/LICENSE'
+            self.assertTrue(staged_license.is_file(), 'The SDK part must stage the upstream license')
+            self.assertEqual(hashlib.sha256(staged_license.read_bytes()).hexdigest(),
+                             'c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4')
+            self.assertEqual(stat.S_IMODE(staged_license.stat().st_mode), 0o644)
 
     def test_setup_repeat_and_upgrade_preserve_state(self):
         with tempfile.TemporaryDirectory() as directory:

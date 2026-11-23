@@ -29,4 +29,5 @@ parts:
       SUI=$(find "$CRAFT_PART_SRC/unpacked" -type f -name sui -print -quit)
       test -n "$SUI"
       install -m 755 "$SUI" "$CRAFT_PART_SRC/sui/bin/sui"
+      install -m 644 "$CRAFT_PROJECT_DIR/build-source/sui/LICENSE" "$CRAFT_PART_SRC/sui/LICENSE"
       rm -rf "$CRAFT_PART_SRC/unpacked" "$CRAFT_PART_SRC/sui.tgz"
