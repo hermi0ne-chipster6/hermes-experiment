@@ -17,7 +17,7 @@ This local reference consumes `sdkcraft try`. The published Store SDK is `hermes
 
 ### Prerequisites, project layout
 
-Keep the operator charter and deployment inputs in the read-only configuration mount. The active Hermes profile, installed plugins, and package-manager state live on the persistent Hermes mount. Follow the [activation checklist](../../deployment/activation-checklist.md) before enabling gateways or cron. Native tools run in A. Connect B or C when a task explicitly needs external OpenSandbox execution or REA analysis.
+Keep deployment inputs in the read-only configuration mount. Put the verbatim operator charter in its own read-only mount under `/project` so the pinned Hermes context loader can read it through `.hermes.md`. The active Hermes profile, installed plugins, and package-manager state live on the persistent Hermes mount. Follow the [activation checklist](../../deployment/activation-checklist.md) before enabling gateways or cron. Native tools run in A. Connect B or C when a task explicitly needs external OpenSandbox execution or REA analysis.
 
 ### Inspect the packaged runtime
 
@@ -50,6 +50,7 @@ its original cutoff and lock. Operator-installed plugins keep their own state.
 | `state` | mount, `/home/workshop/.hermes` | automatic system mount |
 | `hindsight` | mount, `/home/workshop/.hindsight`, including linked pg0 database | automatic system mount |
 | `configuration` | read-only mount, `/etc/hermes-experiment` | automatic system mount; operator populates it |
+| `charter` | read-only mount, `/project/.hermes-charter` | automatic system mount; operator supplies the original charter only |
 | `diary` | tunnel, `/run/user/1000/hermes-diary.sock` | explicit example connection |
 | `model-key`, `buzz-key`, `email-password`, `sandbox-api-key`, `rea-ssh-key` | secret, dedicated runtime credentials | manually connect each same-named system slot |
 
@@ -61,13 +62,36 @@ Each installs its own executable in `/usr/local/bin`. For disposable
 qualification, register the three exact archives and use the
 [local composition](../../validation/hermes-agent/workshop.try.yaml.example).
 
-When moving an older Workshop that bundled the CLIs, record both existing
-mount sources with `workshop info` and preserve the directories. Keep
-the gateway and financial operations inactive during the cutover. Use
-the standalone SDKs' mount paths and remount the preserved sources to the
-new plugs while the Workshop is stopped. Verify executable ownership
-and state before returning it to use. The existing financial policies
-and Link auth-file path continue to apply.
+When moving an older Workshop that bundled the CLIs, use this order on a
+disposable copy first. Keep the gateway and financial operations inactive
+throughout the cutover and reversal.
+
+1. Record the exact old A and new CLI archives and the current Workshop definition.
+   Run `workshop info a` to record both existing CLI mount sources. Preserve a
+   copy of each source outside Workshop-managed storage and verify the contents,
+   modes and ownership. Use these retained directories for the new mounts.
+2. Before removing the bundled packages, verify both standalone CLIs against
+   the old state in a transitional Workshop. In the old A composition, add the
+   standalone SDKs with `sui-state.bind: hermes-experiment:sui-state` and
+   `link-state.bind: hermes-experiment:link-state` under the respective SDKs'
+   `plugs` mappings. Refresh and check that the standalone binaries own both
+   entrypoints and that the old state is readable by the Workshop user.
+3. Install the split A archive with the [standalone composition](../../validation/hermes-agent/workshop.try.yaml.example).
+   Remove both transitional `bind` mappings from the definition before the
+   refresh. Stop A after the refresh. Remount `a/sui-cli:sui-state` and
+   `a/stripe-link-cli:link-state` to the retained directories using
+   `workshop remount PLUG HOST-SOURCE`. Attach the new charter mount as described
+   in the [runbook](../../deployment/NEW-SERVER-RUNBOOK.md). Start A and reapply
+   the packaged setup hook. Verify both CLI versions and resolved executables,
+   auth paths, contents and permissions before restoring operations.
+4. To reverse, first restore the old managed `.hermes.md` link if the old
+   archive expects `/etc/hermes-experiment/original-charter.md`, using the
+   unchanged charter bytes. Refresh to the saved A archive and definition that
+   declare the old `hermes-experiment` CLI plugs. Stop A and remount
+   `a/hermes-experiment:sui-state` and `a/hermes-experiment:link-state` to the
+   retained directories. Start A and verify CLI paths and state before restoring
+   operations. Keep the saved archives and retained directories until the
+   upgrade and reversal have been verified.
 
 ## Slots (resources this SDK provides)
 

@@ -23,14 +23,16 @@ class RuntimeWrapperTests(unittest.TestCase):
         self.wrapper = root/'wrappers/hermes'
         self.home = root / '.hermes'
         self.project = root / 'project'
-        mount = root / 'configuration'
-        for directory in (self.home, self.project, mount):
+        mount = self.project / '.hermes-charter'
+        configuration = root / 'configuration'
+        for directory in (self.home, self.project, mount, configuration):
             directory.mkdir()
         charter = mount / 'original-charter.md'
+        self.legacy_charter = configuration / 'original-charter.md'
         shutil.copyfile(ROOT / 'deployment/a/original-charter.md.example', charter)
+        shutil.copyfile(charter, self.legacy_charter)
         (self.project / '.hermes.md').symlink_to(charter)
         wrapper = WRAPPER.read_text().replace('/home/workshop/.hermes', str(self.home))
-        wrapper = wrapper.replace('/etc/hermes-experiment/original-charter.md', str(charter))
         wrapper = wrapper.replace('/project', str(self.project))
         self.wrapper.write_text(wrapper)
         self.wrapper.chmod(0o755)
@@ -128,6 +130,28 @@ def main():
         result = self.invoke('chat', '--oneshot', '-q', 'synthetic')
         self.assertNotEqual(result.returncode, 0)
         self.assertNotIn('real-hermes', result.stdout)
+
+    def test_charter_context_must_resolve_inside_the_project(self):
+        (self.home / 'config.yaml').write_text('terminal: {cwd: /project}\n')
+        link = self.project / '.hermes.md'
+        inside = self.project / '.hermes-charter' / 'original-charter.md'
+        link.unlink()
+        link.symlink_to(self.legacy_charter)
+
+        result = self.invoke('chat', '--oneshot', '-q', 'synthetic')
+        self.assertEqual(result.returncode, 78, result.stdout)
+        self.assertIn('charter context is required', result.stderr)
+
+        link.unlink()
+        link.symlink_to(inside)
+        result = self.invoke('chat', '--oneshot', '-q', 'synthetic')
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn('real-hermes:chat:', result.stdout)
+
+        inside.write_text('altered charter\n')
+        result = self.invoke('chat', '--oneshot', '-q', 'synthetic')
+        self.assertEqual(result.returncode, 78, result.stdout)
+        self.assertIn('differs from the approved original', result.stderr)
 
     def test_tui_defaults_to_packaged_node_and_preserves_operator_override(self):
         (self.home / 'config.yaml').write_text('terminal: {cwd: /project}\n')

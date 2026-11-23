@@ -282,24 +282,28 @@ an agent, or loosen its permissions to solve a connection failure.
 Create nonsecret, root-owned host directories and files:
 
 ```bash
-sudo install -d -o root -g root -m 0755 /srv/hermes/config/a /srv/hermes/config/b /srv/hermes/config/c
+sudo install -d -o root -g root -m 0755 /srv/hermes/config/a /srv/hermes/config/b /srv/hermes/config/c /srv/hermes/charter/a
 sudo install -o root -g root -m 0644 "$HERMES_SOURCE/deployment/a/config.yaml.example" /srv/hermes/config/a/config.yaml
 sudo install -o root -g root -m 0644 "$HERMES_SOURCE/deployment/a/gateway.env.example" /srv/hermes/config/a/gateway.env
-sudo install -o root -g root -m 0644 "$HERMES_SOURCE/deployment/a/original-charter.md.example" /srv/hermes/config/a/original-charter.md
+sudo install -o root -g root -m 0644 "$HERMES_SOURCE/deployment/a/original-charter.md.example" /srv/hermes/charter/a/original-charter.md
 sudo install -o root -g root -m 0644 "$HERMES_SOURCE/deployment/b/opensandbox.toml.example" /srv/hermes/config/b/opensandbox.toml
-sha256sum /srv/hermes/config/a/original-charter.md
+sha256sum /srv/hermes/charter/a/original-charter.md
 ```
 
 The charter checksum must be
 `fab40f6dc5d2416db23e43d83de97c3b59db52c3d2e7bf01c051a7d9bbefd897`.
-Keep the original charter verbatim and upstream SOUL unchanged. Leave gateway,
-execution, Cloudflare activation markers absent and all MCP allowlists empty.
+Keep only the verbatim charter in `/srv/hermes/charter/a`. Keep upstream SOUL
+unchanged. For an upgrade, preserve the same charter in the old configuration
+directory for rollback and follow the [CLI state cutover](../sdks/hermes-experiment/README.md#sui-and-stripe-link-state).
+Leave gateway, execution and Cloudflare activation markers absent and all MCP
+allowlists empty.
 
 Stop before remounting these already-populated configuration directories:
 
 ```bash
 workshop --project /srv/hermes/a stop a
 workshop --project /srv/hermes/a remount a/hermes-experiment:configuration /srv/hermes/config/a
+workshop --project /srv/hermes/a remount a/hermes-experiment:charter /srv/hermes/charter/a
 workshop --project /srv/hermes/a start a
 workshop --project /srv/hermes/b stop b
 workshop --project /srv/hermes/b remount b/hermes-execution:configuration /srv/hermes/config/b
@@ -317,12 +321,14 @@ workshop --project /srv/hermes/a exec a -- env SDK=/var/lib/workshop/sdk/hermes-
 workshop --project /srv/hermes/b exec b -- env SDK=/var/lib/workshop/sdk/hermes-execution bash /var/lib/workshop/sdk/hermes-execution/sdk/hooks/setup-project
 workshop --project /srv/hermes/c exec c -- env SDK=/var/lib/workshop/sdk/hermes-rea bash /var/lib/workshop/sdk/hermes-rea/sdk/hooks/setup-project
 workshop --project /srv/hermes/a exec a -- findmnt --target /etc/hermes-experiment/config.yaml
+workshop --project /srv/hermes/a exec a -- findmnt --target /project/.hermes-charter/original-charter.md
 workshop --project /srv/hermes/a exec a -- readlink -f /home/workshop/.hermes/config.yaml
 workshop --project /srv/hermes/a exec a -- readlink -f /project/.hermes.md
 ```
 
-**PASS:** configuration mounts are read-only, A's links resolve to the mounted
-configuration/charter and all services remain inactive without activation markers.
+Check that both mounts are read-only, A's `.hermes.md` resolves to
+`/project/.hermes-charter/original-charter.md` and services remain inactive
+without activation markers.
 Run A's hook as the default `workshop` user, not root, because it manages that
 user's home and systemd session.
 

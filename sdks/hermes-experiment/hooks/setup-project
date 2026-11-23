@@ -16,14 +16,22 @@ fi
 ln -sfn "$HOME/.hindsight/pg0" "$HOME/.pg0"
 "$SDK/bin/python" -I "$SDK/wrappers/check-configuration.py" --setup \
     "$HOME/.hermes" /etc/hermes-experiment/config.yaml "$SDK"
-if [[ -r /etc/hermes-experiment/original-charter.md ]]; then
-    if [[ -e /project/.hermes.md || -L /project/.hermes.md ]]; then
-        if [[ ! -L /project/.hermes.md || "$(readlink /project/.hermes.md)" != /etc/hermes-experiment/original-charter.md ]]; then
+charter=/project/.hermes-charter/original-charter.md
+context=/project/.hermes.md
+if [[ -r "$charter" ]]; then
+    if [[ -L "$context" ]]; then
+        case "$(readlink "$context")" in
+        "$charter"|/etc/hermes-experiment/original-charter.md) ;;
+        *)
             echo 'Existing Hermes project context requires operator reconciliation; refusing overwrite.' >&2
             exit 1
-        fi
+            ;;
+        esac
+    elif [[ -e "$context" ]]; then
+        echo 'Existing Hermes project context requires operator reconciliation; refusing overwrite.' >&2
+        exit 1
     fi
-    ln -sfn /etc/hermes-experiment/original-charter.md /project/.hermes.md
+    ln -sfn "$charter" "$context"
 fi
 if [[ ! -e "$HOME/.hermes/SOUL.md" ]]; then
     install -m 600 "$SDK/share/hermes/SOUL.md" "$HOME/.hermes/SOUL.md"
@@ -38,6 +46,6 @@ HERMES_HOME="$HOME/.hermes" HERMES_RUNTIME_DIR="$HOME/.hermes/tools" \
 "$SDK/bin/python" -I "$SDK/wrappers/check-core.py" "$SDK" /usr/local/bin/hermes
 systemctl --user daemon-reload
 systemctl --user enable hermes-gateway.service
-if [[ -f /etc/hermes-experiment/gateway.enabled ]]; then
+if [[ -f /etc/hermes-experiment/gateway.enabled && -r "$charter" ]]; then
     systemctl --user start hermes-gateway.service
 fi

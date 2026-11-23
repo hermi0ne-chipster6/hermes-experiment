@@ -15,7 +15,12 @@ execute: |
     fi
   '
   workshop exec -- bash -lc 'buzz --help' | MATCH 'Usage'
-  workshop exec -- bash -ec 'test ! -e /usr/local/bin/sui; test ! -e /usr/local/bin/link-cli'
+  workshop exec -- bash -ec '
+    for cli in /usr/local/bin/sui /usr/local/bin/link-cli; do
+      test ! -e "$cli"
+      test ! -L "$cli"
+    done
+  '
   workshop exec -- bash -lc 'test -e /var/lib/workshop/sdk/hermes-experiment/plugins/hermes_otel/dashboard'
   workshop info | MATCH 'status:\s+ready'
 debug: |

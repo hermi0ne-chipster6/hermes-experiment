@@ -37,7 +37,7 @@ case "$mode" in
         ;;
     offline|send) ;;
     runtime)
-        charter=/etc/hermes-experiment/original-charter.md
+        charter=/project/.hermes-charter/original-charter.md
         if [[ ! -r "$charter" ]] || [[ "$(readlink -f /project/.hermes.md)" != "$charter" ]]; then
             echo 'Original governing charter context is required before agent execution.' >&2
             exit 78

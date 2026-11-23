@@ -35,6 +35,13 @@ plugs:
     uid: 0
     gid: 0
     mode: 493
+  charter:
+    interface: mount
+    workshop-target: /project/.hermes-charter
+    read-only: true
+    uid: 0
+    gid: 0
+    mode: 493
   rea-ssh-key:
     interface: secret
 parts:

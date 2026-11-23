@@ -298,7 +298,7 @@ def continuity(rollback=False):
         assert plugin_rows()[FIXTURE]['status'] == 'enabled'
         hermes('plugins', 'doctor', FIXTURE, '--ci')
 
-    print('Profile, session, memory, pg0, Sui, Link and plugin state survived.', flush=True)
+    print('Profile, session, memory, pg0 and plugin state survived.', flush=True)
 
 
 def exercise():

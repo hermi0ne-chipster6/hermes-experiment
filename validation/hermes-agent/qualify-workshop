@@ -40,9 +40,34 @@ for path in ("hermes-src/install-stamp.json", "share/hermes/core-pin.json"):
     identity = json.loads((sdk / path).read_text())
     assert (identity["baseVersion"], identity["commit"]) == tuple(sys.argv[1:]), path
 ' "$expected_version" "$expected_commit"
+    # Expand the CLI path inside the Workshop.
+    # shellcheck disable=SC2016
+    inside bash -ec '
+        for cli in /usr/local/bin/sui /usr/local/bin/link-cli; do
+            test ! -e "$cli"
+            test ! -L "$cli"
+        done
+        findmnt -n -o OPTIONS --target /project/.hermes-charter/original-charter.md | grep -Eq "(^|,)ro(,|$)"
+    '
+    inside /var/lib/workshop/sdk/hermes-experiment/bin/python -I -c '
+import hashlib, sys
+from pathlib import Path
+sdk = Path("/var/lib/workshop/sdk/hermes-experiment")
+sys.path.insert(0, str(sdk / "hermes-src"))
+from agent.prompt_builder import build_context_files_prompt
+charter = Path("/project/.hermes-charter/original-charter.md")
+assert Path("/project/.hermes.md").resolve() == charter
+assert hashlib.sha256(charter.read_bytes()).hexdigest() == "fab40f6dc5d2416db23e43d83de97c3b59db52c3d2e7bf01c051a7d9bbefd897"
+profile = Path.home() / ".hermes"
+soul = profile / "SOUL.md"
+assert soul.read_bytes() == (sdk / "share/hermes/SOUL.md").read_bytes()
+prompt = build_context_files_prompt(cwd="/project", home_override=profile)
+assert charter.read_text().strip() in prompt
+assert soul.read_text().strip() in prompt
+print("The mounted original charter and upstream SOUL both load into native Hermes context.")
+'
 }
 
-cp "$root/deployment/a/original-charter.md.example" "$project/original-charter.md"
 cp "$root/deployment/a/config.yaml.example" "$project/config.yaml"
 cp "$root/validation/hermes-agent/probe-qualification.py" "$project/probe.py"
 cat > "$project/workshop.yaml" <<'YAML'
@@ -67,10 +92,17 @@ fi
 wk launch
 launched=true
 
-mkdir "$project/operator"
-cp "$project/original-charter.md" "$project/operator/"
+mkdir "$project/operator" "$project/charter"
+cp "$root/deployment/a/original-charter.md.example" "$project/charter/original-charter.md"
+legacy_charter=false
 if "$rollback"; then
     previous_version=$(version | grep -F 'Hermes Agent v')
+    connections=$(wk connections)
+    if ! awk '$2 == "hermes-qualification/hermes-experiment:charter" { found=1 } END { exit !found }' <<< "$connections"; then
+        legacy_charter=true
+        cp "$project/charter/original-charter.md" "$project/operator/"
+        ln -s /etc/hermes-experiment/original-charter.md "$project/.hermes.md"
+    fi
     # Keep the deployed configuration layout for rollback to the 0.22.5 SDK.
     git -C "$root" show df4d649:deployment/a/config.yaml.example > "$project/operator/config.yaml"
 else
@@ -78,11 +110,15 @@ else
 fi
 wk stop
 wk remount hermes-qualification/hermes-experiment:configuration "$project/operator"
+if ! "$legacy_charter"; then
+    wk remount hermes-qualification/hermes-experiment:charter "$project/charter"
+fi
 wk start
 
 if "$rollback"; then
     # Force a legacy profile only in this disposable project. A newer LKG may
     # already initialize a writable profile, which is preserved beside the fixture.
+    # shellcheck disable=SC2016
     inside bash -ec 'profile=~/.hermes/config.yaml
         if [[ -f "$profile" && ! -L "$profile" ]]; then mv "$profile" "$profile.pre-qualification"; fi
         if [[ ! -L "$profile" ]]; then ln -s /etc/hermes-experiment/config.yaml "$profile"; fi'
@@ -90,12 +126,15 @@ if "$rollback"; then
     wk refresh
     inside bash -ec 'test -f ~/.hermes/config.yaml.pre-sdk-migration
         cmp ~/.hermes/config.yaml.pre-sdk-migration /etc/hermes-experiment/config.yaml'
-else
-    # The seed became available after launch. Apply the packaged setup helper.
-    inside bash -ec 'sdk=/var/lib/workshop/sdk/hermes-experiment
-        "$sdk/bin/python" -I "$sdk/wrappers/check-configuration.py" --setup "$HOME/.hermes" /etc/hermes-experiment/config.yaml "$sdk"
-        ln -s /etc/hermes-experiment/original-charter.md /project/.hermes.md'
+    if "$legacy_charter"; then
+        wk stop
+        wk remount hermes-qualification/hermes-experiment:charter "$project/charter"
+        wk start
+    fi
 fi
+# The operator data became available after launch or refresh.
+inside env SDK=/var/lib/workshop/sdk/hermes-experiment \
+    bash /var/lib/workshop/sdk/hermes-experiment/sdk/hooks/setup-project
 check_candidate
 exercise_result=0
 inside /var/lib/workshop/sdk/hermes-experiment/bin/python /project/probe.py exercise || exercise_result=$?
@@ -119,6 +158,10 @@ if [[ "$previous_version" == *'Hermes Agent v0.22.5 '* ]]; then
     inside bash -ec 'mv -n ~/.hermes/config.yaml ~/.hermes/config.yaml.qualification-rollback
         test ! -e ~/.hermes/config.yaml
         ln -s /etc/hermes-experiment/config.yaml ~/.hermes/config.yaml'
+fi
+if "$legacy_charter"; then
+    test "$(readlink "$project/.hermes.md")" = /project/.hermes-charter/original-charter.md
+    ln -sfn /etc/hermes-experiment/original-charter.md "$project/.hermes.md"
 fi
 try_sdk "$previous"
 wk refresh
