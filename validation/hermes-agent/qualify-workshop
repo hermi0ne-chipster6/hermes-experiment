@@ -43,9 +43,12 @@ for path in ("hermes-src/install-stamp.json", "share/hermes/core-pin.json"):
     # Expand the CLI path inside the Workshop.
     # shellcheck disable=SC2016
     inside bash -ec '
-        for cli in /usr/local/bin/sui /usr/local/bin/link-cli; do
-            test ! -e "$cli"
-            test ! -L "$cli"
+        sdk=/var/lib/workshop/sdk/hermes-experiment
+        for path in /usr/local/bin/sui /usr/local/bin/link-cli "$sdk/sui" "$sdk/finance" "$sdk/wrappers/link-cli"; do
+            if [[ -e "$path" || -L "$path" ]]; then
+                printf "Unexpected bundled CLI path in the core-only candidate: %s\n" "$path" >&2
+                exit 1
+            fi
         done
         findmnt -n -o OPTIONS --target /project/.hermes-charter/original-charter.md | grep -Eq "(^|,)ro(,|$)"
     '

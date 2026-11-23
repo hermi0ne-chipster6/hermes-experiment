@@ -16,9 +16,10 @@ execute: |
   '
   workshop exec -- bash -lc 'buzz --help' | MATCH 'Usage'
   workshop exec -- bash -ec '
-    for cli in /usr/local/bin/sui /usr/local/bin/link-cli; do
-      test ! -e "$cli"
-      test ! -L "$cli"
+    sdk=/var/lib/workshop/sdk/hermes-experiment
+    for path in /usr/local/bin/sui /usr/local/bin/link-cli "$sdk/sui" "$sdk/finance" "$sdk/wrappers/link-cli"; do
+      test ! -e "$path"
+      test ! -L "$path"
     done
   '
   workshop exec -- bash -lc 'test -e /var/lib/workshop/sdk/hermes-experiment/plugins/hermes_otel/dashboard'
