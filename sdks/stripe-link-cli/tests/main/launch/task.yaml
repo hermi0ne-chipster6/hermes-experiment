@@ -1,0 +1,18 @@
+summary: Install and verify the standalone Stripe Link CLI
+prepare: |
+  envsubst '${BASE}' <workshop.yaml.in >workshop.yaml
+  workshop launch
+  workshop changes
+  workshop tasks
+restore: |
+  workshop remove || true
+execute: |
+  workshop info | MATCH 'status:\s+ready'
+  workshop exec -- readlink -f /usr/local/bin/link-cli | MATCH '^/var/lib/workshop/sdk/stripe-link-cli/wrappers/link-cli$'
+  workshop exec -- link-cli --help | MATCH 'Usage'
+  workshop exec -- link-cli --version | MATCH '^1\.0\.1$'
+  workshop exec -- stat -c '%U %a' /home/workshop/.link-cli | MATCH '^workshop 700$'
+  workshop exec -- test ! -e /home/workshop/.link-cli/auth.json
+debug: |
+  workshop info || true
+  workshop tasks || true

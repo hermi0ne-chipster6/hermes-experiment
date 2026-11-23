@@ -39,9 +39,64 @@ class RuntimeWrapperTests(unittest.TestCase):
         python.chmod(0o755)
         shutil.copyfile(WRAPPER.with_name('check-configuration.py'),
                         self.wrapper.with_name('check-configuration.py'))
-        fake = root/'bin/hermes'
-        fake.write_text('#!/bin/bash\nprintf "real-hermes:%s:%s\\n" "$1" "${EMAIL_PASSWORD:+credential-present}"\n')
-        fake.chmod(0o755)
+        bootstrap = root/'bin/hermes'
+        shutil.copyfile(WRAPPER.parents[1] / 'bootstrap/hermes', bootstrap)
+        bootstrap.chmod(0o755)
+        source = root/'hermes-src'
+        cli = source/'hermes_cli'
+        cli.mkdir(parents=True)
+        (source/'hermes_bootstrap.py').write_text('')
+        (cli/'_parser.py').write_text('''
+def scan_profile_flag(args):
+    for index, arg in enumerate(args):
+        if arg == '--' or (args[:2] == ['mcp', 'add'] and arg == '--args'):
+            break
+        if arg in ('-p', '--profile') and index+1 < len(args):
+            return args[index+1], 2, index
+        if arg.startswith('--profile='):
+            return arg.split('=', 1)[1], 1, index
+    return None, 0, None
+
+def command_argv(args):
+    if args[:1] == ['--provider']:
+        args = args[2:]
+    return args
+''')
+        (cli/'main.py').write_text('''
+import argparse
+import os
+from pathlib import Path
+import sys
+from hermes_cli._parser import scan_profile_flag
+
+root = Path(os.environ['HERMES_HOME'])
+selector, used, index = scan_profile_flag(sys.argv[1:])
+if index is not None:
+    del sys.argv[index+1:index+1+used]
+elif (root/'active_profile').is_file():
+    selector = (root/'active_profile').read_text().strip()
+if selector and selector != 'default':
+    os.environ['HERMES_HOME'] = str(root/'profiles'/selector)
+
+def cmd_update(args):
+    print('native updater reached')
+    return 5
+
+def main():
+    if 'update' in sys.argv[1:] and sys.argv[1].startswith('--'):
+        parser = argparse.ArgumentParser()
+        parser.add_argument('--provider')
+        parser.add_argument('--model')
+        parser.add_argument('--reasoning')
+        update = parser.add_subparsers().add_parser('update')
+        update.set_defaults(func=cmd_update)
+        args = parser.parse_args()
+        return args.func(args)
+    credential = 'credential-present' if os.environ.get('EMAIL_PASSWORD') else ''
+    print(f'real-hermes:{sys.argv[1]}:{credential}')
+    print(os.environ['HERMES_HOME'])
+    print(repr(sys.argv[1:]))
+''')
         ctl = root/'bin/workshopctl'
         ctl.write_text('#!/bin/bash\necho "unconnected" >&2\nexit 3\n')
         ctl.chmod(0o755)
@@ -53,6 +108,7 @@ class RuntimeWrapperTests(unittest.TestCase):
     def test_offline_version_does_not_request_credentials(self):
         result = self.invoke('--version')
         self.assertEqual(result.returncode, 0)
+        self.assertIn('real-hermes:--version:', result.stdout)
         self.assertNotIn('unconnected', result.stderr)
 
     def test_uncontrolled_runtime_update_is_blocked(self):
@@ -101,11 +157,54 @@ class RuntimeWrapperTests(unittest.TestCase):
         ])
         self.assertNotIn('synthetic-secret', result.stdout+result.stderr)
 
-    def test_profile_override_cannot_redirect_native_sender_or_configuration(self):
-        for arguments in (('send','--profile','other'),('send','--profile=other'),('send','-p','other'),('send','-pother')):
-            result=self.invoke(*arguments)
-            self.assertEqual(result.returncode,64,result.stdout+result.stderr)
-            self.assertNotIn('real-hermes',result.stdout)
+    def test_native_named_profile_is_dispatched_with_its_own_valid_config(self):
+        named = self.home/'profiles/work'
+        named.mkdir(parents=True)
+        (named/'config.yaml').write_text('terminal: {cwd: /project}\n')
+        (self.home/'config.yaml').write_text('terminal: [malformed\n')
+        for selector in (('-p', 'work'), ('--profile', 'work'), ('--profile=work',)):
+            with self.subTest(selector=selector):
+                result = self.invoke(*selector, 'plugins', 'list')
+                self.assertEqual(result.returncode, 0, result.stderr)
+                self.assertIn(str(named), result.stdout.splitlines())
+
+    def test_sticky_named_profile_is_validated_before_dispatch(self):
+        (self.home/'config.yaml').write_text('terminal: {cwd: /project}\n')
+        named = self.home/'profiles/work'
+        named.mkdir(parents=True)
+        (named/'config.yaml').write_text('terminal: [malformed\n')
+        (self.home/'active_profile').write_text('work\n')
+        result = self.invoke('config', 'path')
+        self.assertEqual(result.returncode, 78, result.stdout+result.stderr)
+        self.assertIn('invalid profile', result.stderr)
+        self.assertNotIn('real-hermes', result.stdout)
+        explicit_default = self.invoke('config', 'path', '--profile=default')
+        self.assertEqual(explicit_default.returncode, 0, explicit_default.stderr)
+        self.assertIn(str(self.home), explicit_default.stdout.splitlines())
+
+    def test_update_after_global_flag_is_blocked(self):
+        (self.home/'config.yaml').write_text('terminal: {cwd: /project}\n')
+        for arguments in (('--provider', 'example', 'update'), ('-p', 'default', 'update')):
+            with self.subTest(arguments=arguments):
+                result = self.invoke(*arguments)
+                self.assertEqual(result.returncode, 64, result.stdout+result.stderr)
+                self.assertIn('workshop refresh', result.stderr)
+                self.assertNotIn('real-hermes', result.stdout)
+
+    def test_abbreviated_global_options_cannot_reach_core_updater(self):
+        (self.home/'config.yaml').write_text('terminal: {cwd: /project}\n')
+        for option in ('--prov', '--mod', '--reason'):
+            with self.subTest(option=option):
+                result = self.invoke(option, 'fixture', 'update')
+                self.assertEqual(result.returncode, 64, result.stdout+result.stderr)
+                self.assertIn('workshop refresh', result.stderr)
+                self.assertNotIn('native updater reached', result.stdout)
+
+    def test_native_mcp_child_arguments_are_preserved(self):
+        (self.home/'config.yaml').write_text('terminal: {cwd: /project}\n')
+        result = self.invoke('mcp', 'add', 'fixture', '--args', '--profile=literal', '-package')
+        self.assertEqual(result.returncode, 0, result.stdout+result.stderr)
+        self.assertIn("['mcp', 'add', 'fixture', '--args', '--profile=literal', '-package']", result.stdout)
 
     def test_literal_email_text_after_separator_is_not_a_profile_override(self):
         result=self.invoke('send','--to','email:recipient@example.invalid','--','--profile=literal-text')

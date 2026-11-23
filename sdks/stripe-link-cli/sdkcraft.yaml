@@ -1,0 +1,34 @@
+# The Node archive and Link dependency integrity are recorded in ../../sources.json.
+name: stripe-link-cli
+adopt-info: link-cli
+summary: Pinned Stripe Link command-line client
+description: Stripe Link CLI and its native MCP entry point with persistent account state.
+license: MIT
+base: ubuntu@26.04
+platforms:
+  amd64: null
+plugs:
+  link-state:
+    interface: mount
+    workshop-target: /home/workshop/.link-cli
+    mode: 448
+parts:
+  node-runtime:
+    plugin: dump
+    source: https://nodejs.org/dist/v26.13.0/node-v26.13.0-linux-x64.tar.xz
+    source-checksum: sha256/d28a96af6c38596f6d9d97c0ee531c13d238d757742387d1928de822d959e997
+    organize:
+      '*': node/
+  link-cli:
+    plugin: dump
+    source: npm
+    source-type: local
+    after:
+      - node-runtime
+    override-build: |
+      craftctl set version="$(cat "$CRAFT_PROJECT_DIR/VERSION")"
+      export PATH="$CRAFT_STAGE/node/bin:$PATH"
+      timeout 900 npm ci --omit=dev --ignore-scripts --no-audit --no-fund
+      mkdir -p "$CRAFT_PART_INSTALL/finance"
+      cp -a node_modules package.json package-lock.json "$CRAFT_PART_INSTALL/finance/"
+      install -D -m 755 "$CRAFT_PROJECT_DIR/wrappers/link-cli" "$CRAFT_PART_INSTALL/wrappers/link-cli"

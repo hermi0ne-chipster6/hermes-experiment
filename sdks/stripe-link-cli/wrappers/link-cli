@@ -1,0 +1,6 @@
+#!/bin/bash
+set -euo pipefail
+sdk_dir=$(dirname "$(dirname "$(readlink -f "$0")")")
+# Native auth/identity state; no login, credential generation or npm at startup.
+export LINK_AUTH_FILE="${LINK_AUTH_FILE:-/home/workshop/.link-cli/auth.json}"
+exec "$sdk_dir/node/bin/node" "$sdk_dir/finance/node_modules/@stripe/link-cli/dist/cli.js" "$@"

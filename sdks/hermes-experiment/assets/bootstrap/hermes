@@ -14,6 +14,8 @@ exec "$sdk_dir/bin/python" -P -B -c '
 import os
 import sys
 
+validate_profile = os.environ.pop("HERMES_WORKSHOP_VALIDATE_PROFILE", "") == "1"
+
 # Upstream bootstrap takes a lease on its selected persistent PM generation,
 # activates its site-packages before third-party imports, and sets child paths.
 import hermes_bootstrap
@@ -33,6 +35,33 @@ for path in (os.environ.pop("HERMES_DIARY_PYTHON_PATH"), packaged):
             paths.append(path)
 os.environ["PYTHONPATH"] = os.pathsep.join(paths)
 
-from hermes_cli.main import main
-sys.exit(main())
+from hermes_cli import main as cli
+
+
+def refuse_core_update(_args):
+    print("This packaged Hermes is managed by SDKcraft. Use workshop refresh with a verified SDK.",
+          file=sys.stderr)
+    return 64
+
+
+# Bind the SDK policy to the update handler in the native parser. The CLI also
+# accepts abbreviations and forms the shell launcher cannot classify early.
+cli.cmd_update = refuse_core_update
+
+if validate_profile:
+    # Importing the native CLI consumes its selector and applies the sticky
+    # profile and supervisor rules. Validate that profile before dispatch.
+    from pathlib import Path
+    import subprocess
+
+    config = Path(os.environ["HERMES_HOME"]) / "config.yaml"
+    if not config.is_file() or config.is_symlink() or not os.access(config, os.W_OK):
+        print("Writable persistent Hermes configuration required.", file=sys.stderr)
+        sys.exit(78)
+    checker = Path(sdk) / "wrappers/check-configuration.py"
+    result = subprocess.run([sys.executable, "-I", "-B", checker, config])
+    if result.returncode:
+        sys.exit(result.returncode)
+
+sys.exit(cli.main())
 ' "$@"

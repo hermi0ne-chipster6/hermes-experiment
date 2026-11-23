@@ -9,6 +9,7 @@
   ],
   "lock_parts": [
     "hermes-experiment/finance",
+    "stripe-link-cli/link-cli",
     "hermes-experiment/hindsight-runtime"
   ],
   "components": [
@@ -181,14 +182,16 @@
       "kind": "node",
       "roles": [
         "hermes-experiment",
-        "hermes-rea"
+        "hermes-rea",
+        "stripe-link-cli"
       ],
       "inputs": [
         "sources.json"
       ],
       "parts": [
         "hermes-experiment/node-runtime",
-        "hermes-rea/node-runtime"
+        "hermes-rea/node-runtime",
+        "stripe-link-cli/node-runtime"
       ],
       "source_keys": {
         "current": [

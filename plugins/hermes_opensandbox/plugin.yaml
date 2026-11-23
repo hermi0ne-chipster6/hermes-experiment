@@ -1,0 +1,10 @@
+name: hermes_opensandbox
+label: OpenSandbox
+kind: backend
+version: 0.1.0
+description: Terminal, code and file operations in an explicitly selected private OpenSandbox worker.
+requires_hermes: ">=0.23.3"
+python_dependencies:
+  - opensandbox==1.2.0
+provides_tools: []
+provides_hooks: []
