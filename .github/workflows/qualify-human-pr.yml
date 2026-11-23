@@ -1,9 +1,9 @@
-name: Qualify a reviewed human PR
+name: Qualify a reviewed Workshop A PR
 on:
   workflow_dispatch:
     inputs:
       pr:
-        description: Same-repository human PR number
+        description: Same-repository A-only human PR number
         required: true
         type: string
       reviewed_head:
@@ -73,6 +73,7 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
           persist-credentials: false
+          fetch-depth: 0
           ref: ${{ github.sha }}
       - name: Report qualification for operator merge review
         env:

@@ -24,6 +24,12 @@ SDK = 'sdks/hermes-experiment/'
 SCOPE = {'sources.json', HISTORY, 'release/upstream-locks/provenance.json', 'release/upstream-locks/hermes/pm/lock.json',
          *(SDK + name for name in ('VERSION', 'sdkcraft.yaml', 'core-requirements.txt',
                                     'plugin-requirements.txt'))}
+# The current harness qualifies the Workshop A core, not the full composition.
+HUMAN_A_SCOPE = {SDK + name for name in (
+    'README.md', 'assets/bootstrap/hermes', 'assets/wrappers/hermes',
+    'assets/wrappers/check-core.py', 'assets/wrappers/check-configuration.py',
+    'assets/wrappers/sync-plugin-dependencies.py',
+)}
 CAPTURED = re.compile(
     r'release/upstream-locks/hermes/(?:[A-Za-z0-9_.-]+/)*'
     r'(?:package\.json|pnpm-lock\.yaml|pnpm-workspace\.yaml|uv\.lock|pyproject\.toml)\Z')
@@ -419,15 +425,19 @@ def status(repo, candidate, state, description):
                 'target_url': run_url})
 
 
-def require_protection(repo):
-    settings = gh(f'repos/{repo}')
-    if not settings.get('allow_auto_merge') or not settings.get('allow_squash_merge'):
-        raise ValueError('Repository must allow GitHub auto-merge and squash merges')
+def require_qualification_rule(repo):
     rules = gh(f'repos/{repo}/rules/branches/main', pages=True)
     configs = {rule_id: gh(f'repos/{repo}/rulesets/{rule_id}') for rule_id in
                {rule['ruleset_id'] for rule in rules if rule['type'] == 'required_status_checks'}}
     if not protection_ready(rules, configs):
         raise ValueError('Main requires an active strict qualification ruleset and a force-push block')
+
+
+def require_protection(repo):
+    settings = gh(f'repos/{repo}')
+    if not settings.get('allow_auto_merge') or not settings.get('allow_squash_merge'):
+        raise ValueError('Repository must allow GitHub auto-merge and squash merges')
+    require_qualification_rule(repo)
 
 
 def finalize(repo, candidate, result):
@@ -483,12 +493,38 @@ def live_human(repo, candidate):
     return {'head': head.get('sha'), 'base': main_tip(repo)}
 
 
-def inspect_human(repo, candidate, actor, workflow_sha):
+def human_pins(candidate, workflow_sha):
     expected = {key: candidate.get(key) for key in ('head', 'base')}
     if (type(candidate.get('pr')) is not int or candidate['pr'] <= 0 or
             any(not isinstance(sha, str) or not REVISION.fullmatch(sha) for sha in expected.values()) or
             expected['base'] != workflow_sha or expected['head'] == expected['base']):
         raise ValueError('An exact reviewed PR head and trusted main revision are required')
+    return expected
+
+
+def verify_human_scope(base, head):
+    if run('git', 'rev-parse', 'HEAD') != base:
+        raise ValueError('Trusted workflow checkout differs from the reviewed main revision')
+    fetch_commit(head)
+    try:
+        run('git', 'merge-base', '--is-ancestor', base, head)
+    except subprocess.CalledProcessError as error:
+        if error.returncode != 1:
+            raise
+        raise ValueError('The reviewed human PR must contain the current main revision') from error
+    changes = run('git', 'diff', '--raw', '-z', '--no-renames', '--no-ext-diff', base, head, '--')
+    if not changes:
+        raise ValueError('The reviewed human PR has no changes to qualify')
+    entries = iter(changes.removesuffix('\0').split('\0'))
+    for metadata, path in zip(entries, entries, strict=True):
+        old_mode, new_mode, _, _, operation = metadata.removeprefix(':').split()
+        if (path not in HUMAN_A_SCOPE or operation != 'M' or old_mode != new_mode or
+                old_mode not in ('100644', '100755')):
+            raise ValueError(f'Change outside A-only qualification scope: {path!r}')
+
+
+def inspect_human(repo, candidate, actor, workflow_sha):
+    expected = human_pins(candidate, workflow_sha)
     if not re.fullmatch(r'[A-Za-z0-9-]+', actor):
         raise ValueError('A repository maintainer must dispatch human qualification')
     permission = gh(f'repos/{repo}/collaborators/{actor}/permission')
@@ -496,25 +532,24 @@ def inspect_human(repo, candidate, actor, workflow_sha):
         raise ValueError('A repository maintainer must dispatch human qualification')
     if live_human(repo, candidate) != expected:
         raise ValueError('Reviewed PR head or main has changed')
-    fetch_commit(expected['head'])
-    try:
-        run('git', 'merge-base', '--is-ancestor', expected['base'], expected['head'])
-    except subprocess.CalledProcessError as error:
-        if error.returncode != 1:
-            raise
-        raise ValueError('The reviewed human PR must contain the current main revision') from error
+    verify_human_scope(expected['base'], expected['head'])
     return candidate
 
 
-def finalize_human(repo, candidate, result):
-    expected = {key: candidate[key] for key in ('head', 'base')}
+def finalize_human(repo, candidate, result, workflow_sha):
+    expected = human_pins(candidate, workflow_sha)
+    if live_human(repo, candidate) != expected:
+        raise ValueError('Reviewed PR head or main changed during qualification')
+    verify_human_scope(expected['base'], expected['head'])
+    if result == 'success':
+        require_qualification_rule(repo)
     live = live_human(repo, candidate)
     if live != expected:
         raise ValueError('Reviewed PR head or main changed during qualification')
     if not qualified(result, expected, live):
         status(repo, candidate, 'failure', 'Full source and SDK qualification did not pass')
         raise ValueError(f'Full source and SDK qualification did not pass: {result}')
-    status(repo, candidate, 'success', 'Full source and SDK qualification passed for the tested target')
+    status(repo, candidate, 'success', 'Workshop A source and SDK qualification passed for the tested target')
     print(f"Qualification recorded for operator merge review of PR #{candidate['pr']}", flush=True)
 
 
@@ -544,7 +579,7 @@ def main():
     elif args.command == 'finalize':
         finalize(repo, args.candidate, args.qualification_result)
     else:
-        finalize_human(repo, args.candidate, args.qualification_result)
+        finalize_human(repo, args.candidate, args.qualification_result, os.environ['GITHUB_SHA'])
 
 
 if __name__ == '__main__':

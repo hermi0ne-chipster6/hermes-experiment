@@ -70,6 +70,10 @@ Strict branch protection stops GitHub from merging after the target moves.
 After the reviewed workflow is on `main`, a repository maintainer can dispatch
 it with the exact reviewed same-repository PR head and current target. Update
 the PR with current `main` and review its resulting head before dispatch.
+This route covers existing Workshop A launcher, bootstrap, identity,
+configuration, dependency reconciliation, and README edits. Changes
+to other SDKs, the qualification harness, or shared composition require
+the broader candidate acceptance matrix.
 
 ```bash
 gh workflow run qualify-human-pr.yml --ref main \

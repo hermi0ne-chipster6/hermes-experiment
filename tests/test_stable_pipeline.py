@@ -88,15 +88,14 @@ class StablePipelineTests(unittest.TestCase):
             with (self.subTest(edits=edits),
                   patch.object(pipeline, 'main_tip', return_value=base),
                   patch.object(pipeline, 'gh', side_effect=[{'role_name': 'maintain'}, {**pull, **edits}]),
-                  patch.object(pipeline, 'fetch_commit'),
-                  patch.object(pipeline, 'run') as git):
+                  patch.object(pipeline, 'verify_human_scope') as scope):
                 if edits:
                     with self.assertRaises(ValueError):
                         pipeline.inspect_human(repo, candidate, 'operator', base)
-                    git.assert_not_called()
+                    scope.assert_not_called()
                 else:
                     self.assertEqual(pipeline.inspect_human(repo, candidate, 'operator', base), candidate)
-                    git.assert_called_once_with('git', 'merge-base', '--is-ancestor', base, head)
+                    scope.assert_called_once_with(base, head)
 
     def test_operator_qualification_rejects_unreviewed_inputs_and_untrusted_dispatch(self):
         candidate = {'pr': 3, 'head': 'a' * 40, 'base': 'b' * 40}
@@ -123,17 +122,90 @@ class StablePipelineTests(unittest.TestCase):
             with (self.subTest(result=result, live=live),
                   patch.object(pipeline, 'live_human', return_value=live),
                   patch.object(pipeline, 'status') as status,
+                  patch.object(pipeline, 'verify_human_scope') as scope,
+                  patch.object(pipeline, 'require_qualification_rule') as protection,
                   patch.object(pipeline, 'gh') as api):
                 if expected_status == 'success':
-                    pipeline.finalize_human('fixture', candidate, result)
+                    pipeline.finalize_human('fixture', candidate, result, candidate['base'])
+                    protection.assert_called_once_with('fixture')
                 else:
                     with self.assertRaises(ValueError):
-                        pipeline.finalize_human('fixture', candidate, result)
+                        pipeline.finalize_human('fixture', candidate, result, candidate['base'])
+                    protection.assert_not_called()
                 if expected_status:
+                    scope.assert_called_once_with(candidate['base'], candidate['head'])
                     self.assertEqual(status.call_args.args[:3], ('fixture', candidate, expected_status))
                 else:
                     status.assert_not_called()
                 api.assert_not_called()
+
+    def test_out_of_scope_or_newly_stale_human_pr_cannot_publish_success(self):
+        candidate = {'pr': 3, 'head': 'a' * 40, 'base': 'b' * 40}
+        current = {'head': candidate['head'], 'base': candidate['base']}
+        for scope_result, rule_result, live in [(ValueError('Outside A scope'), None, current),
+                                               (None, ValueError('No strict rule'), current),
+                                               (None, None, {**current, 'base': 'f' * 40})]:
+            with (self.subTest(scope_result=scope_result, rule_result=rule_result),
+                  patch.object(pipeline, 'live_human', side_effect=[current, live]),
+                  patch.object(pipeline, 'verify_human_scope', side_effect=scope_result),
+                  patch.object(pipeline, 'require_qualification_rule', side_effect=rule_result),
+                  patch.object(pipeline, 'status') as status):
+                with self.assertRaises(ValueError):
+                    pipeline.finalize_human('fixture', candidate, 'success', candidate['base'])
+                status.assert_not_called()
+
+    def test_human_scope_checks_exact_git_changes_before_qualification(self):
+        launcher = pipeline.SDK + 'assets/wrappers/hermes'
+        docs = pipeline.SDK + 'README.md'
+        peer = 'sdks/hermes-execution/VERSION'
+        harness = 'ci/qualify-sdk'
+        with tempfile.TemporaryDirectory() as name:
+            root = Path(name)
+
+            def git(*args):
+                return subprocess.run(['git', *args], cwd=root, timeout=15, check=True,
+                                      capture_output=True, text=True).stdout.strip()
+
+            def commit():
+                git('add', '-A')
+                git('-c', 'user.name=Qualification', '-c', 'user.email=ci@example.invalid',
+                    'commit', '-m', 'Qualification scope fixture')
+                return git('rev-parse', 'HEAD')
+
+            git('init', '-b', 'main')
+            for path in (launcher, docs, peer, harness):
+                local = root / path
+                local.parent.mkdir(parents=True, exist_ok=True)
+                local.write_text('baseline\n')
+            base = commit()
+            original_run = pipeline.run
+            for paths, symlink, allowed in (
+                    ((launcher,), False, True), ((docs,), False, True), ((launcher,), True, False),
+                    ((launcher, peer), False, False), ((harness,), False, False),
+                    (('sources.json',), False, False),
+                    (('.github/workflows/sdk-qualification.yml',), False, False),
+                    (('tests/test_runtime_wrapper.py',), False, False),
+                    (('validation/hermes-agent/probe-qualification.py',), False, False),
+                    ((pipeline.SDK + 'sdkcraft.yaml',), False, False)):
+                with self.subTest(paths=paths, symlink=symlink):
+                    for path in paths:
+                        local = root / path
+                        local.parent.mkdir(parents=True, exist_ok=True)
+                        if symlink:
+                            local.unlink()
+                            local.symlink_to(root / peer)
+                        else:
+                            local.write_text('changed\n')
+                    head = commit()
+                    git('checkout', '--detach', base)
+                    with (patch.object(pipeline, 'fetch_commit') as fetch,
+                          patch.object(pipeline, 'run', side_effect=lambda *args: original_run(*args, cwd=root))):
+                        if allowed:
+                            pipeline.verify_human_scope(base, head)
+                        else:
+                            with self.assertRaisesRegex(ValueError, 'outside A-only qualification scope'):
+                                pipeline.verify_human_scope(base, head)
+                        fetch.assert_called_once_with(head)
 
     def test_source_and_sdk_jobs_enforce_their_exact_commit_shape(self):
         workflows = pipeline.ROOT / '.github/workflows'
