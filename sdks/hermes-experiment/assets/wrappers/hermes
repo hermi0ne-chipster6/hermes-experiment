@@ -52,6 +52,8 @@ case "$mode" in
         ;;
 esac
 export HERMES_DIARY_SOCKET="${HERMES_DIARY_SOCKET:-/run/user/1000/hermes-diary.sock}"
+# Use the bundled Node for the prebuilt TUI without provisioning another runtime.
+export HERMES_NODE="${HERMES_NODE:-$sdk_dir/node/bin/node}"
 export PATH="$sdk_dir/node/bin:$sdk_dir/buzz/bin:$PATH"
 case "$mode" in
     offline) ;;

@@ -66,6 +66,7 @@ def command_argv(args):
 import argparse
 import os
 from pathlib import Path
+import subprocess
 import sys
 from hermes_cli._parser import scan_profile_flag
 
@@ -83,6 +84,12 @@ def cmd_update(args):
     return 5
 
 def main():
+    if sys.argv[1:] == ['--tui']:
+        node = os.environ.get('HERMES_NODE')
+        if not node:
+            print('TUI Node override missing', file=sys.stderr)
+            return 1
+        return subprocess.call([node])
     if 'update' in sys.argv[1:] and sys.argv[1].startswith('--'):
         parser = argparse.ArgumentParser()
         parser.add_argument('--provider')
@@ -121,6 +128,22 @@ def main():
         result = self.invoke('chat', '--oneshot', '-q', 'synthetic')
         self.assertNotEqual(result.returncode, 0)
         self.assertNotIn('real-hermes', result.stdout)
+
+    def test_tui_defaults_to_packaged_node_and_preserves_operator_override(self):
+        (self.home / 'config.yaml').write_text('terminal: {cwd: /project}\n')
+        root = Path(self.temp.name)
+        bundled = root / 'node/bin/node'
+        bundled.parent.mkdir(parents=True)
+        operator = root / 'operator-node'
+        for executable, label in ((bundled, 'bundled'), (operator, 'operator')):
+            executable.write_text(f'#!/bin/sh\nprintf "%s\\n" {label}\n')
+            executable.chmod(0o755)
+
+        for extra, expected in (({}, 'bundled'), ({'HERMES_NODE': str(operator)}, 'operator')):
+            with self.subTest(expected=expected):
+                result = self.invoke('--tui', extra=extra)
+                self.assertEqual(result.returncode, 0, result.stderr)
+                self.assertEqual(result.stdout.strip(), expected)
 
     def test_plugin_operations_reach_upstream_with_valid_profile(self):
         profile = self.home / 'config.yaml'
