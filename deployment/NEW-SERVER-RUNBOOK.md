@@ -471,7 +471,7 @@ key revocation. Reapply C's setup hook after changing/revoking its public allowl
 an unchanged refresh can otherwise be a no-op. Reconfirm the real host identity
 after updates; do not replace it with an unverified `ssh-keyscan` result.
 
-## 11. Start B and prove real A→B execution and artifact transfer
+## 11. Start B and check real A→B execution
 
 After the credential and network gates pass:
 
@@ -501,22 +501,8 @@ This pulls a pinned small acceptance image and runs synthetic command/file work
 inside B. It should print `python_stdout: "42"`, a file checksum and
 `server_proxy: true`, then destroy the temporary sandbox.
 
-For artifact handoff, use the same probe's optional REA settings. The private key
-is loaded through stdin into a temporary agent in A, never sent to B or C:
-
-```bash
-export OPEN_SANDBOX_API_KEY="$(secret-tool lookup application hermes-experiment-1 credential sandbox-api-key)"
-export HERMES_REA_ACCEPTANCE_KEY="$(secret-tool lookup application hermes-experiment-1 credential rea-ssh-key)"
-export HERMES_REA_ACCEPTANCE_HOSTKEY="$(cat /srv/hermes/config/a/rea_known_hosts)"
-jq -n '{api_key:env.OPEN_SANDBOX_API_KEY,domain:env.OPEN_SANDBOX_DOMAIN,rea_key:(env.HERMES_REA_ACCEPTANCE_KEY + "\n"),rea_known_hosts:env.HERMES_REA_ACCEPTANCE_HOSTKEY,rea_host:env.HERMES_C_HOST}' | workshop --project /srv/hermes/a exec a -- /var/lib/workshop/sdk/hermes-experiment/bin/python -I /project/probe-workload.py
-unset OPEN_SANDBOX_API_KEY HERMES_REA_ACCEPTANCE_KEY HERMES_REA_ACCEPTANCE_HOSTKEY
-```
-
-**PASS:** the handoff result names `/var/lib/hermes-rea/inbox/<sha256>.bin` and its
-digest/size match the synthetic input. Next use native REA to open/analyze that
-exact file and record the actual result. A successful upload is not analysis.
-Test bad-digest rejection and the documented 32 MiB/90-second transfer limits
-with synthetic inputs. Never send private wallet files for analysis.
+Record the result for A→B separately. Any reviewed A→C fixture uses an
+independent benign input staged in C.
 
 Also qualify the pinned code-interpreter/browser workload images from
 `sources.json`, including cancellation, TTL cleanup and failure handling. The small
@@ -524,10 +510,11 @@ Python-image probe does not establish browser/code-interpreter acceptance. Confi
 that a sandbox cannot reach A's services, host management or other sandboxes'
 private data. If B is unavailable, Hermes must not fall back to executing locally.
 
-## 12. Validate actual MCP execution and approve minimal tool allowlists
+## 12. Verify tool selection in the active Hermes profile
 
-Repeat the modern discovery/list requests from phase 10 against the OpenSandbox
-MCP adapter in A. Supply only the dedicated sandbox key through `exec --env`:
+For the standalone OpenSandbox MCP diagnostic, repeat the discovery and list
+requests from phase 10. Supply only the dedicated sandbox key through
+`exec --env`:
 
 ```bash
 export OPEN_SANDBOX_API_KEY="$(secret-tool lookup application hermes-experiment-1 credential sandbox-api-key)"
@@ -537,36 +524,36 @@ unset OPEN_SANDBOX_API_KEY
 
 **PASS:** current-protocol discovery/list succeeds (19 tools in the baseline).
 Use the returned schemas for real synthetic calls: `sandbox_create`, `command_run`,
-`file_write`, `file_read` and `sandbox_kill`. `command_run.command` is a **string**;
-do not use the unsupported argv extension. Prove cleanup after both success and
-failure. Add only the operations needed by this experiment to the explicit
-`tools.include` lists in the host's configuration. Do the equivalent for REA.
+`file_write`, `file_read` and `sandbox_kill`. Pass `command_run.command` as a
+string and verify cleanup after success and failure.
 
-```bash
-sudoedit /srv/hermes/config/a/config.yaml
-```
+For the Hermes terminal integration, review the exact native OpenSandbox
+provider pin in the [Plugin Pack](../plugins/pack/README.md). Select
+`terminal.backend: opensandbox` only in the profile intended to use the
+private worker. Use `OPEN_SANDBOX_DOMAIN` and the connected `sandbox-api-key`
+plug. Verify a synthetic command runs inside B and an explicit remote
+operation fails visibly during an outage. In a local profile, verify
+native terminal, file, browser and code tools inside A.
 
-Leave Link's allowlist empty until its separate financial acceptance gate passes.
-The built-in terminal/file/browser/delegation routes must remain disabled across
-CLI, Buzz, email and cron. Test actual Hermes tool discovery, actual remote calls,
-worker failure and cancellation. Inspect resolved startup logs to confirm REA
-uses `hermes-rea-remote`; reject any unexpected local `npx` installer or local
-execution fallback. The native named configuration overrides the portable plugin
-server, but that behavior still needs verification on this deployed configuration.
+Review tool selections for Buzz, email and cron individually in the active
+Hermes profile. Apply MCP allowlists only to the configured MCP servers. Leave
+Link's allowlist empty until its separate financial acceptance gate passes.
+The existing REA SSH/stdio route and the proposed private Streamable HTTP route
+have separate acceptance evidence. Qualify the selected A→C route before
+changing it.
 
 Tool filtering in Hermes is client-side exposure control. It is not a per-agent
 OAuth authorization boundary. No MCP OAuth gateway is implemented by this plan.
 
 ## 13. Configure Hindsight, provider settings and the native dashboard
 
-Edit the host's nonsecret configuration for your selected provider/model. For
-example, the existing `model` block uses `provider` and `default`; choose a real
-model ID available to your account. Set the matching allowed provider variable
+Edit `/home/workshop/.hermes/config.yaml` for the default profile, or edit the
+selected named profile's `config.yaml`. Set `model.provider` and `model.default`
+to a provider and model available to your account. Set the matching allowed provider variable
 name in `gateway.env` (`OPENROUTER_API_KEY`, `OPENAI_API_KEY`, `ANTHROPIC_API_KEY`
-or `NOUS_API_KEY`), never the key value. Preserve the execution restrictions.
+or `NOUS_API_KEY`), never the key value. Preserve your profile's tool selections.
 
 ```bash
-sudoedit /srv/hermes/config/a/config.yaml
 sudoedit /srv/hermes/config/a/gateway.env
 export HERMES_PROVIDER_KEY_ENV=OPENROUTER_API_KEY
 workshop --project /srv/hermes/a exec --env HERMES_PROVIDER_KEY_ENV a -- hermes memory setup
@@ -587,12 +574,9 @@ workshop --project /srv/hermes/a exec a -- readlink -f /home/workshop/.pg0
 workshop --project /srv/hermes/a exec a -- findmnt --target /home/workshop/.hindsight
 ```
 
-**Configuration gate:** a native setup wizard may try to rewrite the read-only
-operator configuration. If it does, stop and perform operator-controlled setup
-using an isolated staging profile, then review/apply the needed nonsecret changes
-on the host. Do not make the agent's configuration writable or bypass the runtime
-guard for ordinary agent launches. That setup interaction was not accepted on a
-live destination and must be resolved before unattended activation.
+Check that native setup writes to the selected persistent profile. The
+read-only Workshop configuration mount supplies the initial seed and
+operator-managed files such as `gateway.env`.
 
 Use a fresh test bank. Retain a unique synthetic fact, terminate the session,
 start a separate session and ask for semantic recall without putting the fact
