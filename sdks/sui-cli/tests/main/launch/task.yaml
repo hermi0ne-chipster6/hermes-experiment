@@ -1,0 +1,17 @@
+summary: Install and verify the standalone Sui CLI
+prepare: |
+  envsubst '${BASE}' <workshop.yaml.in >workshop.yaml
+  workshop launch
+  workshop changes
+  workshop tasks
+restore: |
+  workshop remove || true
+execute: |
+  workshop info | MATCH 'status:\s+ready'
+  workshop exec -- readlink -f /usr/local/bin/sui | MATCH '^/var/lib/workshop/sdk/sui-cli/sui/bin/sui$'
+  workshop exec -- stat -Lc '%U %a' /usr/local/bin/sui | MATCH '^root 755$'
+  workshop exec -- sui --version | MATCH '^sui 1\.82\.3(-.*)?$'
+  workshop exec -- stat -c '%U %a' /home/workshop/.sui | MATCH '^workshop 700$'
+debug: |
+  workshop info || true
+  workshop tasks || true

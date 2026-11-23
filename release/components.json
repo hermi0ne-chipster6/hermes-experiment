@@ -113,7 +113,8 @@
       "name": "sui",
       "kind": "github-release",
       "roles": [
-        "hermes-experiment"
+        "hermes-experiment",
+        "sui-cli"
       ],
       "inputs": [
         "sources.json"
@@ -121,7 +122,8 @@
       "repository": "MystenLabs/sui",
       "pattern": "mainnet-v(\\d+\\.\\d+\\.\\d+)",
       "parts": [
-        "hermes-experiment/sui"
+        "hermes-experiment/sui",
+        "sui-cli/sui"
       ],
       "source_keys": {
         "current": [
