@@ -12,10 +12,10 @@ baseline used for these checks.
 | Hermes OpenTelemetry | briancaffey/hermes-otel, SDK-bundled | Enable the installed plugin using native Hermes configuration. Dashboard startup and trace retrieval are separate checks. |
 | Diary and Notifications | Experiment repository, SDK-bundled | The SDK supplies the native manifests and shared diary module. Use the existing profile activation. Independent distribution is under review. |
 | Buzz and email | Official Hermes core | Configure the native gateway adapters in the operator profile. The notification wrapper has synthetic adapter evidence. |
-| Promise Keeper | MokiMeow/promise-keeper, independent | The pinned catalog installation and doctor passed historically. The pack records the exact repository and commit for a new operator-reviewed installation. |
-| Mandate | JoeProAI/mandate, native catalog candidate | The pinned revision was blocked by the native scanner with 89 findings. Keep it under review in the catalog inventory. |
-| OpenSandbox | Experiment repository, provider candidate | The catalog records the current source candidate. Its packaged registration and private worker tests remain open. |
-| Official REA plugin and skills | NousResearch/hermes-official-plugins, existing SDK provenance | The recorded tree identifies the existing A bundle. Verification of the final plugin and skill identities is open. |
+| Promise Keeper | MokiMeow/promise-keeper, independent | Native install, doctor and a synthetic rule persistence check passed at the selected pin. The runtime ignores its declared middleware field, so the check covers rule commands and persistence. |
+| Mandate | JoeProAI/mandate, native catalog candidate | Native scanning of the selected pin reported caution and 89 findings, with confirmation required. Installation compatibility remains unresolved. |
+| OpenSandbox | Experiment repository, independent native provider | The pinned source under `plugins/hermes_opensandbox` passed packaged registration, enable, disable and re-enable. Select the backend and configure the private worker separately. The paired runtime matrix is tracked independently. |
+| Official REA plugin and skills | NousResearch/hermes-official-plugins, existing SDK provenance | The verified plugin and skills trees identify the existing 6.7.0 integration. Compatibility and admission for the 6.9.0 Workshop C candidate remain open. |
 
 ## Apply and restore
 
@@ -32,6 +32,7 @@ installed. Use this normal invocation for a repeat. The native pack's
 
 To install a reviewed independent entry in a disabled state, use the native
 single-plugin command with the exact repository URL and commit from the catalog.
+For a plugin stored in a subdirectory, append `#SUBDIRECTORY` to the Git URL.
 
 ```sh
 hermes plugins install REPOSITORY --ref COMMIT --no-enable

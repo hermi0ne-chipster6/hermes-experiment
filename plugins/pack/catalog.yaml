@@ -1,4 +1,4 @@
-version: "0.1.0"
+version: "0.2.0"
 hermes:
   repository: https://github.com/NousResearch/hermes-agent
   tag: v0.23.3
@@ -58,22 +58,22 @@ plugins:
     manifest_blob: 4660d65f1a3b368029232e3e53ce4fc978cba86f
     version: "0.1.0"
     distribution: native-catalog
-    qualification: historical-scanner-block
+    qualification: native-scan-confirmation-required
   - name: promise-keeper
     repository: https://github.com/MokiMeow/promise-keeper
     ref: ab91fee21f607d5515a8e007cf615fc285718dd0
     manifest_blob: f8c03d0ced6d523823a292c3dc49169f44f6c33e
     version: "0.1.0"
     distribution: native-pack
-    qualification: historical-install-and-doctor-pass
+    qualification: native-install-doctor-and-smoke-pass
   - name: hermes_opensandbox
     repository: https://github.com/hermi0ne-chipster6/hermes-experiment
     ref: 188f71c7f4f3e1c445f36dd2e1a3e9c543438f60
     path: plugins/hermes_opensandbox
     manifest_blob: afc411a285d1347b11d20e844632de43a00ec2d2
     version: "0.1.0"
-    distribution: candidate-source
-    qualification: packaged-launcher-pending
+    distribution: native-pack
+    qualification: packaged-lifecycle-pass
   - name: rea
     repository: https://github.com/NousResearch/hermes-official-plugins
     ref: 1690b63a4790cb821fb6a319ba524815d4e09411

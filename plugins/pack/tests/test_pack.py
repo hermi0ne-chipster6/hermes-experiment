@@ -23,12 +23,20 @@ class PluginPackTests(unittest.TestCase):
         for entry in entries.values():
             self.assertRegex(entry['ref'], r'^[0-9a-f]{40}$')
         expected = {
-            (entry['name'], entry['repository'], entry['ref'])
+            (entry['name'], entry['repository'], entry['ref'], entry.get('path'))
             for entry in entries.values() if entry['distribution'] == 'native-pack'
         }
-        self.assertEqual({(item['name'], item['repo'], item['ref']) for item in pack['plugins']}, expected)
+        actual = {
+            (item['name'], item['repo'].removesuffix('.git'), item['ref'], item.get('subdir'))
+            for item in pack['plugins']
+        }
+        self.assertEqual(actual, expected)
+        self.assertIn('hermes_opensandbox', {item['name'] for item in pack['plugins']})
+        for item in pack['plugins']:
+            if 'subdir' in item and item['repo'].startswith('https://'):
+                self.assertTrue(item['repo'].endswith('.git'))
         self.assertEqual(len(pack['plugins']), len(expected))
-        self.assertEqual(entries['mandate']['qualification'], 'historical-scanner-block')
+        self.assertEqual(entries['mandate']['qualification'], 'native-scan-confirmation-required')
         self.assertEqual(entries['rea']['distribution'], 'sdk-bundled-provenance-only')
 
     def test_existing_core_and_bundle_provenance_matches_repository_pins(self):
