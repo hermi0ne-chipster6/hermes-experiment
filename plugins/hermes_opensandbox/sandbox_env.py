@@ -35,13 +35,25 @@ class OpenSandboxProcess:
         read_fd, write_fd = os.pipe()
         self.stdout = os.fdopen(read_fd, "r", encoding="utf-8", errors="replace")
         writer = os.fdopen(write_fd, "wb")
+        unterminated_stream = None
 
         def write(text):
             writer.write(text.encode("utf-8"))
             writer.flush()
 
         def emit(message):
-            write(message.text)
+            nonlocal unterminated_stream
+            text = message.text
+            if not text:
+                return
+            # execd v1.1.0 strips terminators from nonempty lines, but a
+            # consecutive frame in the same stream proves the previous one was
+            # a complete line. Keep a trailing fragment and stream changes
+            # in wire order, where the missing delimiter is ambiguous.
+            if unterminated_stream is message.is_error:
+                text = "\n" + text
+            write(text)
+            unterminated_stream = None if text.endswith(("\n", "\r")) else message.is_error
 
         def run():
             try:

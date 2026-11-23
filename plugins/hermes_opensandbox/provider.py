@@ -9,6 +9,15 @@ from agent.terminal_env_provider import TerminalEnvironmentProvider
 
 
 _DEFAULT_IMAGE = "python@sha256:cd89c30eda26ee911a4611b18680086e0ea42e6f5f8cbe653d07fa7958c9cec8"
+_CREATE_READ_TIMEOUT_SECONDS = 60.0
+
+
+def _set_create_read_timeout(request):
+    # Docker can pull the workload and execd images before sending the create
+    # response. Extend only this read timeout and keep the SDK's POST retry
+    # policy and ordinary command/endpoint timeouts.
+    if request.method == "POST" and request.url.path == "/v1/sandboxes":
+        request.extensions["timeout"]["read"] = _CREATE_READ_TIMEOUT_SECONDS
 
 
 class OpenSandboxProvider(TerminalEnvironmentProvider):
@@ -76,6 +85,7 @@ class OpenSandboxProvider(TerminalEnvironmentProvider):
         connection = ConnectionConfigSync(
             domain=domain, api_key=api_key, protocol=protocol, use_server_proxy=True,
             request_timeout=timedelta(seconds=10), disable_metrics=True,
+            event_hooks={"request": [_set_create_read_timeout]},
         )
         try:
             sandbox = SandboxSync.create(

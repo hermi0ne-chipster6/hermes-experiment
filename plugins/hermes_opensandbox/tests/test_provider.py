@@ -1,5 +1,6 @@
 """Provider fixtures using pinned Hermes core, with a synthetic OpenSandbox client."""
 import importlib.util
+import json
 import os
 from pathlib import Path
 import shlex
@@ -9,9 +10,14 @@ from types import SimpleNamespace
 import unittest
 from unittest.mock import patch
 
+import httpx
 from agent import terminal_env_registry
 from agent.terminal_env_provider import TerminalEnvironmentProvider
+from opensandbox.config.connection_sync import ConnectionConfigSync
 from opensandbox.exceptions import SandboxApiException, SandboxException
+from opensandbox.models.sandboxes import SandboxEndpoint
+from opensandbox.sync.adapters.command_adapter import CommandsAdapterSync
+from opensandbox.sync.adapters.sandboxes_adapter import SandboxesAdapterSync
 from tools.environments.base import EnvironmentConnectionError
 from tools.terminal_tool_backends import _create_environment
 
@@ -55,7 +61,7 @@ class SyntheticSandbox:
             assert WRITE_MARKER.replace("'", "'\\''") in script
             self.files["marker.txt"] = "B's synthetic marker"
         elif "read_fixture_marker" in script:
-            handlers.on_stdout(SimpleNamespace(text=self.files["marker.txt"]))
+            handlers.on_stdout(SimpleNamespace(text=self.files["marker.txt"], is_error=False))
         elif "fixture_nonzero" in script:
             return SimpleNamespace(exit_code=7, error=None, complete=True)
         elif "fixture_failed_to_start" in script:
@@ -144,6 +150,95 @@ class ProviderTests(unittest.TestCase):
         self.addCleanup(env.cleanup)
         with self.assertRaisesRegex(EnvironmentConnectionError, "fixture stopped responding"):
             env.execute("fixture_transport_error")
+
+    def _run_stream(self, events):
+        payload = "".join(
+            f"data: {json.dumps(dict(event, timestamp=index))}\n\n"
+            for index, event in enumerate(events)
+        )
+
+        def respond(request):
+            self.assertEqual((request.method, request.url.path), ("POST", "/command"))
+            return httpx.Response(200, headers={"Content-Type": "text/event-stream"}, text=payload)
+
+        with httpx.MockTransport(respond) as transport:
+            commands = CommandsAdapterSync(
+                ConnectionConfigSync(transport=transport),
+                SandboxEndpoint(endpoint="127.0.0.1:18081"),
+            )
+            from hermes_opensandbox_fixture.sandbox_env import OpenSandboxProcess
+
+            process = OpenSandboxProcess(commands, "printf fixture", 3, "fixture-only")
+            with process.stdout:
+                output = process.stdout.buffer.read().decode("utf-8")
+            return output, process.wait(3)
+
+    def test_legacy_execd_stream_preserves_line_boundaries_and_blank_lines(self):
+        output, returncode = self._run_stream([
+            {"type": "stdout", "text": "first"},
+            {"type": "stdout", "text": "\n"},
+            {"type": "stdout", "text": "second"},
+            {"type": "stdout", "text": "tail"},
+            {"type": "execution_complete"},
+        ])
+        self.assertEqual(output, "first\n\nsecond\ntail")
+        self.assertEqual(returncode, 0)
+
+    def test_terminated_frames_and_mixed_stream_order_are_unchanged(self):
+        output, returncode = self._run_stream([
+            {"type": "stdout", "text": "first\n"},
+            {"type": "stderr", "text": "warning\r"},
+            {"type": "stdout", "text": "\n"},
+            {"type": "stdout", "text": "partial"},
+            {"type": "stderr", "text": "last"},
+            {"type": "error", "error": {"ename": "CommandExecError", "evalue": "7", "exit_code": 7}},
+        ])
+        self.assertEqual(output, "first\nwarning\r\npartiallast")
+        self.assertEqual(returncode, 7)
+
+    def test_cold_create_has_separate_read_timeout_without_replaying_post(self):
+        requests = []
+
+        def no_response(_transport, request):
+            requests.append((request.method, request.url.path, dict(request.extensions["timeout"])))
+            raise httpx.ReadTimeout("fixture server accepted request but did not respond", request=request)
+
+        with patch.object(httpx.HTTPTransport, "handle_request", no_response):
+            with self.assertRaisesRegex(EnvironmentConnectionError, "fixture server accepted"):
+                self.provider.create_environment(cwd="/tmp", timeout=3)
+
+        self.assertEqual(requests, [
+            ("POST", "/v1/sandboxes", {"connect": 10, "read": 60, "write": 10, "pool": 10}),
+        ])
+
+    def test_cold_create_timeout_does_not_change_endpoint_or_command_timeouts(self):
+        box = SyntheticSandbox()
+        with patch("opensandbox.sync.SandboxSync.create", return_value=box) as create:
+            env = self.provider.create_environment(cwd="/tmp", timeout=3)
+        self.addCleanup(env.cleanup)
+        config = create.call_args.kwargs["connection_config"]
+        timeouts = {}
+
+        def respond(request):
+            timeouts[request.url.path] = dict(request.extensions["timeout"])
+            if request.method == "GET":
+                return httpx.Response(200, json={"endpoint": "127.0.0.1:18080/execution"})
+            return httpx.Response(
+                200, headers={"Content-Type": "text/event-stream"},
+                text='data: {"type":"execution_complete","timestamp":0,"exit_code":0}\n\n',
+            )
+
+        with httpx.MockTransport(respond) as transport:
+            config = config.model_copy(update={"transport": transport})
+            service = SandboxesAdapterSync(config)
+            endpoint = service.get_sandbox_endpoint("fixture", 44772, True)
+            commands = CommandsAdapterSync(config, endpoint)
+            self.assertEqual(commands.run("printf fixture").exit_code, 0)
+
+        self.assertEqual(timeouts["/v1/sandboxes/fixture/endpoints/44772"],
+                         {"connect": 10, "read": 10, "write": 10, "pool": 10})
+        self.assertEqual(timeouts["/execution/command"],
+                         {"connect": 10, "read": None, "write": 10, "pool": None})
 
     def test_cleanup_can_retry_after_transport_failure(self):
         box = SyntheticSandbox()
