@@ -26,8 +26,10 @@ admission. The native manager handles dependency and capability consent.
 
 For an existing profile, review `hermes plugins list --json` and its
 `$HERMES_HOME/plugins/.install-metadata.json` before making changes. The normal
-pack install leaves an existing plugin untouched and reports it as already
-installed. Use this normal invocation for a repeat. The native pack's
+pack install leaves an existing plugin untouched. The native installer reports
+already-installed entries as failed install attempts and exits nonzero when
+such entries are present. Use the normal invocation to preserve their state.
+The native pack's
 `--force` reinstall can enable an entry again.
 
 To install a reviewed independent entry in a disabled state, use the native
