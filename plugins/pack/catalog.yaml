@@ -1,4 +1,4 @@
-version: "0.2.0"
+version: "0.2.1"
 hermes:
   repository: https://github.com/NousResearch/hermes-agent
   tag: v0.23.3
@@ -68,7 +68,7 @@ plugins:
     qualification: native-install-doctor-and-smoke-pass
   - name: hermes_opensandbox
     repository: https://github.com/hermi0ne-chipster6/hermes-experiment
-    ref: 188f71c7f4f3e1c445f36dd2e1a3e9c543438f60
+    ref: 1f11e560d672a0994314e518a37c5bcd270e23ab
     path: plugins/hermes_opensandbox
     manifest_blob: afc411a285d1347b11d20e844632de43a00ec2d2
     version: "0.1.0"

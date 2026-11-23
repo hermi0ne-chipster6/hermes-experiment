@@ -14,7 +14,7 @@ baseline used for these checks.
 | Buzz and email | Official Hermes core | Configure the native gateway adapters in the operator profile. The notification wrapper has synthetic adapter evidence. |
 | Promise Keeper | MokiMeow/promise-keeper, independent | Native install, doctor and a synthetic rule persistence check passed at the selected pin. The runtime ignores its declared middleware field, so the check covers rule commands and persistence. |
 | Mandate | JoeProAI/mandate, native catalog candidate | Native scanning of the selected pin reported caution and 89 findings, with confirmation required. Installation compatibility remains unresolved. |
-| OpenSandbox | Experiment repository, independent native provider | The pinned source under `plugins/hermes_opensandbox` passed packaged registration, enable, disable and re-enable. Select the backend and configure the private worker separately. The paired runtime matrix is tracked independently. |
+| OpenSandbox | Experiment repository, independent native provider | Pack 0.2.0 passed packaged registration, enable, disable and re-enable. Pack 0.2.1 pins the provider with the cold-create read budget and mixed-stream output fixes. Repeat native installation and paired runtime qualification on that pin. Select the backend and configure the private worker separately. |
 | Official REA plugin and skills | NousResearch/hermes-official-plugins, existing SDK provenance | The verified plugin and skills trees identify the existing 6.7.0 integration. Compatibility and admission for the 6.9.0 Workshop C candidate remain open. |
 
 ## Apply and restore
