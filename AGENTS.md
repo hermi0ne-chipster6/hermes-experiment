@@ -219,3 +219,20 @@ restrictions, and `cli: [all]`, plugin dependency activation and bundled-plugin
 symlink behavior still need runtime validation. Existing configuration/wrapper
 tests and CI guards also need reconciliation. Review their current state before
 acting; this list is context, not evidence that those fixes were completed.
+
+## Experiment 1 implementation on PR #3
+
+Track the plan keys 00 through 21 under the parent GitHub issue. Verify the
+live PR head, target tip, active branches and issue map before dispatch. Each
+worker owns a separate worktree and an explicit path reservation. The
+coordinator owns shared recipes, manifests, integration tests and PR writes.
+Publish intermediate handoffs with their commits, observed results and open
+gates. Serialize SDKcraft builds per host and isolate mutable test environments.
+
+The requested composition has independently versioned Hermes core, Sui CLI,
+Stripe Link CLI, OpenSandbox execution and REA packages. Use immutable pins.
+Keep operator-selected profiles and independently managed plugins persistent.
+Compare the separate private archive against current transfer sources before
+removal. Bind qualification to the source revisions, target and archive hashes.
+Record independent review and target-hosted automation evidence separately.
+Leave the implementation PR for the operator's merge decision.
