@@ -1,5 +1,6 @@
 """Exercise the installed Hermes package with disposable state and local fixtures."""
 from datetime import timedelta
+from hashlib import sha256
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 import importlib.util
 import json
@@ -231,31 +232,54 @@ def probe_integrations():
           flush=True)
 
 
-def probe_catalog_plugins():
-    # Verify the two independently managed plugins using the tested core's own
-    # immutable catalog records. These installs stay disabled and run no jobs.
+def probe_selected_plugins(pack_path, catalog_path):
+    # The experiment selects the pack. The untouched native installer and
+    # scanner enforce admission, and these installs stay disabled.
     import yaml
+
+    pack_bytes = pack_path.read_bytes()
+    catalog_bytes = catalog_path.read_bytes()
+    pack = yaml.safe_load(pack_bytes)
+    catalog = yaml.safe_load(catalog_bytes)
+    assert pack['version'] == catalog['version']
+    rows = {item['name']: item for item in catalog['plugins']}
+    assert {'promise-keeper', 'hermes_opensandbox'} <= {item['name'] for item in pack['plugins']}
+    selected = []
+    for item in pack['plugins']:
+        name, repo, ref = item['name'], item['repo'], item['ref']
+        row = rows[name]
+        assert row['distribution'] == 'native-pack', name
+        subdir = item.get('subdir')
+        assert (repo.removesuffix('.git'), ref, subdir) == (row['repository'], row['ref'], row.get('path')), name
+        selected.append((name, f'{repo}#{subdir}' if subdir else repo, ref))
+
+    mandate = rows['mandate']
+    assert mandate['distribution'] == 'native-catalog'
+    selected.append(('mandate', mandate['repository'], mandate['ref']))
+    print(f"Qualification pack {pack['version']}, SHA-256 {sha256(pack_bytes).hexdigest()}; "
+          f"catalog SHA-256 {sha256(catalog_bytes).hexdigest()}", flush=True)
+
     errors = []
-    for plugin in ('mandate', 'promise-keeper'):
-        print(f'Checking optional catalog plugin {plugin}', flush=True)
+    for name, repo, ref in selected:
+        print(f'Checking selected plugin {name} at {ref}', flush=True)
         try:
-            catalog = SDK / 'hermes-src' / 'plugin-catalog' / f'{plugin}.yaml'
-            entry = yaml.safe_load(catalog.read_text())
-            hermes('plugins', 'install', entry['repo'], '--ref', entry['sha'],
+            hermes('plugins', 'install', repo, '--ref', ref,
                    '--no-enable', '--yes-deps', timeout=180)
-            candidates = [path for path in (PROFILE / 'plugins').iterdir()
-                          if path.is_dir() and (path / '.git').exists()]
-            matched = [path for path in candidates
-                       if run('git', '-C', str(path), 'rev-parse', 'HEAD').strip() == entry['sha']]
-            assert len(matched) == 1, f'Exact installed catalog revision missing for {plugin}'
-            hermes('plugins', 'doctor', str(matched[0]), '--ci')
-            hermes('plugins', 'remove', matched[0].name)
-            print(f'{plugin} pinned install and native doctor passed.', flush=True)
+            plugins = PROFILE / 'plugins'
+            installed = plugins / name
+            metadata = json.loads((plugins / '.install-metadata.json').read_text())[name]
+            assert metadata['pinned'] is True and metadata['revision'] == ref, name
+            assert installed.is_dir() and not installed.is_symlink(), name
+            if (installed / '.git').exists():
+                assert run('git', '-C', str(installed), 'rev-parse', 'HEAD').strip() == ref, name
+            hermes('plugins', 'doctor', str(installed), '--ci')
+            hermes('plugins', 'remove', name)
+            print(f'{name} pinned install and native doctor passed.', flush=True)
         except Exception as error:
             errors.append(error)
             traceback.print_exc()
     if errors:
-        raise ExceptionGroup('Catalog plugin compatibility failures', errors)
+        raise ExceptionGroup('Selected plugin compatibility failures', errors)
 
 
 def probe_web_and_tui():
@@ -323,10 +347,16 @@ def exercise():
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_text(MARKER)
     errors = []
-    for probe in (probe_plugins, probe_native_tools, probe_web_and_tui,
-                  probe_integrations, probe_catalog_plugins):
+    project = Path(__file__).resolve().parent
+    for probe, arguments in (
+        (probe_plugins, ()),
+        (probe_native_tools, ()),
+        (probe_web_and_tui, ()),
+        (probe_integrations, ()),
+        (probe_selected_plugins, (project / 'qualification-pack.yaml', project / 'qualification-catalog.yaml')),
+    ):
         try:
-            probe()
+            probe(*arguments)
         except Exception as error:
             errors.append(error)
             traceback.print_exc()

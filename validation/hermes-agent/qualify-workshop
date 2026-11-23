@@ -73,6 +73,8 @@ print("The mounted original charter and upstream SOUL both load into native Herm
 
 cp "$root/deployment/a/config.yaml.example" "$project/config.yaml"
 cp "$root/validation/hermes-agent/probe-qualification.py" "$project/probe.py"
+cp "$root/plugins/pack/hermes-pack.yaml" "$project/qualification-pack.yaml"
+cp "$root/plugins/pack/catalog.yaml" "$project/qualification-catalog.yaml"
 cat > "$project/workshop.yaml" <<'YAML'
 name: hermes-qualification
 base: ubuntu@26.04
