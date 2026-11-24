@@ -22,7 +22,7 @@ plugins:
     qualification: packaged-identity-recorded
   - name: hermes_diary
     repository: https://github.com/hermi0ne-chipster6/hermes-experiment
-    ref: b6c0481e847798b937ee04e10fbf8816dc42882f
+    ref: 066176ab4df823231061f62dd374225aed08e9c6
     path: sdks/hermes-experiment/assets/plugins/hermes_diary
     manifest_blob: e36d39964ea5764f50d8058d720f0793f36d7c64
     support_path: sdks/hermes-experiment/assets/diary/hermes_diary
@@ -31,7 +31,7 @@ plugins:
     qualification: independent-packaging-pending
   - name: hermes_notifications
     repository: https://github.com/hermi0ne-chipster6/hermes-experiment
-    ref: b6c0481e847798b937ee04e10fbf8816dc42882f
+    ref: 066176ab4df823231061f62dd374225aed08e9c6
     path: sdks/hermes-experiment/assets/plugins/hermes_notifications
     manifest_blob: 4ead571299826c31ec5dbcfb7aa48930d362581c
     support_path: sdks/hermes-experiment/assets/diary/hermes_diary
