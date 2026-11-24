@@ -1,16 +1,5 @@
 #!/bin/bash
 set -euo pipefail
-gateway_unit_directory="$HOME/.config/systemd/user"
-gateway_unit="$gateway_unit_directory/hermes-gateway.service"
-gateway_drop_in=hermes-gateway.service.d/50-hermes-experiment.conf
-gateway_action=start
-if [[ ! -e "$gateway_unit" && ! -L "$gateway_unit" ]]; then
-    install -D --mode=644 "$SDK/hermes-gateway.service" "$gateway_unit"
-fi
-if ! cmp -s "$SDK/$gateway_drop_in" "$gateway_unit_directory/$gateway_drop_in"; then
-    install -D --mode=644 "$SDK/$gateway_drop_in" "$gateway_unit_directory/$gateway_drop_in"
-    gateway_action=restart
-fi
 mkdir -p "$HOME/.hermes/memories"
 mkdir -p "$HOME/.hermes/plugins"
 mkdir -p "$HOME/.hindsight/pg0"
@@ -54,8 +43,25 @@ HERMES_HOME="$HOME/.hermes" HERMES_RUNTIME_DIR="$HOME/.hermes/tools" \
     "$SDK/wrappers/sync-plugin-dependencies.py" "$SDK/hermes-src"
 # Cold native CLI startup exceeds check-health's five-second hook budget.
 "$SDK/bin/python" -I "$SDK/wrappers/check-core.py" "$SDK" /usr/local/bin/hermes
+gateway_unit_directory="$HOME/.config/systemd/user"
+gateway_unit="$gateway_unit_directory/hermes-gateway.service"
+gateway_drop_in=hermes-gateway.service.d/50-hermes-experiment.conf
+gateway_restart_pending="$gateway_unit_directory/.hermes-experiment-gateway-restart"
+if [[ ! -e "$gateway_unit" && ! -L "$gateway_unit" ]]; then
+    install -D --mode=644 "$SDK/hermes-gateway.service" "$gateway_unit"
+fi
+if ! cmp -s "$SDK/$gateway_drop_in" "$gateway_unit_directory/$gateway_drop_in"; then
+    # Keep the restart pending if setup fails after the drop-in reaches disk.
+    touch "$gateway_restart_pending"
+    install -D --mode=644 "$SDK/$gateway_drop_in" "$gateway_unit_directory/$gateway_drop_in"
+fi
 systemctl --user daemon-reload
 systemctl --user enable hermes-gateway.service
 if [[ -f /etc/hermes-experiment/gateway.enabled && -r "$charter" ]]; then
-    systemctl --user "$gateway_action" hermes-gateway.service
+    if [[ -f "$gateway_restart_pending" ]]; then
+        systemctl --user restart hermes-gateway.service
+        rm -f -- "$gateway_restart_pending"
+    else
+        systemctl --user start hermes-gateway.service
+    fi
 fi

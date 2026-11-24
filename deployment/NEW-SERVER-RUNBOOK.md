@@ -631,6 +631,10 @@ workshop --project /srv/hermes/a exec a -- journalctl --user -u hermes-gateway.s
 The SDK installs a systemd drop-in that preserves the Workshop launcher,
 enable marker and mounted `gateway.env` when Hermes regenerates its main
 user service. Keep gateway and adapter settings in the mounted configuration.
+If rolling back in place while retaining the user unit directory, remove the
+SDK-owned `hermes-gateway.service.d/50-hermes-experiment.conf` and
+`.hermes-experiment-gateway-restart` from `~/.config/systemd/user/`, then run
+`systemctl --user daemon-reload`. Keep the operator's other drop-ins.
 
 Review logs privately before sharing. Test, and save evidence for:
 

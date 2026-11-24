@@ -1,5 +1,6 @@
 from pathlib import Path
 import json
+import shutil
 import subprocess
 import tempfile
 import unittest
@@ -84,3 +85,45 @@ class GatewayServiceTests(unittest.TestCase):
         self.assertIn('EnvironmentFile=-/etc/hermes-experiment/gateway.env', drop_in)
         self.assertEqual([line for line in drop_in.splitlines() if line.startswith('ExecStart=')],
                          ['ExecStart=', 'ExecStart=/usr/local/bin/hermes gateway run'])
+
+    def test_setup_retries_an_unapplied_gateway_restart(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            sdk = root / 'sdk'
+            home = root / 'home'
+            operator = root / 'operator'
+            project = root / 'project'
+            shutil.copytree(SDK / 'services', sdk)
+            (sdk / 'bin').mkdir()
+            interpreter = sdk / 'bin/python'
+            interpreter.write_text('#!/bin/bash\nexit 0\n')
+            interpreter.chmod(0o755)
+            (sdk / 'share/hermes').mkdir(parents=True)
+            (sdk / 'share/hermes/SOUL.md').write_text('fixture charter context\n')
+            operator.mkdir()
+            (operator / 'gateway.enabled').touch()
+            (project / '.hermes-charter').mkdir(parents=True)
+            (project / '.hermes-charter/original-charter.md').touch()
+            systemctl = root / 'systemctl'
+            systemctl.write_text(
+                '#!/bin/bash\n'
+                'printf "%s\\n" "$*" >> "$GATEWAY_FIXTURE_LOG"\n'
+                'if [[ $2 == restart && $GATEWAY_FIXTURE_FAIL == 1 ]]; then exit 1; fi\n'
+            )
+            systemctl.chmod(0o755)
+            hook = (SDK / 'hooks/setup-project').read_text()
+            script = hook.replace('/etc/hermes-experiment', str(operator)).replace('/project', str(project))
+            log = root / 'systemctl.log'
+            environment = {'PATH': f'{root}:/usr/bin:/bin', 'HOME': str(home), 'SDK': str(sdk),
+                           'GATEWAY_FIXTURE_LOG': str(log)}
+            exits = []
+            for fail in ('1', '0', '0'):
+                result = subprocess.run(['bash'], input=script, text=True, capture_output=True,
+                                        env={**environment, 'GATEWAY_FIXTURE_FAIL': fail})
+                exits.append(result.returncode)
+            self.assertEqual(exits, [1, 0, 0])
+            operations = [line for line in log.read_text().splitlines()
+                          if line.startswith(('--user restart ', '--user start '))]
+            self.assertEqual(operations, ['--user restart hermes-gateway.service',
+                                          '--user restart hermes-gateway.service',
+                                          '--user start hermes-gateway.service'])
