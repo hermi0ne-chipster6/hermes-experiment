@@ -358,6 +358,13 @@ Set `OPEN_SANDBOX_DOMAIN=<B hostname>:8080` and `HERMES_REA_HOST=<C hostname>`.
 These settings are nonsecret. The normal pattern is A initiating B TCP/8080 and
 C TCP/22. A must not receive a Docker socket or any B/C writable state mount.
 
+Hermes filters the environment inherited by native stdio MCP children. Treat
+the direct wrapper commands below as transport diagnostics. Before enabling an
+MCP server, verify its explicit per-server environment from the active native
+profile against an approved disposable peer. Keep the MCP allowlists empty
+until those checks pass. The native OpenSandbox terminal provider uses its own
+profile selection and the connected sandbox key.
+
 **Isolation gate:** apply a host-supported LXD NIC/profile/network policy that
 permits the required flows and blocks workload access to A, host administration,
 Docker, diary control and unrelated private services. This repository does not

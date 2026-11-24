@@ -4,7 +4,7 @@ SDKcraft sources and deployment examples for Ubuntu 26.04 AMD64. The [verificati
 
 | Workshop | Purpose | Definition |
 | --- | --- | --- |
-| A | Official pinned Hermes, native Buzz/email gateway, Hindsight, diary client, existing financial CLIs | [hermes-experiment](sdks/hermes-experiment/sdkcraft.yaml) |
+| A | Official pinned Hermes, native Buzz/email gateway, Hindsight, diary client, independently versioned financial CLIs | [hermes-experiment](sdks/hermes-experiment/sdkcraft.yaml), [sui-cli](sdks/sui-cli/sdkcraft.yaml), [stripe-link-cli](sdks/stripe-link-cli/sdkcraft.yaml) |
 | B | Canonical Docker SDK followed by OpenSandbox; dedicated Cloudflare tunnel | [hermes-execution](sdks/hermes-execution/sdkcraft.yaml) |
 | C | Official REA MCP 6.7.0, Ghidra and analysis tools, restricted SSH/stdio | [hermes-rea](sdks/hermes-rea/sdkcraft.yaml) |
 
@@ -37,7 +37,7 @@ Maintenance CI monitors the declared SDK inventory and prepares pinned Workshop 
 
 ## Source repository
 
-This integration repository preserves all three publisher SDK sources, shared diary code, deployment examples, dependency locks, tests and reviewed release records. Each SDK remains under `sdks/<name>/`. Build outputs, credentials, runtime databases, local Workshop state and raw diagnostics are excluded; see [verification records](reports/README.md). Keep original test-machine evidence and exact published SDK packages separately.
+This integration repository preserves five publisher SDK sources, shared diary code, deployment examples, dependency locks, tests and reviewed release records. Each SDK remains under `sdks/<name>/`. Build outputs, credentials, runtime databases, local Workshop state and raw diagnostics are excluded; see [verification records](reports/README.md). Keep original test-machine evidence and exact published SDK packages separately.
 
 ## Reconnect
 

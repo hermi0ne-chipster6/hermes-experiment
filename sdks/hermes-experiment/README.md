@@ -84,10 +84,10 @@ throughout the cutover and reversal.
    in the [runbook](../../deployment/NEW-SERVER-RUNBOOK.md). Start A and reapply
    the packaged setup hook. Verify both CLI versions and resolved executables,
    auth paths, contents and permissions before restoring operations.
-4. To reverse, first restore the old managed `.hermes.md` link if the old
-   archive expects `/etc/hermes-experiment/original-charter.md`, using the
-   unchanged charter bytes. Refresh to the saved A archive and definition that
-   declare the old `hermes-experiment` CLI plugs. Stop A and remount
+4. To reverse to v0.22.5, prepare the configuration, charter and plugin paths
+   before refreshing, following the [rollback runbook](../../release/workflows/README.md#exact-artifact-and-rollback).
+   Refresh to the saved A archive and definition that declare the old
+   `hermes-experiment` CLI plugs. Stop A and remount
    `a/hermes-experiment:sui-state` and `a/hermes-experiment:link-state` to the
    retained directories. Start A and verify CLI paths and state before restoring
    operations. Keep the saved archives and retained directories until the

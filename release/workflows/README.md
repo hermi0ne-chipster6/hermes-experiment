@@ -122,9 +122,30 @@ restart, refresh and downgrade against a disposable Workshop. Retain the
 workflow evidence and exact candidate package independently of GitHub's artifact
 retention before moving the last-known-good pointer.
 
-If rolling back to the original 0.22.5 package, preserve the writable
-`.hermes/config.yaml` under a separate name in the same state mount and restore
-the prior symlink to the read-only operator seed before swapping the SDK. Keep
-the original seed and charter mounts. Restore the saved writable profile when
-returning to the newer package. Keep the Hermes, Hindsight, Sui and Link mounts
-connected to their existing sources throughout.
+When rolling back to v0.22.5, keep the gateway inactive while preparing the
+paths and refreshing A. Save the writable `~/.hermes/config.yaml` in a private
+recovery directory in the same state mount. Verify the retained read-only seed
+at `/etc/hermes-experiment/config.yaml`, then link `~/.hermes/config.yaml` to
+it. Verify the unchanged charter bytes at
+`/etc/hermes-experiment/original-charter.md` and restore the old managed
+`/project/.hermes.md` symlink to that file before refreshing.
+
+The v0.22.5 setup hook also expects to manage the entries `hindsight`,
+`hermes_otel`, `rea`, `hermes_diary`, `hermes_notifications` and
+`hermes_artifacts` under `~/.hermes/plugins`. Record any operator-managed
+directories or symlinks at those exact names and move them into the recovery
+directory before refreshing. Keep their saved names, activation settings,
+installation metadata and plugin data. Leave the SDK-managed links for the
+rollback hook to refresh.
+
+After rollback, verify the old SDK version and the configuration and charter
+links before starting the gateway. When returning to the split package, complete
+its setup first. With the gateway still inactive, restore the saved writable
+configuration and the parked operator-managed entries. Replace only the links
+created by SDK setup at the recorded names. Reapply the split setup hook to
+revalidate the dependencies selected by the restored profile and plugins.
+Verify the restored profile and native plugin status before starting the
+gateway. Follow the
+[CLI state cutover](../../sdks/hermes-experiment/README.md#sui-and-stripe-link-state)
+to keep the Sui and Link state on the retained sources. Keep the Hermes and
+Hindsight mounts connected to their existing sources throughout.
