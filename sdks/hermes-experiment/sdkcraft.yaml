@@ -26,14 +26,6 @@ plugs:
     interface: secret
   email-password:
     interface: secret
-  sui-state:
-    interface: mount
-    workshop-target: /home/workshop/.sui
-    mode: 448
-  link-state:
-    interface: mount
-    workshop-target: /home/workshop/.link-cli
-    mode: 448
   sandbox-api-key:
     interface: secret
   configuration:
@@ -43,14 +35,19 @@ plugs:
     uid: 0
     gid: 0
     mode: 493
+  charter:
+    interface: mount
+    workshop-target: /project/.hermes-charter
+    read-only: true
+    uid: 0
+    gid: 0
+    mode: 493
   rea-ssh-key:
     interface: secret
 parts:
   hermes-agent:
-    plugin: uv
+    plugin: dump
     source: build-source
-    build-snaps:
-    - astral-uv
     build-environment:
     - UV_NO_EDITABLE: '1'
     - UV_PYTHON_DOWNLOADS: manual
@@ -59,79 +56,20 @@ parts:
     - curl
     - ca-certificates
     - git
+    - python3
     - gcc
     - g++
     - make
     - libffi-dev
     - libolm-dev
-    override-pull: 'VERSION=$(cat "$CRAFT_PROJECT_DIR/VERSION")
-
-      craftctl set version="$VERSION"
-
+    override-pull: |
+      set -eu
+      version=$(cat "$CRAFT_PROJECT_DIR/VERSION")
+      craftctl set version="$version"
       rm -rf "$CRAFT_PART_SRC/upstream"
-
-      git clone --depth 1 --branch "v${VERSION}" https://github.com/NousResearch/hermes-agent.git "$CRAFT_PART_SRC/upstream"
-
-      cd "$CRAFT_PART_SRC/upstream"
-
-      test "$(git rev-parse HEAD)" = "bf0203a794a07aac3ff764972ab9087baa4e4f4e"
-
-      '
-    override-build: 'export UV_PYTHON_INSTALL_DIR="$CRAFT_PART_INSTALL/python-runtime"
-
-      uv python install 3.14.7
-
-      PYTHON=$(uv python find 3.14.7)
-
-      uv venv --seed --allow-existing --relocatable --python "$PYTHON" "$CRAFT_PART_INSTALL"
-
-      PYTHON_REL=$(realpath --relative-to="$CRAFT_PART_INSTALL/bin" "$PYTHON")
-
-      ln -snf "$PYTHON_REL" "$CRAFT_PART_INSTALL/bin/python"
-
-      ln -snf python "$CRAFT_PART_INSTALL/bin/python3"
-
-      ln -snf python "$CRAFT_PART_INSTALL/bin/python3.14"
-
-      export PATH="$CRAFT_STAGE/node/bin:$PATH"
-
-      cd "$CRAFT_PART_SRC/upstream"
-
-      npm ci --ignore-scripts --workspace web --workspace ui-tui
-
-      npm run build --workspace web
-
-      npm run build --workspace ui-tui
-
-      VIRTUAL_ENV="$CRAFT_PART_INSTALL" uv sync --frozen --no-dev --no-editable --no-install-project --no-install-package
-      browser-harness --extra web
-
-      uv pip install --exclude-newer 2026-10-28T00:00:00Z --python "$CRAFT_PART_INSTALL/bin/python" --require-hashes
-      -r "$CRAFT_PROJECT_DIR/plugin-requirements.txt"
-
-      uv pip check --python "$CRAFT_PART_INSTALL/bin/python"
-
-      mkdir -p "$CRAFT_PART_INSTALL/hermes-src"
-
-      git archive HEAD | tar -x -C "$CRAFT_PART_INSTALL/hermes-src"
-
-      cp -r hermes_cli/web_dist "$CRAFT_PART_INSTALL/hermes-src/hermes_cli/"
-
-      install -D ui-tui/dist/entry.js "$CRAFT_PART_INSTALL/hermes-src/hermes_cli/tui_dist/entry.js"
-
-      # Use upstream''s canonical stamp builder; no project wheel, Nix guard override,
-
-      # editable finder, mutable source checkout, or runtime application installer.
-
-      "$CRAFT_PART_INSTALL/bin/python" -c ''import runpy,sys; runpy.run_path("scripts/write_install_stamp.py")["write_stamp"](sys.argv[1],
-      update_mechanism="external", commit="bf0203a794a07aac3ff764972ab9087baa4e4f4e", base_version="0.22.5", distance=0,
-      dirty=False, source="ci", distribution="sdkcraft")'' "$CRAFT_PART_INSTALL/hermes-src/install-stamp.json"
-
-      install -D SOUL.md "$CRAFT_PART_INSTALL/share/hermes/SOUL.md"
-
-      uv pip freeze --python "$CRAFT_PART_INSTALL/bin/python" > "$CRAFT_PART_INSTALL/share/hermes/dependencies.txt"
-
-      '
+      timeout 180 git clone --depth 1 --branch "v${version}" https://github.com/NousResearch/hermes-agent.git "$CRAFT_PART_SRC/upstream"
+      test "$(git -C "$CRAFT_PART_SRC/upstream" rev-parse HEAD)" = "caafe5389ae585ef77387a962aee05b1bcf17029"
+    override-build: bash "$CRAFT_PROJECT_DIR/build-source/build-hermes"
     after:
     - node-runtime
     source-type: local
@@ -171,21 +109,6 @@ parts:
 
       '
     source-type: local
-  finance:
-    plugin: dump
-    source: npm
-    source-type: local
-    after:
-    - node-runtime
-    override-build: 'export PATH="$CRAFT_STAGE/node/bin:$PATH"
-
-      npm ci --omit=dev --ignore-scripts --no-audit --no-fund
-
-      mkdir -p "$CRAFT_PART_INSTALL/finance"
-
-      cp -a node_modules package.json package-lock.json "$CRAFT_PART_INSTALL/finance/"
-
-      '
   official-plugins:
     plugin: dump
     source: build-source
@@ -237,41 +160,14 @@ parts:
 
       '
     source-type: local
-  sui:
-    plugin: dump
-    source: build-source
-    build-packages:
-    - curl
-    - ca-certificates
-    override-pull: 'curl -fL ''https://github.com/MystenLabs/sui/releases/download/mainnet-v1.82.3/sui-mainnet-v1.82.3-ubuntu-x86_64.tgz''
-      -o "$CRAFT_PART_SRC/sui.tgz"
-
-      echo ''d616d63d90309926cf7f544633c8dd4132f762fdbba555a35c4842cfa4129379  ''"$CRAFT_PART_SRC/sui.tgz" | sha256sum
-      -c -
-
-      mkdir -p "$CRAFT_PART_SRC/unpacked" "$CRAFT_PART_SRC/sui/bin"
-
-      tar -xzf "$CRAFT_PART_SRC/sui.tgz" -C "$CRAFT_PART_SRC/unpacked" --occurrence=1 --wildcards --no-anchored
-      sui
-
-      SUI=$(find "$CRAFT_PART_SRC/unpacked" -type f -name sui -print -quit)
-
-      test -n "$SUI"
-
-      install -m 755 "$SUI" "$CRAFT_PART_SRC/sui/bin/sui"
-
-      rm -rf "$CRAFT_PART_SRC/unpacked" "$CRAFT_PART_SRC/sui.tgz"
-
-      '
-    source-type: local
   hindsight-runtime:
     plugin: dump
     source: build-source
-    build-snaps:
-    - astral-uv
     after:
     - hermes-agent
-    override-build: 'uv venv --seed --relocatable --python "$CRAFT_STAGE/bin/python" "$CRAFT_PART_INSTALL/hindsight"
+    override-build: 'export PATH="$CRAFT_STAGE/bin:$PATH"
+
+      uv venv --seed --relocatable --python "$CRAFT_STAGE/bin/python" "$CRAFT_PART_INSTALL/hindsight"
 
       ln -snf ../../python-runtime/cpython-3.14.7-linux-x86_64-gnu/bin/python3.14 "$CRAFT_PART_INSTALL/hindsight/bin/python"
 

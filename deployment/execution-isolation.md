@@ -1,11 +1,11 @@
 # Execution isolation decision
 
-Use Canonical's Docker SDK with OpenSandbox in the separate B Workshop, as approved. Treat the official Hermes Bubblewrap plugin as an optional additional measure.
+Workshop A supports native interactive execution. Use Canonical's Docker SDK with OpenSandbox in Workshop B for explicitly remote execution. The Hermes Bubblewrap plugin is optional.
 
 | Requirement | Separate OpenSandbox worker | Optional Hermes Bubblewrap plugin |
 | --- | --- | --- |
 | Preserve A/B separation | B owns the Docker daemon and workload files; A uses authenticated native MCP/API operations | Does not replace the separately approved execution worker |
-| File operations | Native remote file operations target sandbox paths in B; local file/terminal/browser/code toolsets are disabled in A | Bubblewrap alone must not be assumed to isolate every Hermes file tool |
+| File operations | Explicit OpenSandbox calls target sandbox paths in B. Native local tools operate in A. | Bubblewrap alone must not be assumed to isolate every Hermes file tool |
 | Lifecycle | Native create, bounded lifetime and kill/close APIs; command/file/proxy paths tested with a temporary sandbox | Compatibility and coverage need separate tests before adding it |
 | Credential boundary | A retains model, mailbox, financial and REA credentials; B receives only its execution/tunnel credentials | An extra process sandbox does not replace credential separation |
 

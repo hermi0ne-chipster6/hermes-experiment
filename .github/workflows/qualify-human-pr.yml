@@ -1,0 +1,85 @@
+name: Qualify a reviewed Workshop A PR
+on:
+  workflow_dispatch:
+    inputs:
+      pr:
+        description: Same-repository A-only human PR number
+        required: true
+        type: string
+      reviewed_head:
+        description: Exact PR head SHA reviewed by the dispatcher
+        required: true
+        type: string
+      target_base:
+        description: Exact current main SHA included in the reviewed head
+        required: true
+        type: string
+permissions:
+  contents: read
+concurrency:
+  group: human-qualification-${{ inputs.pr }}
+  cancel-in-progress: false
+jobs:
+  inspect:
+    if: github.repository == 'hermi0ne-chipster6/hermes-experiment' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      pull-requests: read
+    outputs:
+      candidate: ${{ steps.inspect.outputs.candidate }}
+      head: ${{ steps.inspect.outputs.head }}
+      base: ${{ steps.inspect.outputs.base }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+          ref: ${{ github.sha }}
+      - name: Verify the operator and reviewed source revisions
+        id: inspect
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REVIEWED_PR: ${{ inputs.pr }}
+          REVIEWED_HEAD: ${{ inputs.reviewed_head }}
+          TARGET_BASE: ${{ inputs.target_base }}
+        run: >-
+          python3 -m release.stable_pipeline inspect-human
+          --pr="$REVIEWED_PR" --head="$REVIEWED_HEAD" --base="$TARGET_BASE"
+  qualify:
+    needs: inspect
+    if: needs.inspect.outputs.candidate != ''
+    permissions:
+      contents: read
+    uses: ./.github/workflows/sdk-qualification.yml
+    with:
+      candidate_sha: ${{ needs.inspect.outputs.head }}
+      base_sha: ${{ needs.inspect.outputs.base }}
+      human_candidate: true
+  publish:
+    needs: [inspect, qualify]
+    if: >-
+      always() && needs.inspect.result == 'success' &&
+      github.repository == 'hermi0ne-chipster6/hermes-experiment' &&
+      github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      pull-requests: read
+      statuses: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+          ref: ${{ github.sha }}
+      - name: Report qualification for operator merge review
+        env:
+          GH_TOKEN: ${{ github.token }}
+          CANDIDATE: ${{ needs.inspect.outputs.candidate }}
+          QUALIFICATION_RESULT: ${{ needs.qualify.result }}
+        run: >-
+          python3 -m release.stable_pipeline finalize-human
+          --candidate "$CANDIDATE" --qualification-result "$QUALIFICATION_RESULT"

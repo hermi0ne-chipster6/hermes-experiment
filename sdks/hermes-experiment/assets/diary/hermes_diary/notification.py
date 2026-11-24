@@ -6,19 +6,40 @@ import os
 import subprocess
 
 
+_DELIVERY_FAILED = 'Native message delivery failed; no delivery confirmation.'
+_INVALID_RESULT = 'Native sender returned an invalid result; no delivery confirmation.'
+
+
 def _deliver(target, text):
     if not isinstance(text, str) or not text.strip() or len(text) > 4096 or 'MEDIA:' in text.upper():
         return json.dumps({'error':'Provide 1–4096 characters of text; attachments are not supported.'})
     if not target:
         return json.dumps({'error':'Operator notification destination is not configured.'})
     try:
-        result = subprocess.run(['/usr/local/bin/hermes','send','--to',target,'--',text],
-                                stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL,
-                                stderr=subprocess.DEVNULL, timeout=30, check=False)
+        result = subprocess.run(
+            ['/usr/local/bin/hermes', 'send', '--json', '--to', target, '--', text],
+            stdin=subprocess.DEVNULL, stdout=subprocess.PIPE,
+            stderr=subprocess.DEVNULL, timeout=30, check=False,
+        )
     except (OSError, subprocess.TimeoutExpired):
-        return json.dumps({'error':'Native message delivery failed; no delivery confirmation.'})
+        return json.dumps({'error': _DELIVERY_FAILED})
     if result.returncode:
-        return json.dumps({'error':'Native message delivery failed; no delivery confirmation.'})
+        return json.dumps({'error': _DELIVERY_FAILED})
+    try:
+        receipt = json.loads(result.stdout)
+    except (ValueError, RecursionError):
+        return json.dumps({'error': _INVALID_RESULT})
+    if not isinstance(receipt, dict):
+        return json.dumps({'error': _INVALID_RESULT})
+    success = receipt.get('success')
+    if receipt.get('error') or success is False:
+        return json.dumps({'error': _DELIVERY_FAILED})
+    # Hermes can report both success and skipped for a deduplicated notification.
+    skipped = receipt.get('skipped', False)
+    if skipped is True:
+        return json.dumps({'error': 'Native sender skipped delivery; no delivery confirmation.'})
+    if skipped is not False or success is not True:
+        return json.dumps({'error': _INVALID_RESULT})
     return json.dumps({'delivered':True, 'financial_authorization':False})
 
 

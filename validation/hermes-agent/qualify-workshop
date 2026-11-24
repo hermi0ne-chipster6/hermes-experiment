@@ -1,0 +1,203 @@
+#!/bin/bash
+# Qualify the Hermes A core archive by itself with synthetic state in a unique project.
+# The ci/qualify-sdk entrypoint holds the dedicated account's registry lock.
+set -euo pipefail
+root=$(cd "$(dirname "$0")/../.." && pwd)
+artifact=$(realpath "${1:?path to candidate SDK is required}")
+lkg=${HERMES_QUALIFICATION_LKG:-/var/lib/hermes-sdk-qualification/last-known-good}
+scratch=$(mktemp -d "$(dirname "$artifact")/../hermes-workshop.XXXXXX")
+project="$scratch/project"
+launch_attempted=false
+cleanup() {
+    local result=$?
+    trap - EXIT
+    if "$launch_attempted"; then
+        if (( result != 0 )); then
+            wk info || true
+            wk tasks || true
+        fi
+        if ! wk remove; then
+            echo "Could not remove disposable Workshop at $project." >&2
+            exit 1
+        fi
+    fi
+    rm -rf -- "$scratch"
+    exit "$result"
+}
+trap cleanup EXIT
+trap 'exit 130' INT
+trap 'exit 143' TERM
+mkdir "$project"
+wk() { timeout 25m workshop -p "$project" "$@"; }
+inside() { wk exec -I --timeout 20m -- "$@"; }
+version() { inside /usr/local/bin/hermes --version; }
+# Prebuilt archives register in the same user try area that Workshop uses.
+try_sdk() {
+    local label=$1 archive=$2 receipt="$scratch/$1-archive.json"
+    sdkcraft try "$archive"
+    if [[ ! -f "$receipt" ]]; then
+        python3 "$root/ci/sdk_payload.py" archive "$archive" > "$receipt"
+    fi
+    python3 "$root/ci/workshop_archive.py" "$receipt"
+}
+check_mount() {
+    local label=$1 phase=$2 mounted="$scratch/$2-mounted.json" receipt
+    wk exec -I --timeout 20m --uid 0 --gid 0 -- /usr/bin/python3 -I -c "$payload_probe" mounted \
+        /var/lib/workshop/sdk/hermes-experiment > "$mounted"
+    receipt=$(python3 "$root/ci/workshop_archive.py" "$scratch/$label-archive.json" \
+        --project "$project" --mounted "$mounted")
+    printf 'Verified SDK attachment for %s: %s\n' "$phase" "$receipt"
+}
+check_candidate() {
+    check_mount candidate "$1"
+    test "$(inside readlink -f /usr/local/bin/hermes)" = /var/lib/workshop/sdk/hermes-experiment/wrappers/hermes
+    local installed
+    installed=$(version)
+    printf '%s\n' "$installed"
+    [[ "$installed" == *"Hermes Agent v$expected_version "* ]]
+    inside /var/lib/workshop/sdk/hermes-experiment/bin/python -I -c '
+import json, sys
+from pathlib import Path
+sdk = Path("/var/lib/workshop/sdk/hermes-experiment")
+for path in ("hermes-src/install-stamp.json", "share/hermes/core-pin.json"):
+    identity = json.loads((sdk / path).read_text())
+    assert (identity["baseVersion"], identity["commit"]) == tuple(sys.argv[1:]), path
+' "$expected_version" "$expected_commit"
+    # Expand the CLI path inside the Workshop.
+    # shellcheck disable=SC2016
+    inside bash -ec '
+        sdk=/var/lib/workshop/sdk/hermes-experiment
+        for path in /usr/local/bin/sui /usr/local/bin/link-cli "$sdk/sui" "$sdk/finance" "$sdk/wrappers/link-cli"; do
+            if [[ -e "$path" || -L "$path" ]]; then
+                printf "Unexpected bundled CLI path in the core-only candidate: %s\n" "$path" >&2
+                exit 1
+            fi
+        done
+        findmnt -n -o OPTIONS --target /project/.hermes-charter/original-charter.md | grep -Eq "(^|,)ro(,|$)"
+    '
+    inside /var/lib/workshop/sdk/hermes-experiment/bin/python -I -c '
+import hashlib, sys
+from pathlib import Path
+sdk = Path("/var/lib/workshop/sdk/hermes-experiment")
+sys.path.insert(0, str(sdk / "hermes-src"))
+from agent.prompt_builder import build_context_files_prompt
+charter = Path("/project/.hermes-charter/original-charter.md")
+assert Path("/project/.hermes.md").resolve() == charter
+assert hashlib.sha256(charter.read_bytes()).hexdigest() == "fab40f6dc5d2416db23e43d83de97c3b59db52c3d2e7bf01c051a7d9bbefd897"
+profile = Path.home() / ".hermes"
+soul = profile / "SOUL.md"
+assert soul.read_bytes() == (sdk / "share/hermes/SOUL.md").read_bytes()
+prompt = build_context_files_prompt(cwd="/project", home_override=profile)
+assert charter.read_text().strip() in prompt
+assert soul.read_text().strip() in prompt
+print("The mounted original charter and upstream SOUL both load into native Hermes context.")
+'
+}
+
+cp "$root/deployment/a/config.yaml.example" "$project/config.yaml"
+cp "$root/validation/hermes-agent/probe-qualification.py" "$project/probe.py"
+cp "$root/plugins/pack/hermes-pack.yaml" "$project/qualification-pack.yaml"
+cp "$root/plugins/pack/catalog.yaml" "$project/qualification-catalog.yaml"
+payload_probe=$(cat "$root/ci/sdk_payload.py")
+cat > "$project/workshop.yaml" <<'YAML'
+name: hermes-qualification
+base: ubuntu@26.04
+sdks:
+- name: try-hermes-experiment
+YAML
+expected_version=$(cat "$root/sdks/hermes-experiment/VERSION")
+expected_commit=$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1]))["hermes_commit"])' "$root/sources.json")
+
+rollback=false
+previous="$lkg/hermes-experiment_amd64_ubuntu@26.04.sdk"
+if [[ -r "$previous" && -r "$lkg/SHA256SUMS" ]]; then
+    (cd "$lkg" && sha256sum --strict --check SHA256SUMS)
+    grep -Eq '^[a-f0-9]{64} [ *]hermes-experiment_amd64_ubuntu@26\.04\.sdk$' "$lkg/SHA256SUMS"
+    try_sdk previous "$previous"
+    rollback=true
+else
+    try_sdk candidate "$artifact"
+fi
+launch_attempted=true
+wk launch
+
+mkdir "$project/operator" "$project/charter"
+cp "$root/deployment/a/original-charter.md.example" "$project/charter/original-charter.md"
+legacy_charter=false
+if "$rollback"; then
+    check_mount previous rollback-baseline
+    previous_version=$(version | grep -F 'Hermes Agent v')
+    connections=$(wk connections)
+    if ! awk '$2 == "hermes-qualification/hermes-experiment:charter" { found=1 } END { exit !found }' <<< "$connections"; then
+        legacy_charter=true
+        cp "$project/charter/original-charter.md" "$project/operator/"
+        ln -s /etc/hermes-experiment/original-charter.md "$project/.hermes.md"
+    fi
+    # Keep the deployed configuration layout for rollback to the 0.22.5 SDK.
+    git -C "$root" show df4d649:deployment/a/config.yaml.example > "$project/operator/config.yaml"
+else
+    cp "$project/config.yaml" "$project/operator/config.yaml"
+fi
+wk stop
+wk remount hermes-qualification/hermes-experiment:configuration "$project/operator"
+if ! "$legacy_charter"; then
+    wk remount hermes-qualification/hermes-experiment:charter "$project/charter"
+fi
+wk start
+
+if "$rollback"; then
+    # Force a legacy profile only in this disposable project. A newer LKG may
+    # already initialize a writable profile, which is preserved beside the fixture.
+    # shellcheck disable=SC2016
+    inside bash -ec 'profile=~/.hermes/config.yaml
+        if [[ -f "$profile" && ! -L "$profile" ]]; then mv "$profile" "$profile.pre-qualification"; fi
+        if [[ ! -L "$profile" ]]; then ln -s /etc/hermes-experiment/config.yaml "$profile"; fi'
+    try_sdk candidate "$artifact"
+    wk refresh
+    inside bash -ec 'test -f ~/.hermes/config.yaml.pre-sdk-migration
+        cmp ~/.hermes/config.yaml.pre-sdk-migration /etc/hermes-experiment/config.yaml'
+    if "$legacy_charter"; then
+        wk stop
+        wk remount hermes-qualification/hermes-experiment:charter "$project/charter"
+        wk start
+    fi
+fi
+# The operator data became available after launch or refresh.
+inside env SDK=/var/lib/workshop/sdk/hermes-experiment \
+    bash /var/lib/workshop/sdk/hermes-experiment/sdk/hooks/setup-project
+check_candidate candidate-install
+exercise_result=0
+inside /var/lib/workshop/sdk/hermes-experiment/bin/python /project/probe.py exercise || exercise_result=$?
+wk stop
+wk start
+check_candidate candidate-restart
+inside /var/lib/workshop/sdk/hermes-experiment/bin/python /project/probe.py continuity
+
+if ! "$rollback"; then
+    echo 'BLOCKED: a checksum-verified last-known-good SDK is required for migration and rollback.'
+    exit 1
+fi
+
+wk refresh
+check_candidate candidate-refresh
+inside /var/lib/workshop/sdk/hermes-experiment/bin/python /project/probe.py continuity
+
+# The historical SDK expects the old read-only mount and requires an absent or
+# legacy-linked profile. Keep the migrated profile intact in the same state mount.
+if [[ "$previous_version" == *'Hermes Agent v0.22.5 '* ]]; then
+    inside bash -ec 'mv -n ~/.hermes/config.yaml ~/.hermes/config.yaml.qualification-rollback
+        test ! -e ~/.hermes/config.yaml
+        ln -s /etc/hermes-experiment/config.yaml ~/.hermes/config.yaml'
+fi
+if "$legacy_charter"; then
+    test "$(readlink "$project/.hermes.md")" = /project/.hermes-charter/original-charter.md
+    ln -sfn /etc/hermes-experiment/original-charter.md "$project/.hermes.md"
+fi
+try_sdk previous "$previous"
+wk refresh
+check_mount previous rollback-restored
+test "$(version | grep -F 'Hermes Agent v')" = "$previous_version"
+inside /var/lib/workshop/sdk/hermes-experiment/bin/python /project/probe.py rollback-continuity
+echo 'Passed persisted state checks after restart, refresh and rollback.'
+test "$exercise_result" -eq 0
+echo 'Passed exact-artifact Workshop acceptance.'

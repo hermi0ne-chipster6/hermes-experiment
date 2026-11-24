@@ -1,4 +1,0 @@
-name: hermes_artifacts
-version: "0.1.0"
-requires_hermes: ">=0.22.5"
-provides_tools: [artifact_to_rea]

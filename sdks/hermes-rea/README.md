@@ -21,7 +21,7 @@ Provide a root-owned `rea_authorized_keys` file through the configuration mount.
 
 ### Analyze through the native MCP
 
-Connect from A using the provided `hermes-rea-remote` transport. C forces the existing REA MCP command (or the bounded artifact input described in the network guide), disables PTY and forwarding, and stores analysis work under `/var/lib/hermes-rea`. This state survives Workshop updates. Actual MCP initialization, cancellation and synthetic analysis must pass before activation.
+Connect from A using the provided `hermes-rea-remote` transport. C forces the existing REA MCP command, disables PTY and forwarding, and stores analysis work under `/var/lib/hermes-rea`. This state survives Workshop updates. Actual MCP initialization, cancellation and synthetic analysis must pass before activation.
 
 ## Plugs (resources this SDK consumes)
 

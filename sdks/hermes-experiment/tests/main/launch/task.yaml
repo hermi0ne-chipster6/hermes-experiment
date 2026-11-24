@@ -1,39 +1,29 @@
-summary: hermes-experiment launch
-prepare: 'envsubst ''${BASE}'' <workshop.yaml.in >workshop.yaml
-
+summary: Launch the packaged Hermes SDK and verify its identity
+prepare: |
+  envsubst '${BASE}' <workshop.yaml.in >workshop.yaml
   workshop launch
-
-  workshop changes
-
-  workshop tasks
-
-  workshop info
-
+restore: |
+  workshop remove
+execute: |
+  workshop exec -- bash -ec '
+    sdk=/var/lib/workshop/sdk/hermes-experiment
+    version=$("$sdk/bin/python" -I -c "import json,sys; print(json.load(open(sys.argv[1]))[\"baseVersion\"])" "$sdk/share/hermes/core-pin.json")
+    hermes --version | grep -F "Hermes Agent v$version "
+    if hermes update; then
+      echo "Packaged core update unexpectedly succeeded" >&2
+      exit 1
+    fi
   '
-restore: 'workshop remove || true
-
-  workshop changes
-
-  workshop tasks
-
-  workshop info
-
+  workshop exec -- bash -lc 'buzz --help' | MATCH 'Usage'
+  workshop exec -- bash -ec '
+    sdk=/var/lib/workshop/sdk/hermes-experiment
+    for path in /usr/local/bin/sui /usr/local/bin/link-cli "$sdk/sui" "$sdk/finance" "$sdk/wrappers/link-cli"; do
+      test ! -e "$path"
+      test ! -L "$path"
+    done
   '
-execute: 'workshop exec -- bash -lc ''hermes --version'' | MATCH ''0\.22\.5''
-
-  workshop exec -- bash -lc ''buzz --help'' | MATCH ''Usage''
-
-  workshop exec -- bash -lc ''sui --version'' | MATCH ''1\.82\.3''
-
-  workshop exec -- bash -lc ''link-cli --help'' | MATCH ''Usage''
-
-  workshop exec -- bash -lc ''test -e ~/.hermes/plugins/hermes_otel/dashboard''
-
-  workshop info | MATCH ''status:\s+ready''
-
-  '
-debug: 'workshop info || true
-
+  workshop exec -- bash -lc 'test -e /var/lib/workshop/sdk/hermes-experiment/plugins/hermes_otel/dashboard'
+  workshop info | MATCH 'status:\s+ready'
+debug: |
+  workshop info || true
   workshop tasks || true
-
-  '

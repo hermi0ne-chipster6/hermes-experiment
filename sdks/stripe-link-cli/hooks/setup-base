@@ -1,0 +1,6 @@
+#!/bin/bash
+set -euo pipefail
+
+wrapper="$SDK/wrappers/link-cli"
+test -x "$wrapper"
+ln -sfnT "$wrapper" /usr/local/bin/link-cli

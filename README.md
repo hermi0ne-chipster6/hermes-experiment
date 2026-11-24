@@ -1,10 +1,10 @@
 # Hermes Experiment #1
 
-SDKcraft sources and disabled deployment examples for a fresh Ubuntu 26.04 AMD64 host. **Local builds and available verification are complete; production activation remains gated.** See [actual results and blockers](reports/verification.md).
+SDKcraft sources and deployment examples for Ubuntu 26.04 AMD64. The [verification records](reports/README.md) describe earlier builds and Store publication.
 
 | Workshop | Purpose | Definition |
 | --- | --- | --- |
-| A | Official pinned Hermes, native Buzz/email gateway, Hindsight, diary client, existing financial CLIs | [hermes-experiment](sdks/hermes-experiment/sdkcraft.yaml) |
+| A | Official pinned Hermes, native Buzz/email gateway, Hindsight, diary client, independently versioned financial CLIs | [hermes-experiment](sdks/hermes-experiment/sdkcraft.yaml), [sui-cli](sdks/sui-cli/sdkcraft.yaml), [stripe-link-cli](sdks/stripe-link-cli/sdkcraft.yaml) |
 | B | Canonical Docker SDK followed by OpenSandbox; dedicated Cloudflare tunnel | [hermes-execution](sdks/hermes-execution/sdkcraft.yaml) |
 | C | Official REA MCP 6.7.0, Ghidra and analysis tools, restricted SSH/stdio | [hermes-rea](sdks/hermes-rea/sdkcraft.yaml) |
 
@@ -21,7 +21,7 @@ python3 -m unittest discover -s tests -v
 python3 release/detect.py --output reports/release-candidate.json
 ```
 
-Exact upstream tags, revisions, package locks and binary/image hashes are recorded in [sources.json](sources.json). Hermes is packaged as official source plus frozen dependencies because upstream reserves its wheel build for Nix. The disabled local browser dependency is omitted to avoid an upstream Pillow conflict; browser work belongs in B. All three final sources passed the real try/install/refresh loop; VM-based Spread checks remain blocked on KVM.
+Exact upstream tags, revisions, package locks and binary/image hashes are recorded in [sources.json](sources.json). Workshop A packages the official source and frozen dependencies, with the upstream pnpm Web and TUI builds. Its native terminal, files, browser, code and skills are available with Hermes permissions. OpenSandbox and REA remain optional integrations. Core upgrades use SDKcraft. Native plugin commands manage plugins in the persistent Hermes profile.
 
 ## Diary and commitments
 
@@ -33,11 +33,11 @@ Native Hermes hooks request and submit an authored heartbeat report. The externa
 
 For a fresh destination host, follow the [step-by-step implementation and acceptance runbook](deployment/NEW-SERVER-RUNBOOK.md) and complete a private [acceptance record](deployment/ACCEPTANCE-RECORD.md). Keep the old host until the cutover checks pass. Also consult the [activation checklist](deployment/activation-checklist.md), [network requirements](deployment/networking.md), [execution-isolation decision](deployment/execution-isolation.md) and role-specific `.example` files. The shared LXD bridge provides connectivity; it does not authenticate workers or enforce isolation. Worker tool allowlists and external adapters remain disabled until their actual checks pass. Hindsight is the baseline; existing banks remain untouched. MemPalace evaluation and any restore or migration require separate evidence and approval.
 
-[Maintenance CI](release/README.md) monitors the complete declared SDK inventory and produces review reports. Hosted checks run tests, source/configuration validation and secret scanning. Full SDK packaging/Spread qualification is manually dispatched on a dedicated Ubuntu 26.04 AMD64 KVM runner. It cannot upgrade a running agent or publish an SDK. Review controls promotion of the exact tested artifact; Workshop refresh then downloads that promoted revision. The three SDKs remain published on `latest/edge`.
+Maintenance CI monitors the declared SDK inventory and prepares pinned Workshop A updates for official stable Hermes releases. The release workflow requires source checks, packaging, Spread and disposable Workshop acceptance before GitHub can auto-merge a recognized release PR. The runner and GitHub ruleset require one-time setup. Store promotion and Workshop refresh are separate operator actions. [Release workflow and setup](release/workflows/README.md)
 
 ## Source repository
 
-This integration repository preserves all three publisher SDK sources, shared diary code, deployment examples, dependency locks, tests and reviewed release records. Each SDK remains under `sdks/<name>/`. Build outputs, credentials, runtime databases, local Workshop state and raw diagnostics are excluded; see [verification records](reports/README.md). Keep original test-machine evidence and exact published SDK packages separately. [Workflow operation](release/workflows/README.md) explains the hosted and manual qualification jobs.
+This integration repository preserves five publisher SDK sources, shared diary code, deployment examples, dependency locks, tests and reviewed release records. Each SDK remains under `sdks/<name>/`. Build outputs, credentials, runtime databases, local Workshop state and raw diagnostics are excluded; see [verification records](reports/README.md). Keep original test-machine evidence and exact published SDK packages separately.
 
 ## Reconnect
 

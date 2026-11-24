@@ -1,0 +1,89 @@
+#!/bin/bash
+# Execute only on a dedicated, disposable Ubuntu 26.04 AMD64 build host.
+set -euo pipefail
+
+root=$(cd "$(dirname "$0")/.." && pwd)
+mkdir -p "${1:?usage: ci/qualify-sdk EVIDENCE_DIR}"
+evidence=$(realpath "$1")
+sdk="$root/sdks/hermes-experiment"
+. /etc/os-release
+test "$ID" = ubuntu
+test "$VERSION_ID" = 26.04
+test "$(uname -m)" = x86_64
+runtime="/run/user/$EUID"
+if [[ ! -d "$runtime" || -L "$runtime" || ! -O "$runtime" || $(stat -c '%a' "$runtime") != 700 ]]; then
+    echo 'Workshop qualification requires the dedicated account runtime directory.' >&2
+    exit 1
+fi
+lock="$runtime/hermes-sdk-qualification.lock"
+test ! -L "$lock"
+exec 9>"$lock"
+if ! flock -n 9; then
+    echo 'Another qualification run owns this account SDK registry.' >&2
+    exit 1
+fi
+# Invalidate a previous receipt only after obtaining exclusive access.
+rm -f -- "$evidence/spread-receipt.json"
+{
+    workshop --version
+    sdkcraft --version
+    snap list workshop sdkcraft lxd
+    sudo -n lxc query /1.0 | python3 -c 'import json,sys; print(json.load(sys.stdin)["environment"]["server_version"])'
+    df -h "$sdk" /var/snap/lxd
+} | tee "$evidence/host.txt"
+git -C "$root" rev-parse HEAD > "$evidence/commit.txt"
+cp "$root/sources.json" "$root/release/upstream-locks/provenance.json" "$evidence/"
+(cd "$root" && python3 -m release.inventory) > "$evidence/dependency-inventory.json"
+
+cd "$sdk"
+sudo -n sdkcraft clean
+# A missing KVM device must not prevent the container packaging run.
+# SDKcraft resolves --output inside its managed build container. The default
+# packages into the SDK project and copies the archive back to this host.
+sudo -n sdkcraft try --build-for amd64 2>&1 | tee "$evidence/try.log"
+artifact="$evidence/hermes-experiment_amd64_ubuntu@26.04.sdk"
+mv -- "$sdk/${artifact##*/}" "$artifact"
+(
+    cd "$evidence"
+    sha256sum "${artifact##*/}" > artifact-checksums.txt
+)
+spread_jobs=(
+    lxd:ubuntu-24.04:main/launch:resolute
+    lxd:ubuntu-24.04:main/missing-secret:resolute
+    lxd:ubuntu-24.04:main/persistence:resolute
+)
+sudo -n sdkcraft test --list "${spread_jobs[@]}" | tee "$evidence/spread-jobs.txt"
+for job in "${spread_jobs[@]}"; do
+    grep -Fxq "$job" "$evidence/spread-jobs.txt"
+done
+
+# Check the exact artifact retained above, independently of the Spread rebuild.
+workshop_result=0
+bash "$root/validation/hermes-agent/qualify-workshop" "$artifact" 2>&1 |
+    tee "$evidence/workshop.log" || workshop_result=$?
+(cd "$evidence" && sha256sum --strict --check artifact-checksums.txt) || workshop_result=$?
+
+spread_result=0
+if test -r /dev/kvm && test -w /dev/kvm; then
+    spread_archive="$sdk/${artifact##*/}"
+    if [[ -e "$spread_archive" || -L "$spread_archive" ]]; then
+        echo 'Unexpected SDK file at the Spread rebuild path.' | tee "$evidence/spread.log" >&2
+        spread_result=1
+    else
+        sudo -n sdkcraft test "${spread_jobs[@]}" 2>&1 | tee "$evidence/spread.log" || spread_result=$?
+        if (( spread_result == 0 )); then
+            if receipt=$(python3 "$root/ci/spread_receipt.py" "$evidence/spread.log" \
+                "$spread_archive" "${spread_jobs[@]}"); then
+                printf '%s\n' "$receipt" > "$evidence/spread-receipt.json" || spread_result=$?
+            else
+                spread_result=$?
+            fi
+        fi
+    fi
+else
+    echo 'BLOCKED: /dev/kvm is unavailable for the VM-based Spread suite.' | tee "$evidence/spread.log"
+    spread_result=1
+fi
+printf 'Workshop result: %s\nSpread result: %s\n' "$workshop_result" "$spread_result" | tee "$evidence/result.txt"
+test "$workshop_result" -eq 0
+test "$spread_result" -eq 0

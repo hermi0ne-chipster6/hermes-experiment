@@ -1,10 +1,9 @@
 """Real Hermes CLI/observer probe against a local synthetic API, never a paid provider.
 
-This deliberately uses an isolated built-in-memory profile. It proves native
-plugin/CLI integration, not Hindsight retention or a real model's behavior.
+This uses a built-in-memory profile and an explicit CLI tool selection to
+exercise the diary integration and Hermes honoring the fixture's preferences.
 """
 from pathlib import Path
-import hashlib
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 import json
 import os
@@ -42,7 +41,7 @@ class API(BaseHTTPRequestHandler):
         if is_agent:agent_requests.append({'path':self.path,'body':body})
         stage=len(agent_requests) if is_agent else 3
         name='tool_search' if stage==1 else 'tool_call'
-        arguments=({'queries':['diary','notify_operator','send_agent_email','artifact_to_rea','terminal','read_file','execute_code'],'limit':20} if stage==1 else
+        arguments=({'queries':['diary','notify_operator','send_agent_email','terminal','read_file','execute_code'],'limit':20} if stage==1 else
                    {'calls':[{'name':'terminal','arguments':{'command':'printf SDK_LOCAL_FALLBACK_TEST'}},
                              {'name':'read_file','arguments':{'path':'/etc/os-release'}}]})
         calls=[{'id':'fixture-'+str(stage),'type':'function','function':{'name':name,'arguments':json.dumps(arguments)}}] if stage<3 else None
@@ -74,12 +73,10 @@ with tempfile.TemporaryDirectory(prefix='hermes-native-hooks-') as name:
     work=root/'work';work.mkdir()
     shutil.copyfile('/project/original-charter-fixture.md',work/'.hermes.md')
     plugins=home/'plugins';plugins.mkdir()
-    for plugin in ('hermes_diary','hermes_notifications','hermes_artifacts'):
+    for plugin in ('hermes_diary','hermes_notifications'):
         (plugins/plugin).symlink_to(SDK/'plugins'/plugin)
-    config={'_config_version':12,'plugins':{'enabled':['hermes_diary','hermes_notifications','hermes_artifacts']},'memory':{'provider':'builtin'},
-            'platform_toolsets':{'cli':['hermes_diary','hermes_notifications','hermes_artifacts']},
-            'agent':{'disabled_toolsets':['terminal','file','browser','code_execution','computer_use',
-                    'delegation','skills','connections','kanban','catalog','project','desktop_ui']},
+    config={'_config_version':12,'plugins':{'enabled':['hermes_diary','hermes_notifications']},'memory':{'provider':'builtin'},
+            'platform_toolsets':{'cli':['hermes_diary','hermes_notifications']},
             'mcp_servers':{},'terminal':{'cwd':str(work)},
             'model':{'default':'sdk-fixture','provider':'custom'}}
     (home/'config.yaml').write_text(json.dumps(config))
@@ -114,19 +111,21 @@ with tempfile.TemporaryDirectory(prefix='hermes-native-hooks-') as name:
             results=[message['content'] for request in agent_requests for message in request['body'].get('messages',[]) if message.get('role')=='tool']
             (Path('/project')/'native-hook-tool-results.json').write_text(json.dumps(results,indent=2))
             assert len(agent_requests)>=3 and results,'Progressive discovery did not execute'
-            assert all(name in results[0] for name in ('diary_read','diary_search','diary_commitments','diary_append','notify_operator','send_agent_email','artifact_to_rea')),results[0]
+            assert all(name in results[0] for name in ('diary_read','diary_search','diary_commitments','diary_append','notify_operator','send_agent_email')),results[0]
             denied=results[-1].lower()
             assert ('error' in denied or 'not available' in denied or 'unknown tool' in denied),denied
             assert 'sdk_local_fallback_test' not in denied and 'ubuntu' not in denied,denied
         else:
             assert {'diary_read','diary_search','diary_commitments','diary_append'} <= names,names
-        forbidden={'terminal','execute_code','read_file','write_file','delegate_task','browser_navigate'}
-        assert not names & forbidden,names
+        unselected={'terminal','execute_code','read_file','write_file','delegate_task','browser_navigate'}
+        assert not names & unselected,names  # This synthetic profile explicitly selects only integration toolsets.
         messages=json.dumps(agent_requests[0]['body'].get('messages',[]))
         assert RUN in messages and 'choose your own objectives' in messages
         charter_marker=next(line for line in (work/'.hermes.md').read_text().splitlines() if line.startswith('#'))
         assert charter_marker in messages,'Native original-charter context missing'
-        print(json.dumps({'native_hermes':'0.22.5','api':'local synthetic chat completions',
+        pin = json.loads((SDK/'share/hermes/core-pin.json').read_text())
+        print(json.dumps({'native_hermes':pin['baseVersion'],'upstream':pin['commit'],
+                          'api':'local synthetic chat completions',
                           'memory':'builtin fixture only','durable_receipt':True,
                           'tool_names':sorted(names),'requests':len(requests)}))
     finally:

@@ -1,6 +1,5 @@
 #!/bin/bash
 set -euo pipefail
-install -D --mode=644 "$SDK/hermes-gateway.service" "$HOME/.config/systemd/user/hermes-gateway.service"
 mkdir -p "$HOME/.hermes/memories"
 mkdir -p "$HOME/.hermes/plugins"
 mkdir -p "$HOME/.hindsight/pg0"
@@ -14,41 +13,55 @@ if [[ -L "$HOME/.pg0" && "$(readlink -f "$HOME/.pg0")" != "$HOME/.hindsight/pg0"
     exit 1
 fi
 ln -sfn "$HOME/.hindsight/pg0" "$HOME/.pg0"
-for plugin in hindsight hermes_otel rea hermes_diary hermes_notifications hermes_artifacts; do
-    if [[ -e "$HOME/.hermes/plugins/$plugin" && ! -L "$HOME/.hermes/plugins/$plugin" ]]; then
-        echo "Existing plugin directory $plugin requires operator reconciliation; refusing to overwrite." >&2
-        exit 1
-    fi
-    ln -sfn "$SDK/plugins/$plugin" "$HOME/.hermes/plugins/$plugin"
-done
-if [[ -r /etc/hermes-experiment/config.yaml ]]; then
-    if [[ -e "$HOME/.hermes/config.yaml" && ! -L "$HOME/.hermes/config.yaml" ]]; then
-        echo 'Existing Hermes configuration requires operator reconciliation; refusing to overwrite.' >&2
-        exit 1
-    fi
-    ln -sfn /etc/hermes-experiment/config.yaml "$HOME/.hermes/config.yaml"
-fi
-if [[ -r /etc/hermes-experiment/original-charter.md ]]; then
-    if [[ -e /project/.hermes.md || -L /project/.hermes.md ]]; then
-        if [[ ! -L /project/.hermes.md || "$(readlink /project/.hermes.md)" != /etc/hermes-experiment/original-charter.md ]]; then
+"$SDK/bin/python" -I "$SDK/wrappers/check-configuration.py" --setup \
+    "$HOME/.hermes" /etc/hermes-experiment/config.yaml "$SDK"
+charter=/project/.hermes-charter/original-charter.md
+context=/project/.hermes.md
+if [[ -r "$charter" ]]; then
+    if [[ -L "$context" ]]; then
+        case "$(readlink "$context")" in
+        "$charter"|/etc/hermes-experiment/original-charter.md) ;;
+        *)
             echo 'Existing Hermes project context requires operator reconciliation; refusing overwrite.' >&2
             exit 1
-        fi
+            ;;
+        esac
+    elif [[ -e "$context" ]]; then
+        echo 'Existing Hermes project context requires operator reconciliation; refusing overwrite.' >&2
+        exit 1
     fi
-    ln -sfn /etc/hermes-experiment/original-charter.md /project/.hermes.md
+    ln -sfn "$charter" "$context"
 fi
 if [[ ! -e "$HOME/.hermes/SOUL.md" ]]; then
     install -m 600 "$SDK/share/hermes/SOUL.md" "$HOME/.hermes/SOUL.md"
 fi
+# Use the frozen SDK interpreter before Hermes activates a committed extension generation.
+# Upstream PM compares core locks and selected plugin inputs, then syncs only if stale.
+HERMES_HOME="$HOME/.hermes" HERMES_RUNTIME_DIR="$HOME/.hermes/tools" \
+    HERMES_INSTALL_ROOT="$SDK/hermes-src" PYTHONPATH="$SDK/hermes-src" \
+    timeout --kill-after=5 600 "$SDK/bin/python" -P -B \
+    "$SDK/wrappers/sync-plugin-dependencies.py" "$SDK/hermes-src"
+# Cold native CLI startup exceeds check-health's five-second hook budget.
+"$SDK/bin/python" -I "$SDK/wrappers/check-core.py" "$SDK" /usr/local/bin/hermes
+gateway_unit_directory="$HOME/.config/systemd/user"
+gateway_unit="$gateway_unit_directory/hermes-gateway.service"
+gateway_drop_in=hermes-gateway.service.d/50-hermes-experiment.conf
+gateway_restart_pending="$gateway_unit_directory/.hermes-experiment-gateway-restart"
+if [[ ! -e "$gateway_unit" && ! -L "$gateway_unit" ]]; then
+    install -D --mode=644 "$SDK/hermes-gateway.service" "$gateway_unit"
+fi
+if ! cmp -s "$SDK/$gateway_drop_in" "$gateway_unit_directory/$gateway_drop_in"; then
+    # Keep the restart pending if setup fails after the drop-in reaches disk.
+    touch "$gateway_restart_pending"
+    install -D --mode=644 "$SDK/$gateway_drop_in" "$gateway_unit_directory/$gateway_drop_in"
+fi
 systemctl --user daemon-reload
 systemctl --user enable hermes-gateway.service
-if [[ -f /etc/hermes-experiment/gateway.enabled ]]; then
-    systemctl --user start hermes-gateway.service
+if [[ -f /etc/hermes-experiment/gateway.enabled && -r "$charter" ]]; then
+    if [[ -f "$gateway_restart_pending" ]]; then
+        systemctl --user restart hermes-gateway.service
+        rm -f -- "$gateway_restart_pending"
+    else
+        systemctl --user start hermes-gateway.service
+    fi
 fi
-# Cold native CLI startup exceeds check-health's five-second hook budget on
-# constrained hosts. Verify the real application here before health can pass.
-version=$(timeout 120 /usr/local/bin/hermes --version)
-[[ "$version" == *'Hermes Agent v0.22.5 '* && "$version" == *'upstream bf0203a7'* ]] || {
-    echo 'Pinned native Hermes CLI startup failed.' >&2
-    exit 1
-}

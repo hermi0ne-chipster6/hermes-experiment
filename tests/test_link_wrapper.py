@@ -5,7 +5,7 @@ import tempfile
 import unittest
 import shutil
 
-WRAPPER = Path(__file__).resolve().parents[1] / 'sdks/hermes-experiment/assets/wrappers/link-cli'
+WRAPPER = Path(__file__).resolve().parents[1] / 'sdks/stripe-link-cli/wrappers/link-cli'
 
 
 class LinkWrapperTests(unittest.TestCase):

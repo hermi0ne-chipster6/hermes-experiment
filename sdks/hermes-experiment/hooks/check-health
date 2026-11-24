@@ -1,6 +1,6 @@
 #!/bin/bash
 set -euo pipefail
-if timeout 3 "$SDK/bin/python" -I -c 'import json,sys; assert sys.version_info[:3] == (3,14,7); stamp=json.load(open(sys.argv[1])); assert stamp["commit"] == "bf0203a794a07aac3ff764972ab9087baa4e4f4e" and stamp["baseVersion"] == "0.22.5"' "$SDK/hermes-src/install-stamp.json" >/dev/null 2>&1; then
+if timeout 3 "$SDK/bin/python" -I "$SDK/wrappers/check-core.py" "$SDK" >/dev/null 2>&1; then
     :
 else
     status=$?

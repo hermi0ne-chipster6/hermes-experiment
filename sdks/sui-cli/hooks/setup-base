@@ -1,0 +1,6 @@
+#!/bin/bash
+set -euo pipefail
+
+binary="$SDK/sui/bin/sui"
+test -x "$binary"
+ln -sfnT "$binary" /usr/local/bin/sui

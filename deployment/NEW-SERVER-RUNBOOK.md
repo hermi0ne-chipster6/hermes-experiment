@@ -160,6 +160,14 @@ on old software. If the channel now contains a different revision, review its
 release record and required compatibility checks first. Do not invent a YAML
 `revision` field or run `hermes update` to bypass the package process.
 
+The revised A definition includes the standalone Sui and Stripe Link SDKs.
+Use their Store names only after the selected releases are available there.
+For disposable pre-publication checks, register the exact A, Sui and Link
+archives with `sdkcraft try` and use their `try-` names. If upgrading an
+existing Workshop, preserve both legacy state sources and follow the
+[CLI state migration](../sdks/hermes-experiment/README.md#sui-and-stripe-link-state)
+before enabling any gateways or financial operations.
+
 The supplied definitions already put Canonical `docker-ce` **before**
 `hermes-execution` in B. Keep each role's project, state and configuration separate.
 Public Store consumption should not require the publisher's signing credentials;
@@ -202,7 +210,6 @@ cp "$HERMES_SOURCE/validation/hermes-agent/probe-installed.py" /srv/hermes/a/
 cp "$HERMES_SOURCE/validation/hermes-agent/probe-native-hooks.py" /srv/hermes/a/
 cp "$HERMES_SOURCE/validation/hermes-agent/original-charter-fixture.md" /srv/hermes/a/
 cp "$HERMES_SOURCE/validation/hermes-agent/probe-workload.py" /srv/hermes/a/
-cp "$HERMES_SOURCE/validation/hermes-agent/probe-artifacts.py" /srv/hermes/a/
 cp "$HERMES_SOURCE/validation/hermes-execution/probe-api.py" /srv/hermes/b/
 cp "$HERMES_SOURCE/validation/hermes-execution/opensandbox-probe.toml" /srv/hermes/b/
 cp "$HERMES_SOURCE/validation/hermes-rea/mcp-smoke.py" /srv/hermes/c/
@@ -275,24 +282,28 @@ an agent, or loosen its permissions to solve a connection failure.
 Create nonsecret, root-owned host directories and files:
 
 ```bash
-sudo install -d -o root -g root -m 0755 /srv/hermes/config/a /srv/hermes/config/b /srv/hermes/config/c
+sudo install -d -o root -g root -m 0755 /srv/hermes/config/a /srv/hermes/config/b /srv/hermes/config/c /srv/hermes/charter/a
 sudo install -o root -g root -m 0644 "$HERMES_SOURCE/deployment/a/config.yaml.example" /srv/hermes/config/a/config.yaml
 sudo install -o root -g root -m 0644 "$HERMES_SOURCE/deployment/a/gateway.env.example" /srv/hermes/config/a/gateway.env
-sudo install -o root -g root -m 0644 "$HERMES_SOURCE/deployment/a/original-charter.md.example" /srv/hermes/config/a/original-charter.md
+sudo install -o root -g root -m 0644 "$HERMES_SOURCE/deployment/a/original-charter.md.example" /srv/hermes/charter/a/original-charter.md
 sudo install -o root -g root -m 0644 "$HERMES_SOURCE/deployment/b/opensandbox.toml.example" /srv/hermes/config/b/opensandbox.toml
-sha256sum /srv/hermes/config/a/original-charter.md
+sha256sum /srv/hermes/charter/a/original-charter.md
 ```
 
 The charter checksum must be
 `fab40f6dc5d2416db23e43d83de97c3b59db52c3d2e7bf01c051a7d9bbefd897`.
-Keep the original charter verbatim and upstream SOUL unchanged. Leave gateway,
-execution, Cloudflare activation markers absent and all MCP allowlists empty.
+Keep only the verbatim charter in `/srv/hermes/charter/a`. Keep upstream SOUL
+unchanged. For an upgrade, preserve the same charter in the old configuration
+directory for rollback and follow the [CLI state cutover](../sdks/hermes-experiment/README.md#sui-and-stripe-link-state).
+Leave gateway, execution and Cloudflare activation markers absent and all MCP
+allowlists empty.
 
 Stop before remounting these already-populated configuration directories:
 
 ```bash
 workshop --project /srv/hermes/a stop a
 workshop --project /srv/hermes/a remount a/hermes-experiment:configuration /srv/hermes/config/a
+workshop --project /srv/hermes/a remount a/hermes-experiment:charter /srv/hermes/charter/a
 workshop --project /srv/hermes/a start a
 workshop --project /srv/hermes/b stop b
 workshop --project /srv/hermes/b remount b/hermes-execution:configuration /srv/hermes/config/b
@@ -310,12 +321,14 @@ workshop --project /srv/hermes/a exec a -- env SDK=/var/lib/workshop/sdk/hermes-
 workshop --project /srv/hermes/b exec b -- env SDK=/var/lib/workshop/sdk/hermes-execution bash /var/lib/workshop/sdk/hermes-execution/sdk/hooks/setup-project
 workshop --project /srv/hermes/c exec c -- env SDK=/var/lib/workshop/sdk/hermes-rea bash /var/lib/workshop/sdk/hermes-rea/sdk/hooks/setup-project
 workshop --project /srv/hermes/a exec a -- findmnt --target /etc/hermes-experiment/config.yaml
+workshop --project /srv/hermes/a exec a -- findmnt --target /project/.hermes-charter/original-charter.md
 workshop --project /srv/hermes/a exec a -- readlink -f /home/workshop/.hermes/config.yaml
 workshop --project /srv/hermes/a exec a -- readlink -f /project/.hermes.md
 ```
 
-**PASS:** configuration mounts are read-only, A's links resolve to the mounted
-configuration/charter and all services remain inactive without activation markers.
+Check that both mounts are read-only, A's `.hermes.md` resolves to
+`/project/.hermes-charter/original-charter.md` and services remain inactive
+without activation markers.
 Run A's hook as the default `workshop` user, not root, because it manages that
 user's home and systemd session.
 
@@ -344,6 +357,13 @@ sudoedit /srv/hermes/config/a/gateway.env
 Set `OPEN_SANDBOX_DOMAIN=<B hostname>:8080` and `HERMES_REA_HOST=<C hostname>`.
 These settings are nonsecret. The normal pattern is A initiating B TCP/8080 and
 C TCP/22. A must not receive a Docker socket or any B/C writable state mount.
+
+Hermes filters the environment inherited by native stdio MCP children. Treat
+the direct wrapper commands below as transport diagnostics. Before enabling an
+MCP server, verify its explicit per-server environment from the active native
+profile against an approved disposable peer. Keep the MCP allowlists empty
+until those checks pass. The native OpenSandbox terminal provider uses its own
+profile selection and the connected sandbox key.
 
 **Isolation gate:** apply a host-supported LXD NIC/profile/network policy that
 permits the required flows and blocks workload access to A, host administration,
@@ -458,7 +478,7 @@ key revocation. Reapply C's setup hook after changing/revoking its public allowl
 an unchanged refresh can otherwise be a no-op. Reconfirm the real host identity
 after updates; do not replace it with an unverified `ssh-keyscan` result.
 
-## 11. Start B and prove real A→B execution and artifact transfer
+## 11. Start B and check real A→B execution
 
 After the credential and network gates pass:
 
@@ -488,22 +508,8 @@ This pulls a pinned small acceptance image and runs synthetic command/file work
 inside B. It should print `python_stdout: "42"`, a file checksum and
 `server_proxy: true`, then destroy the temporary sandbox.
 
-For artifact handoff, use the same probe's optional REA settings. The private key
-is loaded through stdin into a temporary agent in A, never sent to B or C:
-
-```bash
-export OPEN_SANDBOX_API_KEY="$(secret-tool lookup application hermes-experiment-1 credential sandbox-api-key)"
-export HERMES_REA_ACCEPTANCE_KEY="$(secret-tool lookup application hermes-experiment-1 credential rea-ssh-key)"
-export HERMES_REA_ACCEPTANCE_HOSTKEY="$(cat /srv/hermes/config/a/rea_known_hosts)"
-jq -n '{api_key:env.OPEN_SANDBOX_API_KEY,domain:env.OPEN_SANDBOX_DOMAIN,rea_key:(env.HERMES_REA_ACCEPTANCE_KEY + "\n"),rea_known_hosts:env.HERMES_REA_ACCEPTANCE_HOSTKEY,rea_host:env.HERMES_C_HOST}' | workshop --project /srv/hermes/a exec a -- /var/lib/workshop/sdk/hermes-experiment/bin/python -I /project/probe-workload.py
-unset OPEN_SANDBOX_API_KEY HERMES_REA_ACCEPTANCE_KEY HERMES_REA_ACCEPTANCE_HOSTKEY
-```
-
-**PASS:** the handoff result names `/var/lib/hermes-rea/inbox/<sha256>.bin` and its
-digest/size match the synthetic input. Next use native REA to open/analyze that
-exact file and record the actual result. A successful upload is not analysis.
-Test bad-digest rejection and the documented 32 MiB/90-second transfer limits
-with synthetic inputs. Never send private wallet files for analysis.
+Record the result for A→B separately. Any reviewed A→C fixture uses an
+independent benign input staged in C.
 
 Also qualify the pinned code-interpreter/browser workload images from
 `sources.json`, including cancellation, TTL cleanup and failure handling. The small
@@ -511,10 +517,11 @@ Python-image probe does not establish browser/code-interpreter acceptance. Confi
 that a sandbox cannot reach A's services, host management or other sandboxes'
 private data. If B is unavailable, Hermes must not fall back to executing locally.
 
-## 12. Validate actual MCP execution and approve minimal tool allowlists
+## 12. Verify tool selection in the active Hermes profile
 
-Repeat the modern discovery/list requests from phase 10 against the OpenSandbox
-MCP adapter in A. Supply only the dedicated sandbox key through `exec --env`:
+For the standalone OpenSandbox MCP diagnostic, repeat the discovery and list
+requests from phase 10. Supply only the dedicated sandbox key through
+`exec --env`:
 
 ```bash
 export OPEN_SANDBOX_API_KEY="$(secret-tool lookup application hermes-experiment-1 credential sandbox-api-key)"
@@ -524,36 +531,36 @@ unset OPEN_SANDBOX_API_KEY
 
 **PASS:** current-protocol discovery/list succeeds (19 tools in the baseline).
 Use the returned schemas for real synthetic calls: `sandbox_create`, `command_run`,
-`file_write`, `file_read` and `sandbox_kill`. `command_run.command` is a **string**;
-do not use the unsupported argv extension. Prove cleanup after both success and
-failure. Add only the operations needed by this experiment to the explicit
-`tools.include` lists in the host's configuration. Do the equivalent for REA.
+`file_write`, `file_read` and `sandbox_kill`. Pass `command_run.command` as a
+string and verify cleanup after success and failure.
 
-```bash
-sudoedit /srv/hermes/config/a/config.yaml
-```
+For the Hermes terminal integration, review the exact native OpenSandbox
+provider pin in the [Plugin Pack](../plugins/pack/README.md). Select
+`terminal.backend: opensandbox` only in the profile intended to use the
+private worker. Use `OPEN_SANDBOX_DOMAIN` and the connected `sandbox-api-key`
+plug. Verify a synthetic command runs inside B and an explicit remote
+operation fails visibly during an outage. In a local profile, verify
+native terminal, file, browser and code tools inside A.
 
-Leave Link's allowlist empty until its separate financial acceptance gate passes.
-The built-in terminal/file/browser/delegation routes must remain disabled across
-CLI, Buzz, email and cron. Test actual Hermes tool discovery, actual remote calls,
-worker failure and cancellation. Inspect resolved startup logs to confirm REA
-uses `hermes-rea-remote`; reject any unexpected local `npx` installer or local
-execution fallback. The native named configuration overrides the portable plugin
-server, but that behavior still needs verification on this deployed configuration.
+Review tool selections for Buzz, email and cron individually in the active
+Hermes profile. Apply MCP allowlists only to the configured MCP servers. Leave
+Link's allowlist empty until its separate financial acceptance gate passes.
+The existing REA SSH/stdio route and the proposed private Streamable HTTP route
+have separate acceptance evidence. Qualify the selected A→C route before
+changing it.
 
 Tool filtering in Hermes is client-side exposure control. It is not a per-agent
 OAuth authorization boundary. No MCP OAuth gateway is implemented by this plan.
 
 ## 13. Configure Hindsight, provider settings and the native dashboard
 
-Edit the host's nonsecret configuration for your selected provider/model. For
-example, the existing `model` block uses `provider` and `default`; choose a real
-model ID available to your account. Set the matching allowed provider variable
+Edit `/home/workshop/.hermes/config.yaml` for the default profile, or edit the
+selected named profile's `config.yaml`. Set `model.provider` and `model.default`
+to a provider and model available to your account. Set the matching allowed provider variable
 name in `gateway.env` (`OPENROUTER_API_KEY`, `OPENAI_API_KEY`, `ANTHROPIC_API_KEY`
-or `NOUS_API_KEY`), never the key value. Preserve the execution restrictions.
+or `NOUS_API_KEY`), never the key value. Preserve your profile's tool selections.
 
 ```bash
-sudoedit /srv/hermes/config/a/config.yaml
 sudoedit /srv/hermes/config/a/gateway.env
 export HERMES_PROVIDER_KEY_ENV=OPENROUTER_API_KEY
 workshop --project /srv/hermes/a exec --env HERMES_PROVIDER_KEY_ENV a -- hermes memory setup
@@ -574,12 +581,9 @@ workshop --project /srv/hermes/a exec a -- readlink -f /home/workshop/.pg0
 workshop --project /srv/hermes/a exec a -- findmnt --target /home/workshop/.hindsight
 ```
 
-**Configuration gate:** a native setup wizard may try to rewrite the read-only
-operator configuration. If it does, stop and perform operator-controlled setup
-using an isolated staging profile, then review/apply the needed nonsecret changes
-on the host. Do not make the agent's configuration writable or bypass the runtime
-guard for ordinary agent launches. That setup interaction was not accepted on a
-live destination and must be resolved before unattended activation.
+Check that native setup writes to the selected persistent profile. The
+read-only Workshop configuration mount supplies the initial seed and
+operator-managed files such as `gateway.env`.
 
 Use a fresh test bank. Retain a unique synthetic fact, terminate the session,
 start a separate session and ask for semantic recall without putting the fact
@@ -630,6 +634,14 @@ workshop --project /srv/hermes/a exec a -- systemctl --user start hermes-gateway
 workshop --project /srv/hermes/a exec a -- systemctl --user status hermes-gateway.service --no-pager
 workshop --project /srv/hermes/a exec a -- journalctl --user -u hermes-gateway.service -n 60 --no-pager
 ```
+
+The SDK installs a systemd drop-in that preserves the Workshop launcher,
+enable marker and mounted `gateway.env` when Hermes regenerates its main
+user service. Keep gateway and adapter settings in the mounted configuration.
+If rolling back in place while retaining the user unit directory, remove the
+SDK-owned `hermes-gateway.service.d/50-hermes-experiment.conf` and
+`.hermes-experiment-gateway-restart` from `~/.config/systemd/user/`, then run
+`systemctl --user daemon-reload`. Keep the operator's other drop-ins.
 
 Review logs privately before sharing. Test, and save evidence for:
 

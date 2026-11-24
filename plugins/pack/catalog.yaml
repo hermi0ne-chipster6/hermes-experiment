@@ -1,0 +1,85 @@
+version: "0.2.1"
+hermes:
+  repository: https://github.com/NousResearch/hermes-agent
+  tag: v0.23.3
+  ref: caafe5389ae585ef77387a962aee05b1bcf17029
+plugins:
+  - name: hindsight
+    repository: https://github.com/vectorize-io/hindsight
+    ref: d952b6e655fccab4581ee0722b51c5f103873d12
+    path: hindsight-integrations/hermes
+    manifest_blob: 2ed5638ea86114d9a82d441a871ae57dd162280d
+    version: "1.2.3"
+    distribution: sdk-bundled
+    qualification: packaged-identity-recorded
+  - name: hermes_otel
+    repository: https://github.com/briancaffey/hermes-otel
+    ref: d234865b13e997e0b3a50dc18aaad7c7d7b1b1fe
+    path: hermes_otel
+    manifest_blob: 0c4cb763b1d6f3674ce4ab53d07d9ad51421032e
+    version: "1.18.2"
+    distribution: sdk-bundled
+    qualification: packaged-identity-recorded
+  - name: hermes_diary
+    repository: https://github.com/hermi0ne-chipster6/hermes-experiment
+    ref: 066176ab4df823231061f62dd374225aed08e9c6
+    path: sdks/hermes-experiment/assets/plugins/hermes_diary
+    manifest_blob: e36d39964ea5764f50d8058d720f0793f36d7c64
+    support_path: sdks/hermes-experiment/assets/diary/hermes_diary
+    version: "0.1.0"
+    distribution: sdk-bundled
+    qualification: independent-packaging-pending
+  - name: hermes_notifications
+    repository: https://github.com/hermi0ne-chipster6/hermes-experiment
+    ref: 066176ab4df823231061f62dd374225aed08e9c6
+    path: sdks/hermes-experiment/assets/plugins/hermes_notifications
+    manifest_blob: 4ead571299826c31ec5dbcfb7aa48930d362581c
+    support_path: sdks/hermes-experiment/assets/diary/hermes_diary
+    version: "0.1.0"
+    distribution: sdk-bundled
+    qualification: independent-packaging-pending
+  - name: buzz
+    repository: https://github.com/NousResearch/hermes-agent
+    ref: caafe5389ae585ef77387a962aee05b1bcf17029
+    path: plugins/platforms/buzz
+    manifest_blob: fc3dc504e724ecfae1f2cb91c2c090a0d3d8d4c5
+    distribution: core-bundled
+    qualification: adapter-fixtures-only
+  - name: email
+    repository: https://github.com/NousResearch/hermes-agent
+    ref: caafe5389ae585ef77387a962aee05b1bcf17029
+    path: plugins/platforms/email
+    manifest_blob: ec4af9fa3ad7b7f8276b8e23c84aa601eae34a38
+    distribution: core-bundled
+    qualification: adapter-fixtures-only
+  - name: mandate
+    repository: https://github.com/JoeProAI/mandate
+    ref: 4313f6196b6b8f0ccf35fd3bf499182d7814a7bf
+    manifest_blob: 4660d65f1a3b368029232e3e53ce4fc978cba86f
+    version: "0.1.0"
+    distribution: native-catalog
+    qualification: native-scan-confirmation-required
+  - name: promise-keeper
+    repository: https://github.com/MokiMeow/promise-keeper
+    ref: ab91fee21f607d5515a8e007cf615fc285718dd0
+    manifest_blob: f8c03d0ced6d523823a292c3dc49169f44f6c33e
+    version: "0.1.0"
+    distribution: native-pack
+    qualification: native-install-doctor-and-smoke-pass
+  - name: hermes_opensandbox
+    repository: https://github.com/hermi0ne-chipster6/hermes-experiment
+    ref: 1f11e560d672a0994314e518a37c5bcd270e23ab
+    path: plugins/hermes_opensandbox
+    manifest_blob: afc411a285d1347b11d20e844632de43a00ec2d2
+    version: "0.1.0"
+    distribution: native-pack
+    qualification: source-reviewed-native-requalification-pending
+  - name: rea
+    repository: https://github.com/NousResearch/hermes-official-plugins
+    ref: 1690b63a4790cb821fb6a319ba524815d4e09411
+    path: rea
+    manifest: plugin.json
+    manifest_blob: e32fc70d2833c948467ef477b7ee57d6e6a37c73
+    skills_tree: cf79a159c3ed86d2c69c97a4e3591e431a559bbc
+    distribution: sdk-bundled-provenance-only
+    qualification: integration-gate-open

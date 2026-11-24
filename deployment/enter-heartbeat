@@ -14,24 +14,23 @@ fi
 [[ "$HERMES_HEARTBEAT_RUN_ID" =~ ^[a-f0-9]{32}$ ]] || exit 64
 [[ "$HERMES_DIARY_REQUEST_ID" == "heartbeat:$HERMES_HEARTBEAT_RUN_ID" ]] || exit 64
 budget=5400
-run_budget=4800
 session_arguments=(--continue "heartbeat-$HERMES_HEARTBEAT_RUN_ID" --create-if-missing)
-prompt='Operator-scheduled heartbeat. Review your memories, diary, and outstanding commitments. Independently choose objectives within the original charter and authority/financial boundaries. Work within this heartbeat and conclude with the required structured diary report.'
+prompt='Operator-scheduled heartbeat. Review your memories, diary, and outstanding commitments. Independently choose objectives within the original charter and authority/financial boundaries. Work within this heartbeat.'
 if [[ "${HERMES_DIARY_CLOSE_ONLY:-}" == 1 ]]; then
     budget=240
-    run_budget=180
     session_arguments=(--continue "heartbeat-$HERMES_HEARTBEAT_RUN_ID")
     prompt='Do no new work. Review this same heartbeat session and submit the required structured diary report of actual activity and all outstanding commitments. Do not invent actions, outcomes, or evidence.'
 fi
+report="Return a single final JSON object with \"type\":\"heartbeat\" and \"run_id\":\"$HERMES_HEARTBEAT_RUN_ID\". Include \"objectives\", \"actions\", \"outcomes\" and \"unfinished\" as lists of strings about this heartbeat's actual activity. Include \"commitments\" as a list of objects with commitment_id and status matching the stored register. Reconcile every outstanding commitment. Describe observed results and uncertainty accurately and omit secrets."
 # A transient native user service shares the gateway's nonsecret settings and
 # bounds the guest cgroup even if the host Workshop client is interrupted.
-# chat --oneshot is the native single-query exit flag; never use top-level -z,
-# whose separate implementation bypasses approvals.
+# Native chat returns the authored report through the gateway's stream-json result.
+# The transient unit sets its own time limit without changing the session launch policy.
 exec "${workshop_client[@]}" --project /srv/hermes/a exec a -- \
     systemd-run --user --wait --pipe --collect \
     --property EnvironmentFile=/etc/hermes-experiment/gateway.env \
     --property "RuntimeMaxSec=$budget" --property KillMode=control-group --property NoNewPrivileges=yes \
     --setenv="HERMES_HEARTBEAT_RUN_ID=$HERMES_HEARTBEAT_RUN_ID" \
     --setenv="HERMES_DIARY_REQUEST_ID=$HERMES_DIARY_REQUEST_ID" \
-    /usr/local/bin/hermes chat --oneshot --no-restore-cwd --run-budget "$run_budget" \
-    "${session_arguments[@]}" -q "$prompt"
+    /usr/local/bin/hermes chat --format stream-json \
+    "${session_arguments[@]}" -q "$prompt $report"

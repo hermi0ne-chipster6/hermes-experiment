@@ -2,52 +2,42 @@
 # Runtime secret delivery; never executed under hook xtrace.
 set -euo pipefail
 sdk_dir=$(dirname "$(dirname "$(readlink -f "$0")")")
-# Native --profile is consumed before argparse, so reject it before exemptions
-# such as send; otherwise it can redirect the dedicated configuration/identity.
-for argument in "$@"; do
-    case "$argument" in
-        --) break ;;
-        --profile|--profile=*|-p|-p?*)
-            echo 'This runtime uses the fixed operator-managed Hermes profile.' >&2
-            exit 64 ;;
-    esac
-done
 unset HERMES_PROFILE HERMES_CONFIG HERMES_CONFIG_PATH HERMES_ENV HERMES_ENV_PATH HERMES_YOLO_MODE HERMES_ACCEPT_HOOKS
+unset HERMES_WORKSHOP_VALIDATE_PROFILE
 export HERMES_HOME=/home/workshop/.hermes
-case "${1:-}" in
+export HERMES_RUNTIME_DIR="$HERMES_HOME/tools"
+export npm_config_cache="${npm_config_cache:-$HERMES_HOME/cache/npm}"
+
+# Classify a copy of argv with the pinned CLI parser. Hermes receives argv
+# unchanged, including its profile selector and any child-command arguments.
+mode=$("$sdk_dir/bin/python" -I -B -c '
+import sys
+
+sys.path.insert(0, sys.argv[1])
+from hermes_cli._parser import command_argv, scan_profile_flag
+
+arguments = sys.argv[2:]
+_, used, index = scan_profile_flag(arguments)
+if index is not None:
+    del arguments[index:index + used]
+first = arguments[0] if arguments else ""
+if first in ("--version", "-V", "--help", "-h", "help"):
+    print("offline")
+elif command_argv(arguments)[:1] == ["update"]:
+    print("update")
+elif first == "send":
+    print("send")
+else:
+    print("runtime")
+' "$sdk_dir/hermes-src" "$@")
+case "$mode" in
     update)
-        echo 'This packaged Hermes is immutable. Promote a tested SDK, then use workshop refresh.' >&2
+        echo 'This packaged Hermes is managed by SDKcraft. Use workshop refresh with a verified SDK.' >&2
         exit 64
         ;;
-    plugins)
-        case "${2:-}" in
-            install|update|remove)
-                echo 'Plugin changes belong in a reviewed SDK build.' >&2
-                exit 64
-                ;;
-        esac
-        ;;
-esac
-case "${1:-}" in
-    --version|-V|--help|-h|help|send) ;;
-    *)
-        config=/etc/hermes-experiment/config.yaml
-        if [[ ! -r "$config" ]] || \
-           [[ "$(readlink -f /home/workshop/.hermes/config.yaml)" != "$config" ]]; then
-            echo 'Reviewed operator configuration is required; refusing local execution defaults.' >&2
-            exit 78
-        fi
-        mount_options=$(findmnt --noheadings --output OPTIONS --target "$config")
-        if [[ ",$mount_options," != *,ro,* ]]; then
-            echo 'Operator configuration must come from the read-only mount.' >&2
-            exit 78
-        fi
-        mode=$(stat -c %a "$config")
-        if (( (8#$mode & 8#022) != 0 )); then
-            echo 'Operator configuration must not be group/world writable.' >&2
-            exit 78
-        fi
-        charter=/etc/hermes-experiment/original-charter.md
+    offline|send) ;;
+    runtime)
+        charter=/project/.hermes-charter/original-charter.md
         if [[ ! -r "$charter" ]] || [[ "$(readlink -f /project/.hermes.md)" != "$charter" ]]; then
             echo 'Original governing charter context is required before agent execution.' >&2
             exit 78
@@ -57,25 +47,16 @@ case "${1:-}" in
             echo 'Charter differs from the approved original; reconcile under operator review.' >&2
             exit 78
         fi
-        for argument in "$@"; do
-            case "$argument" in
-                --ignore-user-config|--ignore-rules|--in|--in=*|--safe-mode|--yolo|--accept-hooks|--toolsets|--toolsets=*|-t|-z)
-                    echo 'This launch override is unavailable in the restricted runtime.' >&2
-                    exit 64 ;;
-            esac
-        done
-        if [[ "${1:-}" == --oneshot ]]; then
-            echo 'Use native chat --oneshot; top-level one-shot bypasses approvals.' >&2
-            exit 64
-        fi
-        "$sdk_dir/bin/python" "$sdk_dir/wrappers/check-configuration.py" "$config"
         cd /project
+        export HERMES_WORKSHOP_VALIDATE_PROFILE=1
         ;;
 esac
 export HERMES_DIARY_SOCKET="${HERMES_DIARY_SOCKET:-/run/user/1000/hermes-diary.sock}"
+# Use the bundled Node for the prebuilt TUI without provisioning another runtime.
+export HERMES_NODE="${HERMES_NODE:-$sdk_dir/node/bin/node}"
 export PATH="$sdk_dir/node/bin:$sdk_dir/buzz/bin:$PATH"
-case "${1:-}" in
-    --version|-V|--help|-h|help) ;;
+case "$mode" in
+    offline) ;;
     *)
         # An explicitly supplied variable wins. Failed retrieval never exports
         # an empty value or changes the native application's authentication policy.

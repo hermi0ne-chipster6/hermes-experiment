@@ -1,0 +1,11 @@
+name: hermes-experiment-plugin-pack
+version: "0.2.1"
+description: Optional independently installed plugins for Hermes Experiment 1.
+plugins:
+  - name: promise-keeper
+    repo: https://github.com/MokiMeow/promise-keeper
+    ref: ab91fee21f607d5515a8e007cf615fc285718dd0
+  - name: hermes_opensandbox
+    repo: https://github.com/hermi0ne-chipster6/hermes-experiment.git
+    ref: 1f11e560d672a0994314e518a37c5bcd270e23ab
+    subdir: plugins/hermes_opensandbox

@@ -1,0 +1,4 @@
+name: sui-cli-test
+base: ${BASE}
+sdks:
+  - name: try-sui-cli

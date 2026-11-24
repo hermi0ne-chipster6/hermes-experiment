@@ -8,7 +8,7 @@
     "hermes-rea/assets"
   ],
   "lock_parts": [
-    "hermes-experiment/finance",
+    "stripe-link-cli/link-cli",
     "hermes-experiment/hindsight-runtime"
   ],
   "components": [
@@ -113,7 +113,7 @@
       "name": "sui",
       "kind": "github-release",
       "roles": [
-        "hermes-experiment"
+        "sui-cli"
       ],
       "inputs": [
         "sources.json"
@@ -121,7 +121,7 @@
       "repository": "MystenLabs/sui",
       "pattern": "mainnet-v(\\d+\\.\\d+\\.\\d+)",
       "parts": [
-        "hermes-experiment/sui"
+        "sui-cli/sui"
       ],
       "source_keys": {
         "current": [
@@ -179,14 +179,16 @@
       "kind": "node",
       "roles": [
         "hermes-experiment",
-        "hermes-rea"
+        "hermes-rea",
+        "stripe-link-cli"
       ],
       "inputs": [
         "sources.json"
       ],
       "parts": [
         "hermes-experiment/node-runtime",
-        "hermes-rea/node-runtime"
+        "hermes-rea/node-runtime",
+        "stripe-link-cli/node-runtime"
       ],
       "source_keys": {
         "current": [

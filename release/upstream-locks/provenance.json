@@ -1,30 +1,10 @@
 [
   {
-    "file": "release/upstream-locks/hermes/package-lock.json",
-    "path": "package-lock.json",
-    "repository": "NousResearch/hermes-agent",
-    "revision": "bf0203a794a07aac3ff764972ab9087baa4e4f4e",
-    "sha256": "d439feaa570d5098f5479f2af154c001f48d5c2d95a938977cc235384978e37c",
-    "roles": [
-      "hermes-experiment"
-    ]
-  },
-  {
-    "file": "release/upstream-locks/hermes/package.json",
-    "path": "package.json",
-    "repository": "NousResearch/hermes-agent",
-    "revision": "bf0203a794a07aac3ff764972ab9087baa4e4f4e",
-    "sha256": "1f2378a4d91f99fa1f407d017a27a09298d509664f8353261c3579d2ecf4d852",
-    "roles": [
-      "hermes-experiment"
-    ]
-  },
-  {
     "file": "release/upstream-locks/hermes/apps/bootstrap-installer/package.json",
     "path": "apps/bootstrap-installer/package.json",
     "repository": "NousResearch/hermes-agent",
-    "revision": "bf0203a794a07aac3ff764972ab9087baa4e4f4e",
-    "sha256": "5f5c9c2818b2c15795b3460e19d9e79dd047fcdcf897596feda016b5cc41d25f",
+    "revision": "caafe5389ae585ef77387a962aee05b1bcf17029",
+    "sha256": "8ef81b3117449e55a357e9b670e0309c353d91528a3ea0f2218b2c76d99c03e9",
     "roles": [
       "hermes-experiment"
     ]
@@ -33,8 +13,8 @@
     "file": "release/upstream-locks/hermes/apps/desktop/package.json",
     "path": "apps/desktop/package.json",
     "repository": "NousResearch/hermes-agent",
-    "revision": "bf0203a794a07aac3ff764972ab9087baa4e4f4e",
-    "sha256": "0dbbf7fc4444ecc4de3375bd9172d15857fcf9ea43602c089125b63e294faf30",
+    "revision": "caafe5389ae585ef77387a962aee05b1bcf17029",
+    "sha256": "2b785821c9c450f9031e0a45013bb41f76964eccf4f032cabe3624dbe43fe9ef",
     "roles": [
       "hermes-experiment"
     ]
@@ -43,8 +23,58 @@
     "file": "release/upstream-locks/hermes/apps/shared/package.json",
     "path": "apps/shared/package.json",
     "repository": "NousResearch/hermes-agent",
-    "revision": "bf0203a794a07aac3ff764972ab9087baa4e4f4e",
-    "sha256": "b9ae25a2a7f088a1f2d4083f19bd10c4432c1e451022d885c59b0f1996cee85e",
+    "revision": "caafe5389ae585ef77387a962aee05b1bcf17029",
+    "sha256": "fa0da078bd126973e390885f445c0103a88bb511074174f78024eaaf5c553917",
+    "roles": [
+      "hermes-experiment"
+    ]
+  },
+  {
+    "file": "release/upstream-locks/hermes/package.json",
+    "path": "package.json",
+    "repository": "NousResearch/hermes-agent",
+    "revision": "caafe5389ae585ef77387a962aee05b1bcf17029",
+    "sha256": "ad3b899a2453baf2e42974e4c35996812244eb9d8e8bc9d35fea19ad97137768",
+    "roles": [
+      "hermes-experiment"
+    ]
+  },
+  {
+    "file": "release/upstream-locks/hermes/pm/lock.json",
+    "path": "pm/lock.json",
+    "repository": "NousResearch/hermes-agent",
+    "revision": "caafe5389ae585ef77387a962aee05b1bcf17029",
+    "sha256": "eb4fcc5aea38d98f26375a4e14c34b1a49992178ad2cb7881e87c139a7e2dd9d",
+    "roles": [
+      "hermes-experiment"
+    ]
+  },
+  {
+    "file": "release/upstream-locks/hermes/pnpm-lock.yaml",
+    "path": "pnpm-lock.yaml",
+    "repository": "NousResearch/hermes-agent",
+    "revision": "caafe5389ae585ef77387a962aee05b1bcf17029",
+    "sha256": "3427f2e21b8e6f61fbdc5767a752326231924a9c30844e1a4e8a6dab4c722e4b",
+    "roles": [
+      "hermes-experiment"
+    ]
+  },
+  {
+    "file": "release/upstream-locks/hermes/pnpm-workspace.yaml",
+    "path": "pnpm-workspace.yaml",
+    "repository": "NousResearch/hermes-agent",
+    "revision": "caafe5389ae585ef77387a962aee05b1bcf17029",
+    "sha256": "2ac15a1a66b91faece9b34ea6b42db759f6cb4487ca3e95916b3faa4ed6edaf8",
+    "roles": [
+      "hermes-experiment"
+    ]
+  },
+  {
+    "file": "release/upstream-locks/hermes/pyproject.toml",
+    "path": "pyproject.toml",
+    "repository": "NousResearch/hermes-agent",
+    "revision": "caafe5389ae585ef77387a962aee05b1bcf17029",
+    "sha256": "d018a56c3a520b9afeb92e2211501eb98451dd0d3658db899bc58343c8d781eb",
     "roles": [
       "hermes-experiment"
     ]
@@ -53,8 +83,8 @@
     "file": "release/upstream-locks/hermes/tests-js/package.json",
     "path": "tests-js/package.json",
     "repository": "NousResearch/hermes-agent",
-    "revision": "bf0203a794a07aac3ff764972ab9087baa4e4f4e",
-    "sha256": "ba875b0aad7c4d555793f062e75ccf7bc9c90be6304ffc0f1cd44fc24ebd9cba",
+    "revision": "caafe5389ae585ef77387a962aee05b1bcf17029",
+    "sha256": "dfd8ea38fbf966e028bede181f7024983f145ff305816ddc11467d716e68518e",
     "roles": [
       "hermes-experiment"
     ]
@@ -63,8 +93,8 @@
     "file": "release/upstream-locks/hermes/ui-tui/package.json",
     "path": "ui-tui/package.json",
     "repository": "NousResearch/hermes-agent",
-    "revision": "bf0203a794a07aac3ff764972ab9087baa4e4f4e",
-    "sha256": "03af8c8c2914f72ee91b1b5afe4f942c6d1614442d501d11d57e812750f30f34",
+    "revision": "caafe5389ae585ef77387a962aee05b1bcf17029",
+    "sha256": "4b53b1110cdba70cafc3d37f39b526cb6e32237182a03ec1e5bd781d1826a58e",
     "roles": [
       "hermes-experiment"
     ]
@@ -73,8 +103,18 @@
     "file": "release/upstream-locks/hermes/ui-tui/packages/hermes-ink/package.json",
     "path": "ui-tui/packages/hermes-ink/package.json",
     "repository": "NousResearch/hermes-agent",
-    "revision": "bf0203a794a07aac3ff764972ab9087baa4e4f4e",
-    "sha256": "109258a3f307cf7e687d7e8874edbdd6b51a69022fae0c7c33f82fee7ffd0fd8",
+    "revision": "caafe5389ae585ef77387a962aee05b1bcf17029",
+    "sha256": "dd2e2a6a234d5cca9ef9d44f486c8652240f65cd2419095ff09fc018a0e35526",
+    "roles": [
+      "hermes-experiment"
+    ]
+  },
+  {
+    "file": "release/upstream-locks/hermes/uv.lock",
+    "path": "uv.lock",
+    "repository": "NousResearch/hermes-agent",
+    "revision": "caafe5389ae585ef77387a962aee05b1bcf17029",
+    "sha256": "3501084a326b186971ee09b03a202a6972019dff89dc127bf8506153d05c9b11",
     "roles": [
       "hermes-experiment"
     ]
@@ -83,8 +123,8 @@
     "file": "release/upstream-locks/hermes/web/package.json",
     "path": "web/package.json",
     "repository": "NousResearch/hermes-agent",
-    "revision": "bf0203a794a07aac3ff764972ab9087baa4e4f4e",
-    "sha256": "30b1a6e95b603e736b7e06056248e93fd0369a6ec4540449e0c52461efa788d0",
+    "revision": "caafe5389ae585ef77387a962aee05b1bcf17029",
+    "sha256": "905d5d7e84ce393a41506a813b207c3308956fc1bf4388a440d5b9aa733b91fa",
     "roles": [
       "hermes-experiment"
     ]

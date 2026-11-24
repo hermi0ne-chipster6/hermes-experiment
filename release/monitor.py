@@ -30,6 +30,7 @@ HOSTS = {'api.github.com', 'raw.githubusercontent.com', 'pypi.org',
 SHA = re.compile(r'[0-9a-f]{40}\Z')
 COMMON_CHECKS = ['bridge', 'routing', 'memory', 'heartbeat', 'native-gateways',
                  'MCP-protocol-and-authorization', 'refresh-and-rollback']
+ROLE_CHECKS = {'hermes-experiment': 'sdk-a', 'hermes-execution': 'sdk-b', 'hermes-rea': 'sdk-c'}
 
 
 class SafeRedirect(HTTPRedirectHandler):
@@ -286,7 +287,8 @@ def inspect_component(record, client, root=ROOT):
     roles = set(record['roles'])
     result['required_checks'] = ['hosted-checks']
     if roles-{'ci'}:
-        result['required_checks'] += ['sdk-a', 'sdk-b', 'sdk-c']+COMMON_CHECKS
+        result['required_checks'] += [check for role, check in ROLE_CHECKS.items() if role in roles]
+        result['required_checks'] += COMMON_CHECKS
     kind = record['kind']
     if candidate.get('eligible') is False:
         result['status'] = 'prerelease-channel-review'

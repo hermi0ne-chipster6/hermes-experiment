@@ -28,14 +28,46 @@ def provenance(root):
     return json.loads(path.read_text()) if path.exists() else []
 
 
-def npm_lock(path, root):
+def javascript_lock(path, root):
     for parent in (path.parent, *path.parents):
         if not parent.is_relative_to(root):
             break
-        candidate = parent/'package-lock.json'
-        if candidate.is_file():
-            return candidate
+        candidates = [parent/name for name in ('package-lock.json', 'pnpm-lock.yaml')]
+        locks = [candidate for candidate in candidates if candidate.is_file()]
+        if len(locks) > 1:
+            raise ValueError(f'ambiguous JavaScript locks in {parent.relative_to(root)}')
+        if locks:
+            return locks[0]
     return None
+
+
+def read_pnpm(path):
+    lock = yaml.load(path.read_text(), Loader=getattr(yaml, 'CSafeLoader', yaml.SafeLoader))
+    if (not isinstance(lock, dict) or lock.get('lockfileVersion') != '9.0'
+            or not isinstance(lock.get('importers'), dict) or not isinstance(lock.get('packages'), dict)):
+        raise ValueError(f'unsupported pnpm lock in {path}')
+    return lock
+
+
+def validate_javascript_manifest(path, lock_path, lock, relative):
+    manifest = json.loads(path.read_text())
+    location = path.parent.relative_to(lock_path.parent).as_posix()
+    if lock_path.name == 'pnpm-lock.yaml':
+        importer = lock['importers'].get(location)
+        if importer is None:
+            raise ValueError(f'pnpm manifest has no lock importer: {relative}')
+        peers = manifest.get('peerDependencies', {})
+        for field in ('dependencies', 'devDependencies', 'optionalDependencies'):
+            declared = manifest.get(field, {})
+            specifiers = {name: entry['specifier'] for name, entry in importer.get(field, {}).items()
+                          if name in declared or name not in peers or peers[name] != entry['specifier']}
+            if declared != specifiers:
+                raise ValueError(f'pnpm manifest disagrees with lock: {relative}')
+    else:
+        importer = lock['packages']['' if location == '.' else location]
+        for field in ('dependencies', 'devDependencies', 'optionalDependencies'):
+            if manifest.get(field, {}) != importer.get(field, {}):
+                raise ValueError(f'npm manifest disagrees with lock: {relative}')
 
 
 def validate_coverage(root=ROOT):
@@ -56,27 +88,33 @@ def validate_coverage(root=ROOT):
         raise ValueError(f'untracked SDK parts: {sorted(actual-known)}')
     if known-actual:
         raise ValueError(f'stale SDK part coverage: {sorted(known-actual)}')
+    locks = {}
     for path in files(root):
         relative = str(path.relative_to(root))
+        if relative.startswith('release/upstream-locks/') and path.name != 'provenance.json' and relative not in captured:
+            raise ValueError(f'unclassified dependency input: {relative}')
         if path.name.endswith('.lock') and path.name not in ('.workshop.lock', 'uv.lock'):
             raise ValueError(f'unclassified dependency lock: {path.relative_to(root)}')
         if path.name in ('pyproject.toml', 'setup.py', 'setup.cfg', 'Pipfile',
                          'pnpm-lock.yaml', 'npm-shrinkwrap.json', 'pnpm-workspace.yaml',
                          'Cargo.toml', 'go.mod', 'go.sum', 'uv.lock') and relative not in captured:
             raise ValueError(f'unclassified dependency input: {relative}')
-        lock_path = npm_lock(path, root) if path.name == 'package.json' else None
-        if path.name == 'package.json' and lock_path is None:
-            raise ValueError(f'unlocked npm manifest: {path.relative_to(root)}')
         if path.name == 'package.json':
-            manifest = json.loads(path.read_text())
-            location = path.parent.relative_to(lock_path.parent).as_posix()
-            lock_root = json.loads(lock_path.read_text())['packages']['' if location == '.' else location]
-            for field in ('dependencies', 'devDependencies', 'optionalDependencies'):
-                if manifest.get(field, {}) != lock_root.get(field, {}):
-                    raise ValueError(f'npm manifest disagrees with lock: {path.relative_to(root)}')
+            lock_path = javascript_lock(path, root)
+            if lock_path is None:
+                raise ValueError(f'unlocked npm manifest: {relative}')
+            if lock_path not in locks:
+                locks[lock_path] = (read_pnpm(lock_path) if lock_path.name == 'pnpm-lock.yaml'
+                                    else json.loads(lock_path.read_text()))
+            validate_javascript_manifest(path, lock_path, locks[lock_path], relative)
     if not (root/'release/platform-packages.json').is_file():
         raise ValueError('missing observed Ubuntu package baseline')
     sources = json.loads((root/'sources.json').read_text())
+    pm_path = root/'release/upstream-locks/hermes/pm/lock.json'
+    if pm_path.is_file():
+        pm = json.loads(pm_path.read_text())['packages']
+        if pm['pnpm']['version'] != sources['hermes']['package_manager']:
+            raise ValueError('pnpm version disagrees with the Hermes toolchain lock')
     expected = {'NousResearch/hermes-agent':sources['hermes_commit'],
                 'opensandbox-group/OpenSandbox':sources['opensandbox']['commit']}
     for entry in upstream:
@@ -177,6 +215,16 @@ def inventory(root=ROOT):
                     raise ValueError(f'unclassified npm dependency {location} in {relative}')
                 name = entry.get('name') or location.rsplit('node_modules/', 1)[1]
                 dependency('npm', name, entry['version'], relative)
+        if path.name == 'pnpm-lock.yaml':
+            lock = read_pnpm(path)
+            for identifier, entry in lock['packages'].items():
+                match = re.fullmatch(r'((?:@[^/]+/)?[^@/]+)@(\d+\.\d+\.\d+(?:[-+][\w.+-]+)?)', identifier)
+                if not match or not entry.get('resolution', {}).get('integrity'):
+                    raise ValueError(f'unclassified pnpm dependency {identifier} in {relative}')
+                dependency('npm', *match.groups(), relative)
+            if str(relative) == 'release/upstream-locks/hermes/pnpm-lock.yaml':
+                dependency('npm', 'pnpm', sources['hermes']['package_manager'],
+                           Path('release/upstream-locks/hermes/pm/lock.json'))
         if path.name == 'uv.lock':
             lock = tomllib.loads(path.read_text())
             for entry in lock['package']:
@@ -185,6 +233,15 @@ def inventory(root=ROOT):
                     if source['registry'].rstrip('/') != 'https://pypi.org/simple':
                         raise ValueError('unclassified Python registry in '+str(relative))
                     dependency('pypi', entry['name'], entry['version'], relative)
+                elif (str(relative) == 'release/upstream-locks/hermes/uv.lock' and 'git' in source
+                      and re.fullmatch(r'https://github\.com/[^#]+#[a-f0-9]{40}', source['git'])):
+                    continue  # Provenance tracks optional direct Git dependencies in the frozen lock.
+                elif str(relative) == 'release/upstream-locks/hermes/uv.lock' and 'url' in source and any(
+                    wheel.get('url') == source['url']
+                    and re.fullmatch(r'sha256:[a-f0-9]{64}', wheel.get('hash', ''))
+                    for wheel in entry.get('wheels', [])
+                ):
+                    continue  # Optional direct wheels are also covered by upstream-lock provenance.
                 elif not any(kind in source for kind in ('editable', 'virtual')):
                     raise ValueError('unclassified uv dependency source in '+str(relative))
 

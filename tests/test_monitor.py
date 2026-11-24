@@ -49,6 +49,9 @@ class MonitorTests(unittest.TestCase):
         self.assertEqual(result['candidate']['revision'], 'b'*40)
         self.assertEqual(result['status'], 'review-required')
         self.assertIn('heartbeat', result['required_checks'])
+        self.assertIn('sdk-a', result['required_checks'])
+        self.assertNotIn('sdk-b', result['required_checks'])
+        self.assertNotIn('sdk-c', result['required_checks'])
 
     def test_retargeted_pinned_tag_is_drift_even_without_new_version(self):
         client = FixtureClient({'/releases?per_page=100': [release('v1.0.0')],

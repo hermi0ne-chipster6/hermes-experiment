@@ -1,0 +1,153 @@
+#!/bin/bash
+set -euo pipefail
+
+source_dir="$CRAFT_PART_SRC/upstream"
+sdk="$CRAFT_PART_INSTALL"
+scratch=$(mktemp -d)
+trap 'rm -rf "$scratch"' EXIT
+
+cd "$source_dir"
+version=$(cat "$CRAFT_PROJECT_DIR/VERSION")
+commit=$(git rev-parse HEAD)
+python_version=3.14.7
+extras=(web mcp)
+extra_args=()
+for extra in "${extras[@]}"; do
+    extra_args+=(--extra "$extra")
+done
+
+# The upstream toolchain lock supplies the checksummed Linux x64 build tools.
+# Only the required member is read from each verified archive.
+fetch_tool() {
+    local name=$1 member=$2 destination=$3 url sha prefix
+    read -r url sha prefix < <(python3 - "$name" <<'PY'
+import json
+import re
+import sys
+
+with open("pm/lock.json", encoding="utf-8") as stream:
+    package = json.load(stream)["packages"][sys.argv[1]]
+artifact = package["artifacts"]["linux-x64"]
+if sys.argv[1] == "pnpm":
+    artifact, = [item for item in artifact if item["url"].startswith(
+        "https://registry.npmjs.org/@pnpm/exe.linux-x64/"
+    )]
+elif sys.argv[1] == "node":
+    if not artifact["url"].startswith("https://nodejs.org/dist/"):
+        raise ValueError("unrecognized Node.js release URL")
+elif not artifact["url"].startswith("https://github.com/astral-sh/uv/releases/download/"):
+    raise ValueError("unrecognized uv release URL")
+if not re.fullmatch(r"[a-f0-9]{64}", artifact["sha256"]):
+    raise ValueError("invalid upstream artifact digest")
+print(artifact["url"], artifact["sha256"], artifact["url"].rsplit("/", 1)[-1].removesuffix(".tar.xz"))
+PY
+    )
+    curl --fail --silent --show-error --location --max-time 180 "$url" -o "$scratch/$name.tgz"
+    printf '%s  %s\n' "$sha" "$scratch/$name.tgz" | sha256sum --check -
+    if [[ "$name" == node ]]; then
+        member="$prefix/$member"
+    fi
+    tar -xOf "$scratch/$name.tgz" "$member" > "$destination"
+    chmod 755 "$destination"
+}
+
+mkdir -p "$scratch/bin" "$sdk/bin" "$sdk/share/hermes"
+fetch_tool uv uv-x86_64-unknown-linux-gnu/uv "$sdk/bin/uv"
+fetch_tool pnpm package/pnpm "$scratch/bin/pnpm"
+fetch_tool node bin/node "$scratch/bin/node"
+tar -xOzf "$scratch/pnpm.tgz" package/LICENSE > "$sdk/share/hermes/pnpm-LICENSE"
+tar -xOzf "$scratch/pnpm.tgz" package/THIRD-PARTY-NOTICES.md > "$sdk/share/hermes/pnpm-THIRD-PARTY-NOTICES.md"
+export PATH="$sdk/bin:$scratch/bin:$PATH"
+export UV_PYTHON_INSTALL_DIR="$sdk/python-runtime"
+
+uv python install "$python_version"
+python=$(uv python find "$python_version")
+uv venv --allow-existing --relocatable --python "$python" "$sdk"
+python_rel=$(realpath --relative-to="$sdk/bin" "$python")
+ln -snf "$python_rel" "$sdk/bin/python"
+ln -snf python "$sdk/bin/python3"
+ln -snf python "$sdk/bin/python3.14"
+
+VIRTUAL_ENV="$sdk" uv sync --active --frozen --no-dev --no-editable --no-install-project "${extra_args[@]}"
+# The overlay was resolved against the core export and every wheel is pinned.
+# uv's normal dependency check is run below, with upstream's recorded overrides.
+uv pip install --python "$sdk/bin/python" --only-binary ':all:' --no-deps --require-hashes \
+    -r "$CRAFT_PROJECT_DIR/plugin-requirements.txt"
+"$sdk/bin/python" - "$sdk" <<'PY'
+from pathlib import Path
+import subprocess
+import sys
+
+from pm.pip_check import unexpected_incompatibilities
+
+sdk = Path(sys.argv[1])
+check = subprocess.run(
+    [sdk / "bin/uv", "pip", "check", "--no-config", "--color", "never",
+     "--python", sdk / "bin/python"],
+    text=True, capture_output=True, timeout=60,
+)
+if check.returncode:
+    report = check.stdout + check.stderr
+    unexpected = unexpected_incompatibilities(report, Path("uv.lock"))
+    if unexpected is None or unexpected:
+        raise SystemExit(report)
+    print(report, end="")
+PY
+
+# Upstream's workspace provider installs the root and requested workspaces and
+# enforces pnpm's exact lock and build-script policy.
+node scripts/build/node-deps.mjs --source "$source_dir" --workspace web --workspace ui-tui
+# Use upstream's one-thread/minimum-heap mode to bound peak build memory.
+HERMES_WEB_BUILD_LIGHT=1 pnpm --filter web run build
+node scripts/build/tui.mjs --source "$source_dir" --out "$scratch/tui"
+
+install_root="$sdk/hermes-src"
+mkdir -p "$install_root/hermes_cli/tui_dist"
+git archive HEAD | tar -x -C "$install_root"
+cp -r hermes_cli/web_dist "$install_root/hermes_cli/"
+cp -r "$scratch/tui/dist/." "$install_root/hermes_cli/tui_dist/"
+cp "$scratch/tui/package.json" "$install_root/hermes_cli/tui_dist/"
+"$sdk/bin/python" - "$install_root" <<'PY'
+from pathlib import Path
+import sys
+
+from scripts.build.agent import write_metadata
+
+root = Path(sys.argv[1])
+write_metadata(root / "pyproject.toml", root)
+PY
+
+env -u HERMES_DESKTOP_VARIANT -u HERMES_PAYLOAD_TAG "$sdk/bin/python" - \
+    "$install_root/install-stamp.json" "$commit" "$version" "$(git log -1 --format=%ct)" <<'PYTHON'
+from datetime import UTC, datetime
+import json
+from pathlib import Path
+import sys
+
+from scripts.write_install_stamp import build_stamp
+
+path, commit, version, revision_time = sys.argv[1:]
+commit_date = int(revision_time)
+stamp = build_stamp(
+    commit=commit, branch=f"v{version}", base_version=version, distance=0,
+    dirty=False, commit_date=commit_date, source="ci", distribution="sdkcraft",
+    update_mechanism="external",
+)
+stamp["builtAt"] = datetime.fromtimestamp(commit_date, UTC).isoformat()
+Path(path).write_text(json.dumps(stamp, indent=2) + "\n")
+PYTHON
+"$sdk/bin/python" - "$sdk/share/hermes" "$commit" "$version" "$python_version" "${extras[@]}" <<'PY'
+import json
+from pathlib import Path
+import sys
+
+directory, commit, version, python, *extras = sys.argv[1:]
+root = Path(directory)
+(root / "core-pin.json").write_text(json.dumps({
+    "commit": commit, "baseVersion": version, "pythonVersion": python,
+}) + "\n")
+(root / "enabled-features.json").write_text(json.dumps({"schema": 1, "extras": extras}) + "\n")
+PY
+
+install -D SOUL.md "$sdk/share/hermes/SOUL.md"
+uv pip freeze --python "$sdk/bin/python" > "$sdk/share/hermes/dependencies.txt"
