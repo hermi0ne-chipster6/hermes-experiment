@@ -43,27 +43,47 @@ Strict branch protection stops GitHub from merging after the target moves.
 
 ## One-time repository and runner setup
 
-1. Allow GitHub Actions to create pull requests. Enable auto-merge and squash
-   merges. The release workflow uses the repository's temporary
-   `GITHUB_TOKEN` with job-scoped permissions.
-2. On an eligible GitHub plan, activate a ruleset for `main` with no bypass
-   actors. Block force pushes, require pull requests and require the exact status
-   `Hermes stable release qualification` from the GitHub Actions App, with the
-   requirement that branches be up to date before merging. The ruleset also
-   applies to human PRs, which need the same qualification status from
-   `qualify-human-pr.yml`. Prove this operator route before activating the
-   required status. PR-event checks for Actions-created PRs require
-   approval, so avoid requiring those contexts for unattended candidates.
-   GitHub omits the bypass list from the workflow token's ruleset response.
-   Keep that list empty in the repository settings. The finalizer uses GitHub's
-   ordinary auto-merge operation and checks the effective strict status rule.
-3. Register a dedicated disposable Ubuntu 26.04 AMD64 runner with
+1. Complete the broader candidate qualification and human review of the
+   implementation PR. Start hosted rehearsal after the reviewed workflows
+   reach the default branch. Confirm that the repository plan supports the
+   required ruleset and that repository writers are trusted to publish Actions
+   statuses. The expected status source identifies the GitHub Actions App.
+   Repository writers can change workflow token permissions.
+   [Manual workflow events](https://docs.github.com/en/actions/reference/workflows-and-actions/events-that-trigger-workflows#workflow_dispatch)
+   [Actions token permissions](https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/enabling-features-for-your-repository/managing-github-actions-settings-for-a-repository#setting-the-permissions-of-the-github_token-for-your-repository)
+2. Register a dedicated disposable Ubuntu 26.04 AMD64 runner with
    `self-hosted, linux, x64, hermes-sdk-build`. It needs Workshop, SDKcraft, LXD,
    passwordless build privileges and enough capacity. Spread's VM tests need
    working KVM. Run Workshop as the dedicated non-root runner user. Restrict
    admission to the reviewed reusable workflow on `main` through the runner
    group or equivalent enforced isolation. A label is only a scheduling
    selector. Keep the runner and test state disposable.
+3. Keep repository auto-merge disabled for the controlled human rehearsal.
+   With operator authorization, activate a strict `main` ruleset with an empty
+   bypass list. Block force pushes, require pull requests and require the exact
+   `Hermes stable release qualification` status from the GitHub Actions App.
+   Require branches to be up to date before merging. The human finalizer needs
+   this active rule before it can publish success. Check the empty bypass list
+   in repository settings because GitHub omits it from the workflow token's
+   ruleset response. If GitHub requires a recent result for this context before
+   activating the rule, record the setup blocker and keep hosted proof pending.
+   The ruleset API exposes the literal context and integration ID. Acceptance
+   of an unused context must be verified on the target.
+   [Ruleset API](https://docs.github.com/en/rest/repos/rules#create-a-repository-ruleset)
+   [Required status prerequisites](https://docs.github.com/en/pull-requests/how-tos/merge-and-close-pull-requests/troubleshooting-required-status-checks)
+4. Qualify a controlled in-scope human PR, such as a change to the existing A
+   SDK README. Verify the successful required status and run URL on the exact
+   reviewed head and confirm the tested target SHA in the run inputs and jobs.
+   Confirm manual merge eligibility with the PR's `auto_merge` unset. Check
+   that failed or stale results cannot publish success. Activating the rule
+   also blocks out-of-scope changes to `main`, including workflow fixes.
+   Arrange a trusted broader qualification route before leaving the rule active
+   beyond the operator-approved rehearsal.
+5. After rehearsal, authorize GitHub Actions to create pull requests and enable
+   squash merges and repository auto-merge for the controlled release-bot
+   proof. The workflow uses a temporary `GITHUB_TOKEN` with job-scoped
+   permissions. Select required contexts the unattended path can produce
+   directly because bot-triggered PR event checks can require approval.
 
 ## Qualify a reviewed human PR
 
@@ -81,8 +101,8 @@ gh workflow run qualify-human-pr.yml --ref main \
 ```
 
 The workflow checks operator permissions, ancestry, head and target before
-building. It publishes the required Actions status for the reviewed commit
-only after full qualification and another freshness check. Operator review and
+building. It marks the required Actions status successful for the reviewed
+commit only after full qualification and another freshness check. Operator review and
 manual merge follow the result. The release workflow remains the separate path
 for bot-generated release PRs.
 
