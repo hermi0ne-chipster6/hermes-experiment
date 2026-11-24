@@ -1,9 +1,61 @@
+import os
+from pathlib import Path
+import subprocess
+import tempfile
 import unittest
 
 from ci.check import validate_workflow
 
 
 class CITests(unittest.TestCase):
+    def test_workshop_cleanup_is_armed_when_launch_fails(self):
+        root = Path(__file__).resolve().parents[1]
+        driver = root / 'validation/hermes-agent/qualify-workshop'
+        with tempfile.TemporaryDirectory() as scratch:
+            directory = Path(scratch)
+            tools = directory / 'bin'
+            tools.mkdir()
+            artifacts = directory / 'artifacts'
+            artifacts.mkdir()
+            archive = artifacts / 'candidate.sdk'
+            archive.touch()
+            log = directory / 'workshop.log'
+            (tools / 'sdkcraft').write_text('#!/bin/bash\nexit "$FAKE_TRY_EXIT"\n')
+            (tools / 'workshop').write_text(
+                '#!/bin/bash\n'
+                'printf "%s\\t%s\\n" "$3" "$2" >> "$FAKE_WORKSHOP_LOG"\n'
+                'case "$3" in\n'
+                '  launch) exit 21 ;;\n'
+                '  remove) exit "$FAKE_REMOVE_EXIT" ;;\n'
+                'esac\n'
+            )
+            for tool in tools.iterdir():
+                tool.chmod(0o755)
+            for try_exit, remove_exit, expected in ((22, 0, 22), (0, 0, 21), (0, 8, 1)):
+                with self.subTest(try_exit=try_exit, remove_exit=remove_exit):
+                    log.unlink(missing_ok=True)
+                    result = subprocess.run(
+                        ['bash', str(driver), str(archive)], capture_output=True, text=True, timeout=15,
+                        env={**os.environ, 'PATH': f"{tools}:{os.environ['PATH']}",
+                             'HERMES_QUALIFICATION_LKG': str(directory / 'no-lkg'),
+                             'FAKE_TRY_EXIT': str(try_exit), 'FAKE_REMOVE_EXIT': str(remove_exit),
+                             'FAKE_WORKSHOP_LOG': str(log)},
+                    )
+                    self.assertEqual(result.returncode, expected, result.stderr)
+                    if try_exit:
+                        self.assertFalse(log.exists())
+                        self.assertFalse(list(directory.glob('hermes-workshop.*')))
+                        continue
+                    records = [line.split('\t') for line in log.read_text().splitlines()]
+                    self.assertEqual([action for action, _ in records], ['launch', 'info', 'tasks', 'remove'])
+                    projects = {Path(project) for _, project in records}
+                    self.assertEqual(len(projects), 1)
+                    project = projects.pop()
+                    self.assertEqual(project.parent.resolve(), directory.resolve())
+                    self.assertEqual(project.exists(), bool(remove_exit))
+                    if remove_exit:
+                        self.assertIn(str(project), result.stderr)
+
     def workflow(self):
         return {'name': 'check', 'on': {'push': {}}, 'permissions': {'contents': 'read'},
                 'jobs': {'check': {'runs-on': 'ubuntu-24.04', 'steps': [

@@ -5,13 +5,14 @@ root=$(cd "$(dirname "$0")/../.." && pwd)
 artifact=$(realpath "${1:?path to candidate SDK is required}")
 lkg=${HERMES_QUALIFICATION_LKG:-/var/lib/hermes-sdk-qualification/last-known-good}
 project=$(mktemp -d "$(dirname "$artifact")/../hermes-workshop.XXXXXX")
-launched=false
+launch_attempted=false
 cleanup() {
     local result=$?
-    if "$launched"; then
+    trap - EXIT
+    if "$launch_attempted"; then
         if (( result != 0 )); then
-            workshop -p "$project" info || true
-            workshop -p "$project" tasks || true
+            wk info || true
+            wk tasks || true
         fi
         if ! wk remove; then
             echo "Could not remove disposable Workshop at $project." >&2
@@ -22,6 +23,8 @@ cleanup() {
     exit "$result"
 }
 trap cleanup EXIT
+trap 'exit 130' INT
+trap 'exit 143' TERM
 wk() { timeout 25m workshop -p "$project" "$@"; }
 inside() { wk exec -I --timeout 20m -- "$@"; }
 version() { inside /usr/local/bin/hermes --version; }
@@ -94,8 +97,8 @@ if [[ -r "$previous" && -r "$lkg/SHA256SUMS" ]]; then
 else
     try_sdk "$artifact"
 fi
+launch_attempted=true
 wk launch
-launched=true
 
 mkdir "$project/operator" "$project/charter"
 cp "$root/deployment/a/original-charter.md.example" "$project/charter/original-charter.md"
