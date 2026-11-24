@@ -628,6 +628,10 @@ workshop --project /srv/hermes/a exec a -- systemctl --user status hermes-gatewa
 workshop --project /srv/hermes/a exec a -- journalctl --user -u hermes-gateway.service -n 60 --no-pager
 ```
 
+The SDK installs a systemd drop-in that preserves the Workshop launcher,
+enable marker and mounted `gateway.env` when Hermes regenerates its main
+user service. Keep gateway and adapter settings in the mounted configuration.
+
 Review logs privately before sharing. Test, and save evidence for:
 
 1. Agent→operator notification and operator→agent reply on Buzz and email.

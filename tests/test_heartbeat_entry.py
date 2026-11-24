@@ -4,7 +4,9 @@ import subprocess
 import tempfile
 import unittest
 
-ENTRY = Path(__file__).resolve().parents[1] / 'deployment/enter-heartbeat'
+ROOT = Path(__file__).resolve().parents[1]
+ENTRY = ROOT / 'deployment/enter-heartbeat'
+SDK = ROOT / 'sdks/hermes-experiment'
 
 
 class HeartbeatEntryTests(unittest.TestCase):
@@ -68,3 +70,17 @@ class HeartbeatEntryTests(unittest.TestCase):
         result = self.invoke(missing=True)
         self.assertNotEqual(result.returncode, 0)
         self.assertEqual(result.stdout, '')
+
+
+class GatewayServiceTests(unittest.TestCase):
+    def test_workshop_gateway_keeps_its_environment_and_launcher_after_unit_regeneration(self):
+        name = 'hermes-gateway.service.d/50-hermes-experiment.conf'
+        drop_in = (SDK / 'services' / name).read_text()
+        setup = (SDK / 'hooks/setup-project').read_text()
+        self.assertIn(f'gateway_drop_in={name}', setup)
+        self.assertIn('install -D --mode=644 "$SDK/$gateway_drop_in" "$gateway_unit_directory/$gateway_drop_in"', setup)
+        self.assertIn('ConditionPathExists=/etc/hermes-experiment/gateway.enabled', drop_in)
+        self.assertIn('WorkingDirectory=/project', drop_in)
+        self.assertIn('EnvironmentFile=-/etc/hermes-experiment/gateway.env', drop_in)
+        self.assertEqual([line for line in drop_in.splitlines() if line.startswith('ExecStart=')],
+                         ['ExecStart=', 'ExecStart=/usr/local/bin/hermes gateway run'])

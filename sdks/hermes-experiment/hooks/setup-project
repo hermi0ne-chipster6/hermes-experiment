@@ -1,6 +1,16 @@
 #!/bin/bash
 set -euo pipefail
-install -D --mode=644 "$SDK/hermes-gateway.service" "$HOME/.config/systemd/user/hermes-gateway.service"
+gateway_unit_directory="$HOME/.config/systemd/user"
+gateway_unit="$gateway_unit_directory/hermes-gateway.service"
+gateway_drop_in=hermes-gateway.service.d/50-hermes-experiment.conf
+gateway_action=start
+if [[ ! -e "$gateway_unit" && ! -L "$gateway_unit" ]]; then
+    install -D --mode=644 "$SDK/hermes-gateway.service" "$gateway_unit"
+fi
+if ! cmp -s "$SDK/$gateway_drop_in" "$gateway_unit_directory/$gateway_drop_in"; then
+    install -D --mode=644 "$SDK/$gateway_drop_in" "$gateway_unit_directory/$gateway_drop_in"
+    gateway_action=restart
+fi
 mkdir -p "$HOME/.hermes/memories"
 mkdir -p "$HOME/.hermes/plugins"
 mkdir -p "$HOME/.hindsight/pg0"
@@ -47,5 +57,5 @@ HERMES_HOME="$HOME/.hermes" HERMES_RUNTIME_DIR="$HOME/.hermes/tools" \
 systemctl --user daemon-reload
 systemctl --user enable hermes-gateway.service
 if [[ -f /etc/hermes-experiment/gateway.enabled && -r "$charter" ]]; then
-    systemctl --user start hermes-gateway.service
+    systemctl --user "$gateway_action" hermes-gateway.service
 fi
