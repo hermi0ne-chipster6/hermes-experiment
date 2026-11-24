@@ -6,6 +6,9 @@ root=$(cd "$(dirname "$0")/.." && pwd)
 mkdir -p "${1:?usage: ci/qualify-sdk EVIDENCE_DIR}"
 evidence=$(realpath "$1")
 sdk="$root/sdks/hermes-experiment"
+# The evidence path can be reused. Invalidate any previous success receipt
+# before a preflight failure or a blocked VM run can leave it behind.
+rm -f -- "$evidence/spread-receipt.json"
 . /etc/os-release
 test "$ID" = ubuntu
 test "$VERSION_ID" = 26.04
@@ -33,9 +36,14 @@ mv -- "$sdk/${artifact##*/}" "$artifact"
     cd "$evidence"
     sha256sum "${artifact##*/}" > artifact-checksums.txt
 )
-sudo -n sdkcraft test --list | tee "$evidence/spread-jobs.txt"
-for task in launch missing-secret persistence; do
-    grep -Fq "main/$task:" "$evidence/spread-jobs.txt"
+spread_jobs=(
+    lxd:ubuntu-24.04:main/launch:resolute
+    lxd:ubuntu-24.04:main/missing-secret:resolute
+    lxd:ubuntu-24.04:main/persistence:resolute
+)
+sudo -n sdkcraft test --list "${spread_jobs[@]}" | tee "$evidence/spread-jobs.txt"
+for job in "${spread_jobs[@]}"; do
+    grep -Fxq "$job" "$evidence/spread-jobs.txt"
 done
 
 # Check the exact artifact retained above, independently of the Spread rebuild.
@@ -45,7 +53,21 @@ bash "$root/validation/hermes-agent/qualify-workshop" "$artifact" 2>&1 |
 
 spread_result=0
 if test -r /dev/kvm && test -w /dev/kvm; then
-    sudo -n sdkcraft test 2>&1 | tee "$evidence/spread.log" || spread_result=$?
+    spread_archive="$sdk/${artifact##*/}"
+    if [[ -e "$spread_archive" || -L "$spread_archive" ]]; then
+        echo 'Unexpected SDK file at the Spread rebuild path.' | tee "$evidence/spread.log" >&2
+        spread_result=1
+    else
+        sudo -n sdkcraft test "${spread_jobs[@]}" 2>&1 | tee "$evidence/spread.log" || spread_result=$?
+        if (( spread_result == 0 )); then
+            if receipt=$(python3 "$root/ci/spread_receipt.py" "$evidence/spread.log" \
+                "$spread_archive" "${spread_jobs[@]}"); then
+                printf '%s\n' "$receipt" > "$evidence/spread-receipt.json" || spread_result=$?
+            else
+                spread_result=$?
+            fi
+        fi
+    fi
 else
     echo 'BLOCKED: /dev/kvm is unavailable for the VM-based Spread suite.' | tee "$evidence/spread.log"
     spread_result=1
