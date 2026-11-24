@@ -6,13 +6,24 @@ root=$(cd "$(dirname "$0")/.." && pwd)
 mkdir -p "${1:?usage: ci/qualify-sdk EVIDENCE_DIR}"
 evidence=$(realpath "$1")
 sdk="$root/sdks/hermes-experiment"
-# The evidence path can be reused. Invalidate any previous success receipt
-# before a preflight failure or a blocked VM run can leave it behind.
-rm -f -- "$evidence/spread-receipt.json"
 . /etc/os-release
 test "$ID" = ubuntu
 test "$VERSION_ID" = 26.04
 test "$(uname -m)" = x86_64
+runtime="/run/user/$EUID"
+if [[ ! -d "$runtime" || -L "$runtime" || ! -O "$runtime" || $(stat -c '%a' "$runtime") != 700 ]]; then
+    echo 'Workshop qualification requires the dedicated account runtime directory.' >&2
+    exit 1
+fi
+lock="$runtime/hermes-sdk-qualification.lock"
+test ! -L "$lock"
+exec 9>"$lock"
+if ! flock -n 9; then
+    echo 'Another qualification run owns this account SDK registry.' >&2
+    exit 1
+fi
+# Invalidate a previous receipt only after obtaining exclusive access.
+rm -f -- "$evidence/spread-receipt.json"
 {
     workshop --version
     sdkcraft --version
@@ -50,6 +61,7 @@ done
 workshop_result=0
 bash "$root/validation/hermes-agent/qualify-workshop" "$artifact" 2>&1 |
     tee "$evidence/workshop.log" || workshop_result=$?
+(cd "$evidence" && sha256sum --strict --check artifact-checksums.txt) || workshop_result=$?
 
 spread_result=0
 if test -r /dev/kvm && test -w /dev/kvm; then

@@ -1,6 +1,7 @@
 import os
 from pathlib import Path
 import subprocess
+import sys
 import tempfile
 import unittest
 
@@ -21,6 +22,11 @@ class CITests(unittest.TestCase):
             archive.touch()
             log = directory / 'workshop.log'
             (tools / 'sdkcraft').write_text('#!/bin/bash\nexit "$FAKE_TRY_EXIT"\n')
+            (tools / 'python3').write_text(
+                '#!/bin/bash\ncase "$1" in\n'
+                '  */ci/sdk_payload.py|*/ci/workshop_archive.py) exit 0 ;;\n'
+                '  *) exec "$TEST_PYTHON" "$@" ;;\nesac\n'
+            )
             (tools / 'workshop').write_text(
                 '#!/bin/bash\n'
                 'printf "%s\\t%s\\n" "$3" "$2" >> "$FAKE_WORKSHOP_LOG"\n'
@@ -39,7 +45,7 @@ class CITests(unittest.TestCase):
                         env={**os.environ, 'PATH': f"{tools}:{os.environ['PATH']}",
                              'HERMES_QUALIFICATION_LKG': str(directory / 'no-lkg'),
                              'FAKE_TRY_EXIT': str(try_exit), 'FAKE_REMOVE_EXIT': str(remove_exit),
-                             'FAKE_WORKSHOP_LOG': str(log)},
+                             'FAKE_WORKSHOP_LOG': str(log), 'TEST_PYTHON': sys.executable},
                     )
                     self.assertEqual(result.returncode, expected, result.stderr)
                     if try_exit:
@@ -51,7 +57,8 @@ class CITests(unittest.TestCase):
                     projects = {Path(project) for _, project in records}
                     self.assertEqual(len(projects), 1)
                     project = projects.pop()
-                    self.assertEqual(project.parent.resolve(), directory.resolve())
+                    self.assertEqual(project.name, 'project')
+                    self.assertEqual(project.parent.parent.resolve(), directory.resolve())
                     self.assertEqual(project.exists(), bool(remove_exit))
                     if remove_exit:
                         self.assertIn(str(project), result.stderr)
