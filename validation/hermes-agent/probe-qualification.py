@@ -2,10 +2,12 @@
 from datetime import timedelta
 from hashlib import sha256
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+import importlib.metadata
 import importlib.util
 import json
 import os
 from pathlib import Path
+import shlex
 import socket
 import subprocess
 import sys
@@ -94,7 +96,7 @@ def probe_plugins():
     print('Native plugin install, dependency import, update, activation and removal passed.', flush=True)
 
 
-def probe_native_tools():
+def bootstrap_native_tools():
     os.environ['HERMES_HOME'] = str(PROFILE)
     os.environ['HERMES_RUNTIME_DIR'] = str(PROFILE / 'tools')
     os.environ['HERMES_INSTALL_ROOT'] = str(SDK / 'hermes-src')
@@ -105,6 +107,16 @@ def probe_native_tools():
     os.environ['PYTHONPATH'] = os.pathsep.join(paths)
     sys.path[:0] = paths
     import hermes_bootstrap
+
+    packaged = SDK / 'lib' / f'python{sys.version_info.major}.{sys.version_info.minor}' / 'site-packages'
+    for path in (paths[1], str(packaged)):
+        if path not in sys.path:
+            sys.path.append(path)
+    os.environ['PYTHONPATH'] = os.pathsep.join(sys.path)
+
+
+def probe_native_tools():
+    bootstrap_native_tools()
     from hermes_cli.config import load_config
     from hermes_cli.tools_config import _get_platform_tools
     from tools.browser_use_cli import browser_exec
@@ -204,6 +216,66 @@ def probe_failed_opensandbox():
     assert api_key == 'synthetic-only'
 
 
+def probe_native_opensandbox():
+    bootstrap_native_tools()
+    from agent.terminal_env_registry import get_provider
+    from hermes_cli.plugins import discover_plugins
+    import opensandbox.sync
+    from tools.terminal_tool import _get_env_config, terminal_tool
+
+    discover_plugins()
+    provider = get_provider('opensandbox')
+    assert provider is not None and provider.is_remote, 'Native OpenSandbox provider is absent'
+    installed = PROFILE / 'plugins' / 'hermes_opensandbox'
+    provider_source = Path(sys.modules[type(provider).__module__].__file__).resolve()
+    assert provider_source.is_relative_to(installed), provider_source
+    dependency = importlib.metadata.distribution('opensandbox')
+    assert dependency.version == '1.2.0', dependency.version
+    packages = dependency.locate_file('').resolve()
+    assert packages.is_relative_to(PROFILE / 'installs'), packages
+    module = Path(opensandbox.sync.__file__).resolve()
+    assert module.is_relative_to(packages / 'opensandbox'), module
+    assert _get_env_config()['env_type'] == 'opensandbox', 'Wrong selected terminal backend'
+
+    fixture_key = 'qualification-native-opensandbox-key'
+    requests = []
+
+    class DeniedCreate(BaseHTTPRequestHandler):
+        def do_POST(self):
+            self.rfile.read(int(self.headers.get('Content-Length', '0')))
+            requests.append((self.path, self.headers.get('OPEN-SANDBOX-API-KEY') == fixture_key))
+            body = b'{"code":"INVALID_API_KEY","message":"synthetic worker refused sandbox creation"}'
+            self.send_response(401)
+            self.send_header('Content-Type', 'application/json')
+            self.send_header('Content-Length', str(len(body)))
+            self.end_headers()
+            self.wfile.write(body)
+
+        def log_message(self, *_args):
+            pass
+
+    with (tempfile.TemporaryDirectory(prefix='qualification-native-opensandbox-') as scratch,
+          ThreadingHTTPServer(('127.0.0.1', 0), DeniedCreate) as server):
+        marker = Path(scratch) / 'local-fallback'
+        os.environ.update(OPEN_SANDBOX_DOMAIN=f'127.0.0.1:{server.server_port}',
+                          OPEN_SANDBOX_PROTOCOL='http', OPEN_SANDBOX_API_KEY=fixture_key,
+                          NO_PROXY='127.0.0.1', no_proxy='127.0.0.1')
+        worker = Thread(target=server.serve_forever, daemon=True)
+        worker.start()
+        try:
+            raw = terminal_tool(f'printf unexpected > {shlex.quote(str(marker))}',
+                                task_id='native-opensandbox-qualification', timeout=15)
+        finally:
+            server.shutdown()
+            worker.join(timeout=5)
+        assert fixture_key not in raw, 'Terminal response exposed the fixture credential'
+        error = json.loads(raw).get('error', '')
+        assert not marker.exists(), 'Explicit remote terminal operation ran locally'
+        assert requests == [('/v1/sandboxes', True)], requests
+        assert 'OpenSandbox' in error and ('401' in error or 'INVALID_API_KEY' in error), error
+    print('The native OpenSandbox provider returned the loopback HTTP 401 without executing locally.', flush=True)
+
+
 def probe_integrations():
     from hindsight_embed import __version__ as embed_version
     from hindsight_embed.daemon_embed_manager import DaemonEmbedManager
@@ -232,9 +304,33 @@ def probe_integrations():
           flush=True)
 
 
+def probe_selected_opensandbox():
+    import yaml
+
+    path = PROFILE / 'config.yaml'
+    assert path.is_file() and not path.is_symlink(), 'Expected a writable disposable profile'
+    original = path.read_bytes()
+    name = 'hermes_opensandbox'
+    try:
+        hermes('plugins', 'enable', name, '--no-allow-tool-override')
+        enabled = path.read_bytes()
+        try:
+            config = yaml.safe_load(enabled)
+            config.setdefault('terminal', {})['backend'] = 'opensandbox'
+            path.write_text(yaml.safe_dump(config))
+            print(run(str(SDK / 'bin' / 'python'), '-I', str(Path(__file__)),
+                      'native-opensandbox-fixture', timeout=45).strip(), flush=True)
+        finally:
+            path.write_bytes(enabled)
+            hermes('plugins', 'disable', name)
+            assert plugin_rows()[name]['status'] == 'disabled', name
+    finally:
+        path.write_bytes(original)
+
+
 def probe_selected_plugins(pack_path, catalog_path):
-    # The experiment selects the pack. The untouched native installer and
-    # scanner enforce admission, and these installs stay disabled.
+    # The native scanner decides admission. Only the provider's loopback case
+    # needs temporary activation in this disposable profile.
     import yaml
 
     pack_bytes = pack_path.read_bytes()
@@ -272,7 +368,10 @@ def probe_selected_plugins(pack_path, catalog_path):
             assert installed.is_dir() and not installed.is_symlink(), name
             if (installed / '.git').exists():
                 assert run('git', '-C', str(installed), 'rev-parse', 'HEAD').strip() == ref, name
+            assert plugin_rows()[name]['status'] in {'disabled', 'not enabled'}, name
             hermes('plugins', 'doctor', str(installed), '--ci')
+            if name == 'hermes_opensandbox':
+                probe_selected_opensandbox()
             hermes('plugins', 'remove', name)
             print(f'{name} pinned install and native doctor passed.', flush=True)
         except Exception as error:
@@ -375,6 +474,8 @@ if __name__ == '__main__':
         probe_native_tools()
     elif mode == 'opensandbox-fixture':
         probe_failed_opensandbox()
+    elif mode == 'native-opensandbox-fixture':
+        probe_native_opensandbox()
     elif mode in {'continuity', 'rollback-continuity'}:
         continuity(rollback=mode == 'rollback-continuity')
     else:
