@@ -60,14 +60,14 @@ jobs:
           echo "$RUNNER_TEMP/ci-venv/bin" >> "$GITHUB_PATH"
       - name: Build and exercise Workshop A
         env:
-          EVIDENCE_DIR: ${{ runner.temp }}/hermes-qualification
+          EVIDENCE_DIR: ${{ runner.temp }}/hermes-qualification-${{ github.run_id }}-${{ github.run_attempt }}
         run: bash ci/qualify-sdk "$EVIDENCE_DIR"
       - name: Retain qualification evidence
         if: always()
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
         with:
           name: hermes-qualification-${{ github.run_id }}-${{ github.run_attempt }}
-          path: ${{ runner.temp }}/hermes-qualification/
+          path: ${{ runner.temp }}/hermes-qualification-${{ github.run_id }}-${{ github.run_attempt }}/
           retention-days: 30
           if-no-files-found: error
   result:

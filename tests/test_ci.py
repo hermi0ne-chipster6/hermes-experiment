@@ -5,10 +5,23 @@ import sys
 import tempfile
 import unittest
 
+import yaml
+
 from ci.check import validate_workflow
 
 
 class CITests(unittest.TestCase):
+    def test_sdk_qualification_uploads_only_this_run_attempts_evidence(self):
+        root = Path(__file__).resolve().parents[1]
+        workflow = yaml.safe_load((root / '.github/workflows/sdk-qualification.yml').read_text())
+        steps = workflow['jobs']['sdk']['steps']
+        build = next(step for step in steps if step.get('name') == 'Build and exercise Workshop A')
+        upload = next(step for step in steps if step.get('name') == 'Retain qualification evidence')
+        directory = build['env']['EVIDENCE_DIR']
+        self.assertEqual(upload['with']['path'].rstrip('/'), directory)
+        self.assertIn('${{ github.run_id }}', directory)
+        self.assertIn('${{ github.run_attempt }}', directory)
+
     def test_workshop_cleanup_is_armed_when_launch_fails(self):
         root = Path(__file__).resolve().parents[1]
         driver = root / 'validation/hermes-agent/qualify-workshop'
